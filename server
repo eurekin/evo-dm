@@ -1,0 +1,1 @@
+java -server -Djava.net.preferIPv4Stack=true -cp build/classes testrunner.JobServer

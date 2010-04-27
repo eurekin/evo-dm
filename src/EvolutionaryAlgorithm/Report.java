@@ -1,0 +1,360 @@
+package EvolutionaryAlgorithm;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class Report implements Serializable {
+
+    private String ReportContent;
+    private int TestNumber;             //number of tests
+    private String TestFileReport;   //test file report
+    private String TestExFileReport;
+    private int TestAllDone;              //number of all tests
+    private long TestSumGen;          //total number of generations
+    private long TestSumTime;          //total number of generations
+    private double TestSumFitnessTrain; //total number of fitness
+    private double TestSumFitnessTest; //total number of fitness
+    private double TestSumAccuracyTest;
+    private double TestSumAccuracyTrain;
+    private double[] TestFitnessTest = null;
+    private double[] TestFitnessTrain = null;
+    private double[] TrainAccuracy = null;
+    private double[] TestAccuracy = null;
+    private double[] TestGen = null;
+    private double[] TestTime = null;
+
+    Report(int _TestNumber, int _crossvalidation, String _TestFileReport, String _TestExFileReport) {
+        ReportContent = new String();
+
+        this.TestNumber = _TestNumber;
+        this.TestFileReport = new String(_TestFileReport);
+        this.TestExFileReport = new String(_TestExFileReport);
+
+        /////////////////////////////////////////////////////
+        TestAllDone = 0;              //number of all tests
+        TestSumGen = 0;          //total number of generations
+        TestSumTime = 0;          //total number of generations
+        TestSumFitnessTrain = 0; //total number of fitness
+        TestSumFitnessTest = 0; //total number of fitness
+        TestSumAccuracyTrain = 0; //total number of fitness
+        TestSumAccuracyTest = 0; //total number of fitness
+
+
+        /**/
+        TestFitnessTest = new double[TestNumber * _crossvalidation];
+        TestFitnessTrain = new double[TestNumber * _crossvalidation];
+        TestAccuracy = new double[TestNumber * _crossvalidation];
+        TrainAccuracy = new double[TestNumber * _crossvalidation];
+        TestGen = new double[TestNumber * _crossvalidation];
+        TestTime = new double[TestNumber * _crossvalidation];
+    }
+
+//------------------------------------------------------------------------------
+    public void AddStatistics(long generations, float fitnessTrain, float fitnessTest, float train_acc, float test_acc, long Time) {
+        TestFitnessTest[TestAllDone] = fitnessTest;
+        TestFitnessTrain[TestAllDone] = fitnessTrain;
+        TestAccuracy[TestAllDone] = test_acc;
+        TrainAccuracy[TestAllDone] = train_acc;
+        TestGen[TestAllDone] = generations;
+        TestTime[TestAllDone] = Time;
+
+        TestAllDone++;
+        TestSumFitnessTrain = TestSumFitnessTrain + fitnessTrain;
+        TestSumFitnessTest = TestSumFitnessTest + fitnessTest;
+        TestSumAccuracyTrain = TestSumAccuracyTrain + train_acc;
+        TestSumAccuracyTest = TestSumAccuracyTest + test_acc;
+        TestSumTime = TestSumTime + Time;
+        TestSumGen = TestSumGen + generations;
+        StringBuilder SB = new StringBuilder();
+        SB.append(ReportContent);
+        SB.append("" + String.format("%.3f", fitnessTrain) + ";"
+                + String.format("%.3f", fitnessTest) + ";"
+                + String.format("%.3f", train_acc) + ";"
+                + String.format("%.3f", test_acc) + ";"
+                + generations + ";" + Time + ";;;;\n");
+        ReportContent = SB.toString();
+    }
+
+//	------------------------------------------------------------------------------
+    /**
+     * returns string of test (as String) and writes it info file (if second is true)
+     */
+    public String getReportStatistic(String Header, boolean writeIntoFile) throws IOException {
+
+        //////// SUMMARY REPORT
+        long AvgTime = TestSumTime / TestAllDone;
+        long AvgGen = TestSumGen / TestAllDone;
+        double AvgTest = TestSumFitnessTest / TestAllDone;
+        double AvgTrain = TestSumFitnessTrain / TestAllDone;
+        double AvgTrainAcc = TestSumAccuracyTrain / TestAllDone;
+        double AvgTestAcc = TestSumAccuracyTest / TestAllDone;
+
+        double TestMin = 0;
+        double TestMax = 0;
+        double TrainMax = 0;
+        double TrainMin = 0;
+        double TrainAccMin = 0;
+        double TrainAccMax = 0;
+        double TestAccMin = 0;
+        double TestAccMax = 0;
+
+        double StdDevTime = 0;
+        double StdDevGen = 0;
+        double StdDevTest = 0;
+        double StdDevTrain = 0;
+        double StdDevTrainAcc = 0;
+        double StdDevTestAcc = 0;
+
+        //Standard deviation
+        for (int i = 0; i < TestAllDone; i++) {
+            if (i == 0) {
+                TestMin = TestFitnessTest[i];
+                TestMax = TestFitnessTest[i];
+                TrainMax = TestFitnessTrain[i];
+                TrainMin = TestFitnessTrain[i];
+                TrainAccMax = TrainAccuracy[i];
+                TrainAccMin = TrainAccuracy[i];
+                TestAccMax = TestAccuracy[i];
+                TestAccMin = TestAccuracy[i];
+            }
+            if (TestMin > TestFitnessTest[i]) {
+                TestMin = TestFitnessTest[i];
+            }
+            if (TestMax < TestFitnessTest[i]) {
+                TestMax = TestFitnessTest[i];
+            }
+            if (TrainMin > TestFitnessTrain[i]) {
+                TrainMin = TestFitnessTrain[i];
+            }
+            if (TrainMax < TestFitnessTrain[i]) {
+                TrainMax = TestFitnessTrain[i];
+            }
+            if (TrainAccMax < TrainAccuracy[i]) {
+                TrainAccMax = TrainAccuracy[i];
+            }
+            if (TrainAccMin > TrainAccuracy[i]) {
+                TrainAccMin = TrainAccuracy[i];
+            }
+            if (TestAccMax < TestAccuracy[i]) {
+                TestAccMax = TestAccuracy[i];
+            }
+            if (TestAccMin > TestAccuracy[i]) {
+                TestAccMin = TestAccuracy[i];
+            }
+
+
+            StdDevTest = StdDevTest + (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
+            StdDevTrain = StdDevTrain + (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
+            StdDevTime = StdDevTime + (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
+            StdDevGen = StdDevGen + (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
+            StdDevTestAcc = StdDevTestAcc + (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
+            StdDevTrainAcc = StdDevTrainAcc + (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
+        }
+        StdDevTest = Math.sqrt(StdDevTest / TestAllDone);
+        StdDevTrain = Math.sqrt(StdDevTrain / TestAllDone);
+        StdDevTime = Math.sqrt(StdDevTime / TestAllDone);
+        StdDevGen = Math.sqrt(StdDevGen / TestAllDone);
+        StdDevTestAcc = Math.sqrt(StdDevTestAcc / TestAllDone);
+        StdDevTrainAcc = Math.sqrt(StdDevTrainAcc / TestAllDone);
+        ///////////////////////
+        StringBuilder SB = new StringBuilder();
+
+        SB.append(Configuration.getConfiguration().toString());
+
+        SB.append("\n time avg " + AvgTime / 1000 + "s std.dev" + String.format("%.4f", StdDevTime / 1000) + "s");
+        SB.append(" gen " + AvgGen + " (std.dev" + String.format("%.4f", StdDevGen) + ")");
+        SB.append("\n [TRAIN] FSC <avg=" + String.format("%.4f", AvgTrain)
+                + " dev=" + String.format("%.4f", StdDevTrain)
+                + " min=" + String.format("%.4f", TrainMin)
+                + " max=" + String.format("%.4f", TrainMax) + ">");
+        SB.append(" ACC <avg=" + String.format("%.4f", AvgTrainAcc)
+                + " dev=" + String.format("%.4f", StdDevTrainAcc)
+                + " min=" + String.format("%.4f", TrainAccMin)
+                + " max=" + String.format("%.4f", TrainAccMax) + ">");
+        SB.append("\n [TEST] FSC <avg=" + String.format("%.4f", AvgTest)
+                + " dev=" + String.format("%.4f", StdDevTest)
+                + " min=" + String.format("%.4f", TestMin)
+                + " max=" + String.format("%.4f", TestMax) + ">");
+        SB.append(" ACC <avg=" + String.format("%.4f", AvgTestAcc)
+                + " dev=" + String.format("%.4f", StdDevTestAcc)
+                + " min=" + String.format("%.4f", TestAccMin)
+                + " max=" + String.format("%.4f", TestAccMax) + ">");
+        SB.append("\n===============================================================\n");
+
+        return SB.toString();
+    }
+
+//---------------------------------------------------------------------------------------------------------
+    public String getCSVReportStatistic(String Header, boolean writeIntoFile) throws IOException {
+
+        //////// SUMMARY REPORT
+        long AvgTime = TestSumTime / TestAllDone;
+        long AvgGen = TestSumGen / TestAllDone;
+        double AvgTest = TestSumFitnessTest / TestAllDone;
+        double AvgTrain = TestSumFitnessTrain / TestAllDone;
+        double AvgTrainAcc = TestSumAccuracyTrain / TestAllDone;
+        double AvgTestAcc = TestSumAccuracyTest / TestAllDone;
+
+        double TestMin = 0;
+        double TestMax = 0;
+        double TrainMax = 0;
+        double TrainMin = 0;
+        double TrainAccMin = 0;
+        double TrainAccMax = 0;
+        double TestAccMin = 0;
+        double TestAccMax = 0;
+
+        double StdDevTime = 0;
+        double StdDevGen = 0;
+        double StdDevTest = 0;
+        double StdDevTrain = 0;
+        double StdDevTrainAcc = 0;
+        double StdDevTestAcc = 0;
+
+        //Standard deviation
+        for (int i = 0; i < TestAllDone; i++) {
+            if (i == 0) {
+                TestMin = TestFitnessTest[i];
+                TestMax = TestFitnessTest[i];
+                TrainMax = TestFitnessTrain[i];
+                TrainMin = TestFitnessTrain[i];
+                TrainAccMax = TrainAccuracy[i];
+                TrainAccMin = TrainAccuracy[i];
+                TestAccMax = TestAccuracy[i];
+                TestAccMin = TestAccuracy[i];
+            }
+            if (TestMin > TestFitnessTest[i]) {
+                TestMin = TestFitnessTest[i];
+            }
+            if (TestMax < TestFitnessTest[i]) {
+                TestMax = TestFitnessTest[i];
+            }
+            if (TrainMin > TestFitnessTrain[i]) {
+                TrainMin = TestFitnessTrain[i];
+            }
+            if (TrainMax < TestFitnessTrain[i]) {
+                TrainMax = TestFitnessTrain[i];
+            }
+            if (TrainAccMax < TrainAccuracy[i]) {
+                TrainAccMax = TrainAccuracy[i];
+            }
+            if (TrainAccMin > TrainAccuracy[i]) {
+                TrainAccMin = TrainAccuracy[i];
+            }
+            if (TestAccMax < TestAccuracy[i]) {
+                TestAccMax = TestAccuracy[i];
+            }
+            if (TestAccMin > TestAccuracy[i]) {
+                TestAccMin = TestAccuracy[i];
+            }
+
+
+            StdDevTest = StdDevTest + (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
+            StdDevTrain = StdDevTrain + (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
+            StdDevTime = StdDevTime + (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
+            StdDevGen = StdDevGen + (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
+            StdDevTestAcc = StdDevTestAcc + (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
+            StdDevTrainAcc = StdDevTrainAcc + (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
+        }
+        StdDevTest = Math.sqrt(StdDevTest / TestAllDone);
+        StdDevTrain = Math.sqrt(StdDevTrain / TestAllDone);
+        StdDevTime = Math.sqrt(StdDevTime / TestAllDone);
+        StdDevGen = Math.sqrt(StdDevGen / TestAllDone);
+        StdDevTestAcc = Math.sqrt(StdDevTestAcc / TestAllDone);
+        StdDevTrainAcc = Math.sqrt(StdDevTrainAcc / TestAllDone);
+        ///////////////////////
+        StringBuilder CSV = new StringBuilder();
+
+//        CSV.append("configuration;time_avg;time_dev;gen_avg;gen_dev;");
+//        CSV.append("tr_fsc_avg;tr_fsc_dev;tr_fsc_min;tr_fsc_max;");
+//        CSV.append("tr_acc_avg;tr_acc_dev;tr_acc_min;tr_acc_max;");
+//        CSV.append("tst_fsc_avg;tst_fsc_dev;tst_fsc_min;tst_fsc_max;");
+//        CSV.append("tst_acc_avg;tst_acc_dev;tst_acc_min;tst_acc_max;\n");
+
+        CSV.append(Configuration.getConfiguration().toCSVString() + ';');
+        CSV.append((AvgTime / 1000) + ";" + String.format("%.4f", StdDevTime / 1000) + ";" + AvgGen + ";" + String.format("%.4f", StdDevGen) + ";");
+        CSV.append(AvgTrain + ";" + String.format("%.4f", StdDevTrain) + ";" + String.format("%.4f", TrainMin) + ";" + String.format("%.4f", TrainMax) + ";");
+        CSV.append(String.format("%.4f", AvgTrainAcc) + ";" + String.format("%.4f", StdDevTrainAcc) + ";" + String.format("%.4f", TrainAccMin) + ";" + String.format("%.4f", TrainAccMax) + ";");
+        CSV.append(String.format("%.4f", AvgTest) + ";" + String.format("%.4f", StdDevTest) + ";" + String.format("%.4f", TestMin) + ";" + String.format("%.4f", TestMax) + ";");
+        CSV.append(String.format("%.4f", AvgTestAcc) + ";" + String.format("%.4f", StdDevTestAcc) + ";" + String.format("%.4f", TestAccMin) + ";" + String.format("%.4f", TestAccMax) + ";");
+
+        return CSV.toString().replace('.', ',');
+    }
+
+    public void AppendCSVReportLineToFile(String S) {
+        String filename = TestFileReport;
+        filename = filename.replace(".txt", ".csv");
+        if (!filename.endsWith(".csv"))
+            filename = filename + ".csv";
+        AppendCSVReportLineToFile(S, filename);
+    }
+
+    public void AppendCSVReportLineToFile(String S, String filename) {
+        FileOutputStream f = null;
+        try {
+            f = new FileOutputStream(filename, true);
+            f.write(S.getBytes());
+            f.write("\n".getBytes());
+            f.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void ReportText(String S) throws IOException {
+        FileOutputStream f = null;
+        try {
+            f = new FileOutputStream(TestFileReport, true);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        f.write(S.getBytes());
+        f.write("\n".getBytes());
+        f.close();
+    }
+
+//---------------------------------------------------------------------------------------------------------
+    public void ReportExText(String S) throws IOException {
+        FileOutputStream f = null;
+        try {
+            f = new FileOutputStream(TestExFileReport, true);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        f.write(S.getBytes());
+        f.write("\n".getBytes());
+        f.close();
+    }
+
+//---------------------------------------------------------------------------------------------------------
+    public int getTestNumber() {
+        return TestNumber;
+    }
+
+//------------------------------------------------------------------------------
+    public int getAllDone() {
+        return TestAllDone;
+    }
+
+//------------------------------------------------------------------------------
+    public void ConsoleReport(String S) {
+        System.out.print(S);
+    }
+
+    void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
+        AppendCSVReportLineToFile((Configuration.getConfiguration().toCSVString()
+                + ';' + generationNo
+                + ";" + train
+                + ";" + train_acc
+                + ";" + test
+                + ";" + test_acc
+                + ";" + (((double) total_time) / 1000.0d)).replace('.', ','),
+                "detailed.csv");
+
+    }
+//------------------------------------------------------------------------------
+}
