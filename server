@@ -1,1 +1,1 @@
-java -server -Djava.net.preferIPv4Stack=true -cp ~/Pulpit/coevolution/build/classes testrunner.JobServer
+java -server -Djava.net.preferIPv4Stack=true -cp ~/Pulpit/coevolution/build/classes pl.eurekin.test.server.JobServer
