@@ -1,13 +1,12 @@
-package testrunner;
+package pl.eurekin.test.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import static testrunner.JobProtocol.*;
-import static testrunner.utils.Base64.*;
+import static pl.eurekin.test.JobProtocol.*;
+import static pl.eurekin.test.util.Base64.*;
 
 /**
  *

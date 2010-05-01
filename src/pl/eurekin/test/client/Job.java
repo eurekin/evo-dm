@@ -1,4 +1,4 @@
-package testrunner;
+package pl.eurekin.test.client;
 
 import EvolutionaryAlgorithm.Configuration;
 import EvolutionaryAlgorithm.EvoAlgorithm;

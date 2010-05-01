@@ -1,4 +1,4 @@
-package testrunner;
+package pl.eurekin.test.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import pl.eurekin.test.server.JobRunner;
 import utils.Clock;
 
 /**

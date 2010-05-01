@@ -1,4 +1,4 @@
-package com.eurekin.util;
+package pl.eurekin.util;
 
 import java.awt.BorderLayout;
 import java.beans.Introspector;

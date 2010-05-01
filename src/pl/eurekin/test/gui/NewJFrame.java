@@ -8,7 +8,7 @@
  *
  * Created on 2010-04-24, 11:32:33
  */
-package testrunner.gui;
+package pl.eurekin.test.gui;
 
 import java.util.ArrayList;
 import java.util.Arrays;

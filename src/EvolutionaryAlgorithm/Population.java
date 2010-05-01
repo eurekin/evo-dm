@@ -5,11 +5,9 @@ import java.util.Comparator;
 
 import utils.Rand;
 import EvolutionaryAlgorithm.Individual.Individual;
-import EvolutionaryAlgorithm.Individual.Rule;
-import EvolutionaryAlgorithm.Individual.RuleSet;
 import data.*;
 
-class Population {
+public class Population {
 
     private ArrayList<Individual> Individuals;
 
@@ -33,7 +31,7 @@ class Population {
 
     //-----------------------------------------------------------------------------------
     /**
-     *
+     * Krzyżowanie i mutacja
      * @param selection selection method 0-roullete, 1-random, 1+tournament (0..N)
      * @param Px probability of crossover (>=0)
      * @param Pm probability of mutation(>=0)
@@ -137,24 +135,40 @@ class Population {
 
     //-----------------------------------------------------------------------------------
     public Population() {
-        this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
+        this.Individuals = new ArrayList(Configuration.getConfiguration().getPopSize());
     }
 
     //-----------------------------------------------------------------------------------
     public Population(Individual type) {
-        this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
+        this.Individuals = new ArrayList(Configuration.getConfiguration().getPopSize());
 
-        if (type instanceof RuleSet) {
+        // changes for extension
+        Class c = type.getClass();
+        try {
             for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                RuleSet rs = new RuleSet();
-                this.Individuals.add(rs);
+                Individual ind;
+                ind = (Individual) c.newInstance();
+                this.Individuals.add(ind);
             }
-        } else if (type instanceof Rule) {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                Rule r = new Rule();
-                this.Individuals.add(r);
-            }
+        } catch (InstantiationException ex) {
+            ex.printStackTrace();
+        } catch (IllegalAccessException ex) {
+            ex.printStackTrace();
         }
+
+
+        /*
+        if (type instanceof RuleSet) {
+        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+        RuleSet rs = new RuleSet();
+        this.Individuals.add(rs);
+        }
+        } else if (type instanceof Rule) {
+        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+        Rule r = new Rule();
+        this.Individuals.add(r);
+        }
+        }*/
     }
 
     //-----------------------------------------------------------------------------------

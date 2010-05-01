@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package testrunner;
+package pl.eurekin.test.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class JobServer {
 
-    public static final int SERVER_PORT = 8175;
+    public static final int SERVER_PORT = 4444;
     public static ArrayList<JobServerThread> threads = new ArrayList();
 
     public static void main(String... args) {

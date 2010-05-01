@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package testrunner;
+package pl.eurekin.test.server;
 
 import EvolutionaryAlgorithm.Configuration;
 import java.beans.PropertyChangeListener;
