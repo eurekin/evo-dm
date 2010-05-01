@@ -117,7 +117,7 @@ public class Client {
         } catch (UnknownHostException ex) {
             ex.printStackTrace();
         }
-        String fileToRun = "testrunner.JobClient";
+        String fileToRun = "pl.eurekin.test.client.JobClient";
         String idenitiy = "[THREAD-" + no + "@" + computername + "]";
         String[] params = {"java", "-server", "-cp", "build/classes", fileToRun, idenitiy};
         ProcessBuilder pb = new ProcessBuilder(params);
