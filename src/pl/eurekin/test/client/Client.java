@@ -25,7 +25,7 @@ public class Client {
     // GUI only
     static boolean running = false;
 
-    private static void killChildProcesses() {
+    private synchronized static void killChildProcesses() {
         for (Process process : processes) {
             process.destroy();
             processes.remove(process);
