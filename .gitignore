@@ -1,4 +1,6 @@
 /nbproject/*
 /build/*
 /jobs/*
-# *.csv
+
+# ignore result files
+*.csv
