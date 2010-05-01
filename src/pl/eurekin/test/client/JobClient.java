@@ -1,5 +1,6 @@
-package testrunner;
+package pl.eurekin.test.client;
 
+import pl.eurekin.test.server.JobServer;
 import EvolutionaryAlgorithm.Configuration;
 import EvolutionaryAlgorithm.EvoAlgorithm;
 import java.io.BufferedReader;
@@ -11,10 +12,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static testrunner.JobProtocol.*;
-import static testrunner.utils.Base64.*;
+import static pl.eurekin.test.JobProtocol.*;
+import static pl.eurekin.test.util.Base64.*;
 
 /**
  *
@@ -30,6 +29,7 @@ public class JobClient {
             while (!handleOneJob(badge));
         } catch (ConnectException ex) {
             System.out.println("Connection refused.");
+            ex.printStackTrace();
         }
     }
 

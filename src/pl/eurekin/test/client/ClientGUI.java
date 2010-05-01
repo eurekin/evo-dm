@@ -9,7 +9,7 @@
  * Created on 2010-04-23, 22:27:38
  */
 
-package testrunner;
+package pl.eurekin.test.client;
 
 /**
  *

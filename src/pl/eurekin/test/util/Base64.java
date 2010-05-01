@@ -1,4 +1,4 @@
-package testrunner.utils;
+package pl.eurekin.test.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

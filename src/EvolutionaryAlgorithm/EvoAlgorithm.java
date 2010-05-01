@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import EvolutionaryAlgorithm.Individual.*;
-import EvolutionaryAlgorithm.Population.diversity;
 
 import data.DataLoader;
 import data.Evaluator;

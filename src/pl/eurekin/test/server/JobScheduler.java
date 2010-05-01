@@ -1,4 +1,4 @@
-package testrunner;
+package pl.eurekin.test.server;
 
 import EvolutionaryAlgorithm.Configuration;
 import java.io.File;
