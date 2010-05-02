@@ -1,5 +1,6 @@
 package EvolutionaryAlgorithm;
 
+import EvolutionaryAlgorithm.Individual.Individual;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -386,6 +387,22 @@ public class Report implements Serializable {
         consoleString(train, train_acc, test, test_acc, getTotalTime);
         addCSVLine(generationNo, train, train_acc, test, test_acc, getTotalTime);
         addStatistics(generationNo, train, test, train_acc, test_acc, getTotalTime);
+    }
+
+    void reportAfterOneGeneration(Individual theBestIndividual,
+            Population mRulePopulation, long generationNo) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append(generationNo);
+        sb.append(";");
+        sb.append(String.format("%.3f", theBestIndividual.getEvaluation().getFitness()));
+        sb.append(";");
+        sb.append(String.format("%.3f", theBestIndividual.getEvaluation().getAccuracy()));
+        sb.append(";");
+        sb.append(String.format("%.3f", mRulePopulation.getAvgFitness()));
+        sb.append(";");
+        sb.append(String.format("%.3f", mRulePopulation.getWorstFitness()));
+        ConsoleReport(sb.toString().replace(".", ","));
     }
 //------------------------------------------------------------------------------
 }

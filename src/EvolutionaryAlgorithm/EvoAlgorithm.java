@@ -27,35 +27,6 @@ public class EvoAlgorithm {
         }
     }
 
-    protected void reportAfterOneGeneration(Report report) {
-        StringBuilder SB = new StringBuilder("\n" + generationNo
-                + ";" + String.format("%.3f", theBestIndividual.getEvaluation().getFitness())
-                + ";" + String.format("%.3f", theBestIndividual.getEvaluation().getAccuracy())
-                + ";" + String.format("%.3f", mRulePopulation.getAvgFitness())
-                + ";" + String.format("%.3f", mRulePopulation.getWorstFitness()));
-        //diversity d = mRulePopulation.getDiversity();
-        //SB.append(";"+Integer.toString(d.diff)+";"+Integer.toString(d.clones));
-        report.ConsoleReport(SB.toString().replace(".", ","));
-    }
-
-    private String consoleString(Configuration Config, float train, float train_acc, float test, float test_acc) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n [");
-        sb.append(Config.getReport().getAllDone());
-        sb.append("]. train (Fsc=");
-        sb.append(String.format("%.3f", train));
-        sb.append(" acc=");
-        sb.append(String.format("%.3f", train_acc));
-        sb.append(")  test (Fsc=");
-        sb.append(String.format("%.3f", test));
-        sb.append(" acc=");
-        sb.append(String.format("%.3f", test_acc));
-        sb.append(") time=");
-        sb.append(String.format("%.3f", myClock.GetTotalTime() / 1000.0));
-        sb.append("s");
-        return sb.toString();
-    }
-
     protected void reportAllToFile(Configuration Config, Evaluator Eval, Individual TheBestOfTheBest) {
         //REPORTING into files-------------------------------------------------------------------------
         try {
@@ -222,7 +193,7 @@ public class EvoAlgorithm {
 
                     // reporting
                     if (Config.isEcho()) {
-                        reportAfterOneGeneration(Config.getReport());
+                        Config.getReport().reportAfterOneGeneration(theBestIndividual, mRulePopulation, generationNo);
                     }
                 }//END: EA works
 
