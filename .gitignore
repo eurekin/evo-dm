@@ -4,3 +4,4 @@
 
 # ignore result files
 *.csv
+/dist/coevolution.jar
