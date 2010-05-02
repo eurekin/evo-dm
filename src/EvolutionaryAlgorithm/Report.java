@@ -54,7 +54,7 @@ public class Report implements Serializable {
     }
 
 //------------------------------------------------------------------------------
-    public void AddStatistics(long generations, float fitnessTrain, float fitnessTest, float train_acc, float test_acc, long Time) {
+    public void addStatistics(long generations, float fitnessTrain, float fitnessTest, float train_acc, float test_acc, long Time) {
         TestFitnessTest[TestAllDone] = fitnessTest;
         TestFitnessTrain[TestAllDone] = fitnessTrain;
         TestAccuracy[TestAllDone] = test_acc;
@@ -288,8 +288,9 @@ public class Report implements Serializable {
     public void AppendCSVReportLineToFile(String S) {
         String filename = TestFileReport;
         filename = filename.replace(".txt", ".csv");
-        if (!filename.endsWith(".csv"))
+        if (!filename.endsWith(".csv")) {
             filename = filename + ".csv";
+        }
         AppendCSVReportLineToFile(S, filename);
     }
 
@@ -345,16 +346,46 @@ public class Report implements Serializable {
         System.out.print(S);
     }
 
-    void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
-        AppendCSVReportLineToFile((Configuration.getConfiguration().toCSVString()
-                + ';' + generationNo
-                + ";" + train
-                + ";" + train_acc
-                + ";" + test
-                + ";" + test_acc
-                + ";" + (((double) total_time) / 1000.0d)).replace('.', ','),
-                "detailed.csv");
+    public void consoleString(float train, float train_acc, float test, float test_acc, long time) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n [");
+        sb.append(TestAllDone);
+        sb.append("]. train (Fsc=");
+        sb.append(String.format("%.3f", train));
+        sb.append(" acc=");
+        sb.append(String.format("%.3f", train_acc));
+        sb.append(")  test (Fsc=");
+        sb.append(String.format("%.3f", test));
+        sb.append(" acc=");
+        sb.append(String.format("%.3f", test_acc));
+        sb.append(") time=");
+        sb.append(String.format("%.3f", time / 1000.0));
+        sb.append("s");
+        ConsoleReport(sb.toString());
+    }
 
+    void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Configuration.getConfiguration().toCSVString());
+        sb.append(';');
+        sb.append(generationNo);
+        sb.append(";");
+        sb.append(train);
+        sb.append(";");
+        sb.append(train_acc);
+        sb.append(";");
+        sb.append(test);
+        sb.append(";");
+        sb.append(test_acc);
+        sb.append(";");
+        sb.append((((double) total_time) / 1000.0d));
+        AppendCSVReportLineToFile(sb.toString().replace('.', ','), "detailed.csv");
+    }
+
+    public void report(long generationNo, float train, float train_acc, float test, float test_acc, long getTotalTime) {
+        consoleString(train, train_acc, test, test_acc, getTotalTime);
+        addCSVLine(generationNo, train, train_acc, test, test_acc, getTotalTime);
+        addStatistics(generationNo, train, test, train_acc, test_acc, getTotalTime);
     }
 //------------------------------------------------------------------------------
 }

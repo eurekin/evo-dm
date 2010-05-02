@@ -18,85 +18,124 @@ public class Configuration implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final Configuration other = (Configuration) obj;
-        if ((this.Comment == null) ? (other.Comment != null) : !this.Comment.equals(other.Comment))
+        if ((this.Comment == null) ? (other.Comment != null) : !this.Comment.equals(other.Comment)) {
             return false;
-        if ((this.FileComment == null) ? (other.FileComment != null) : !this.FileComment.equals(other.FileComment))
+        }
+        if ((this.FileComment == null) ? (other.FileComment != null) : !this.FileComment.equals(other.FileComment)) {
             return false;
-        if (this.Fsc != other.Fsc)
+        }
+        if (this.Fsc != other.Fsc) {
             return false;
-        if (this.ECHO != other.ECHO)
+        }
+        if (this.ECHO != other.ECHO) {
             return false;
-        if (this.PopSize != other.PopSize)
+        }
+        if (this.PopSize != other.PopSize) {
             return false;
-        if (this.Selection != other.Selection)
+        }
+        if (this.Selection != other.Selection) {
             return false;
-        if (this.Pcrossover != other.Pcrossover)
+        }
+        if (this.Pcrossover != other.Pcrossover) {
             return false;
-        if (this.Pmutation != other.Pmutation)
+        }
+        if (this.Pmutation != other.Pmutation) {
             return false;
-        if (this.StopGeneration != other.StopGeneration)
+        }
+        if (this.StopGeneration != other.StopGeneration) {
             return false;
-        if (this.StopEval != other.StopEval)
+        }
+        if (this.StopEval != other.StopEval) {
             return false;
-        if (this.MUTATION != other.MUTATION && (this.MUTATION == null || !this.MUTATION.equals(other.MUTATION)))
+        }
+        if (this.MUTATION != other.MUTATION && (this.MUTATION == null || !this.MUTATION.equals(other.MUTATION))) {
             return false;
-        if (this.CROSSOVER != other.CROSSOVER && (this.CROSSOVER == null || !this.CROSSOVER.equals(other.CROSSOVER)))
+        }
+        if (this.CROSSOVER != other.CROSSOVER && (this.CROSSOVER == null || !this.CROSSOVER.equals(other.CROSSOVER))) {
             return false;
-        if (this.CrossValidation != other.CrossValidation)
+        }
+        if (this.CrossValidation != other.CrossValidation) {
             return false;
-        if (this.E_WEIGHT != other.E_WEIGHT)
+        }
+        if (this.E_WEIGHT != other.E_WEIGHT) {
             return false;
-        if ((this.TestDataFileName == null) ? (other.TestDataFileName != null) : !this.TestDataFileName.equals(other.TestDataFileName))
+        }
+        if ((this.TestDataFileName == null) ? (other.TestDataFileName != null) : !this.TestDataFileName.equals(other.TestDataFileName)) {
             return false;
-        if ((this.TrainDataFileName == null) ? (other.TrainDataFileName != null) : !this.TrainDataFileName.equals(other.TrainDataFileName))
+        }
+        if ((this.TrainDataFileName == null) ? (other.TrainDataFileName != null) : !this.TrainDataFileName.equals(other.TrainDataFileName)) {
             return false;
-        if ((this.Image_Blob_Counts_Filename == null) ? (other.Image_Blob_Counts_Filename != null) : !this.Image_Blob_Counts_Filename.equals(other.Image_Blob_Counts_Filename))
+        }
+        if ((this.Image_Blob_Counts_Filename == null) ? (other.Image_Blob_Counts_Filename != null) : !this.Image_Blob_Counts_Filename.equals(other.Image_Blob_Counts_Filename)) {
             return false;
-        if ((this.Image_Blobs_Filename == null) ? (other.Image_Blobs_Filename != null) : !this.Image_Blobs_Filename.equals(other.Image_Blobs_Filename))
+        }
+        if ((this.Image_Blobs_Filename == null) ? (other.Image_Blobs_Filename != null) : !this.Image_Blobs_Filename.equals(other.Image_Blobs_Filename)) {
             return false;
-        if ((this.Image_Doc_Words_Filename == null) ? (other.Image_Doc_Words_Filename != null) : !this.Image_Doc_Words_Filename.equals(other.Image_Doc_Words_Filename))
+        }
+        if ((this.Image_Doc_Words_Filename == null) ? (other.Image_Doc_Words_Filename != null) : !this.Image_Doc_Words_Filename.equals(other.Image_Doc_Words_Filename)) {
             return false;
-        if ((this.Image_Words_Filename == null) ? (other.Image_Words_Filename != null) : !this.Image_Words_Filename.equals(other.Image_Words_Filename))
+        }
+        if ((this.Image_Words_Filename == null) ? (other.Image_Words_Filename != null) : !this.Image_Words_Filename.equals(other.Image_Words_Filename)) {
             return false;
-        if ((this.Image_TEST_Doc_Words == null) ? (other.Image_TEST_Doc_Words != null) : !this.Image_TEST_Doc_Words.equals(other.Image_TEST_Doc_Words))
+        }
+        if ((this.Image_TEST_Doc_Words == null) ? (other.Image_TEST_Doc_Words != null) : !this.Image_TEST_Doc_Words.equals(other.Image_TEST_Doc_Words)) {
             return false;
-        if ((this.Image_TEST_Blob_Counts == null) ? (other.Image_TEST_Blob_Counts != null) : !this.Image_TEST_Blob_Counts.equals(other.Image_TEST_Blob_Counts))
+        }
+        if ((this.Image_TEST_Blob_Counts == null) ? (other.Image_TEST_Blob_Counts != null) : !this.Image_TEST_Blob_Counts.equals(other.Image_TEST_Blob_Counts)) {
             return false;
-        if ((this.Image_TEST_Blobs == null) ? (other.Image_TEST_Blobs != null) : !this.Image_TEST_Blobs.equals(other.Image_TEST_Blobs))
+        }
+        if ((this.Image_TEST_Blobs == null) ? (other.Image_TEST_Blobs != null) : !this.Image_TEST_Blobs.equals(other.Image_TEST_Blobs)) {
             return false;
-        if (this.DATASET_RULES != other.DATASET_RULES)
+        }
+        if (this.DATASET_RULES != other.DATASET_RULES) {
             return false;
-        if (this.ACTIVE_CLASS != other.ACTIVE_CLASS)
+        }
+        if (this.ACTIVE_CLASS != other.ACTIVE_CLASS) {
             return false;
-        if (this.RULE_ATTRIBUTES != other.RULE_ATTRIBUTES)
+        }
+        if (this.RULE_ATTRIBUTES != other.RULE_ATTRIBUTES) {
             return false;
-        if (this.RULE_CLASS_BITS != other.RULE_CLASS_BITS)
+        }
+        if (this.RULE_CLASS_BITS != other.RULE_CLASS_BITS) {
             return false;
-        if (this.RULE_GENE_NO_BITS != other.RULE_GENE_NO_BITS)
+        }
+        if (this.RULE_GENE_NO_BITS != other.RULE_GENE_NO_BITS) {
             return false;
-        if (this.RULE_GENE_OPERATOR_BITS != other.RULE_GENE_OPERATOR_BITS)
+        }
+        if (this.RULE_GENE_OPERATOR_BITS != other.RULE_GENE_OPERATOR_BITS) {
             return false;
-        if (this.RULE_GENE_VALUE_BITS != other.RULE_GENE_VALUE_BITS)
+        }
+        if (this.RULE_GENE_VALUE_BITS != other.RULE_GENE_VALUE_BITS) {
             return false;
-        if (this.RULE_GENE_VALUES != other.RULE_GENE_VALUES)
+        }
+        if (this.RULE_GENE_VALUES != other.RULE_GENE_VALUES) {
             return false;
-        if (this.RULE_GENE_MAX_VALUE != other.RULE_GENE_MAX_VALUE)
+        }
+        if (this.RULE_GENE_MAX_VALUE != other.RULE_GENE_MAX_VALUE) {
             return false;
-        if (this.MUTATION_OF_CLASS != other.MUTATION_OF_CLASS)
+        }
+        if (this.MUTATION_OF_CLASS != other.MUTATION_OF_CLASS) {
             return false;
-        if (this.FITNESS_DEFAULT != other.FITNESS_DEFAULT)
+        }
+        if (this.FITNESS_DEFAULT != other.FITNESS_DEFAULT) {
             return false;
-        if (this.TestNumber != other.TestNumber)
+        }
+        if (this.TestNumber != other.TestNumber) {
             return false;
-        if ((this.TestFileReport == null) ? (other.TestFileReport != null) : !this.TestFileReport.equals(other.TestFileReport))
+        }
+        if ((this.TestFileReport == null) ? (other.TestFileReport != null) : !this.TestFileReport.equals(other.TestFileReport)) {
             return false;
-        if ((this.TestExFileReport == null) ? (other.TestExFileReport != null) : !this.TestExFileReport.equals(other.TestExFileReport))
+        }
+        if ((this.TestExFileReport == null) ? (other.TestExFileReport != null) : !this.TestExFileReport.equals(other.TestExFileReport)) {
             return false;
+        }
         return true;
     }
 
@@ -143,7 +182,6 @@ public class Configuration implements Serializable {
         hash = 61 * hash + (this.TestExFileReport != null ? this.TestExFileReport.hashCode() : 0);
         return hash;
     }
-
     static private Configuration Config = null;
     //////////////////////////////////////////////
     static int classes = 0;
@@ -553,23 +591,38 @@ public class Configuration implements Serializable {
     }
 
     public String toCSVString() {
-        StringBuilder SB = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         Configuration cfg = Configuration.getConfiguration();
-        // SB.append("file_comment;system;pop_size;stop_gen;rule_no;cross_value;measure;mutation_val;mutation_type;crossover_value;crossover_type;selection\n");
-        SB.append(this.Comment
-                + ";" + this.FileComment
-                + ";" + "[CAREX2.4]"
-                + ";" + cfg.getPopSize()
-                + ";" + cfg.getStopGeneration()
-                + ";" + cfg.getNumberOfRules()
-                + ";" + cfg.getCrossvalidationValue()
-                + ";" + (this.isFsc() ? "Fit FSC" : "Fit ACC")
-                + ";" + Configuration.getConfiguration().getMutationValue()
-                + ";" + Configuration.getConfiguration().getMutationType()
-                + ";" + Configuration.getConfiguration().getCrossoverValue()
-                + ";" + Configuration.getConfiguration().getCrossoverType()
-                + ";" + Configuration.getConfiguration().getSelection() + ";");
-        return SB.toString();
+        // SB.append("file_comment;system;pop_size;stop_gen;rule_no;cross_value
+        // ;measure;mutation_val;mutation_type;crossover_value;crossover_type;
+        // selection\n");
+        sb.append(this.Comment);
+        sb.append(";");
+        sb.append(this.FileComment);
+        sb.append(";");
+        sb.append("[CAREX2.4]");
+        sb.append(";");
+        sb.append(cfg.getPopSize());
+        sb.append(";");
+        sb.append(cfg.getStopGeneration());
+        sb.append(";");
+        sb.append(cfg.getNumberOfRules());
+        sb.append(";");
+        sb.append(cfg.getCrossvalidationValue());
+        sb.append(";");
+        sb.append((this.isFsc() ? "Fit FSC" : "Fit ACC"));
+        sb.append(";");
+        sb.append(Configuration.getConfiguration().getMutationValue());
+        sb.append(";");
+        sb.append(Configuration.getConfiguration().getMutationType());
+        sb.append(";");
+        sb.append(Configuration.getConfiguration().getCrossoverValue());
+        sb.append(";");
+        sb.append(Configuration.getConfiguration().getCrossoverType());
+        sb.append(";");
+        sb.append(Configuration.getConfiguration().getSelection());
+        sb.append(";");
+        return sb.toString();
     }
 
     public void setACTIVE_CLASS(int ACTIVE_CLASS) {

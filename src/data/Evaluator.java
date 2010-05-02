@@ -31,7 +31,7 @@ public class Evaluator {
     }
 
 //------------------------------------------------------------------------------
-    public void Evaluate(DataSource DSc, Individual I) {
+    public void evaluate(DataSource DSc, Individual I) {
         if (I instanceof RuleSet) {
             EvaluateRuleSet(DSc, (RuleSet) I);
         } else if (I instanceof Rule) {

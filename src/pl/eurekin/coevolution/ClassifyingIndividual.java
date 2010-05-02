@@ -8,6 +8,7 @@ package pl.eurekin.coevolution;
 import EvolutionaryAlgorithm.Individual.RuleSet;
 
 /**
+ * Potrzebuje podmienić wyłącznie ewaluację
  *
  * @author Rekin
  */

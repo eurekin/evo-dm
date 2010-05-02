@@ -27,6 +27,60 @@ public class EvoAlgorithm {
         }
     }
 
+    protected void reportAfterOneGeneration(Report report) {
+        StringBuilder SB = new StringBuilder("\n" + generationNo
+                + ";" + String.format("%.3f", theBestIndividual.getEvaluation().getFitness())
+                + ";" + String.format("%.3f", theBestIndividual.getEvaluation().getAccuracy())
+                + ";" + String.format("%.3f", mRulePopulation.getAvgFitness())
+                + ";" + String.format("%.3f", mRulePopulation.getWorstFitness()));
+        //diversity d = mRulePopulation.getDiversity();
+        //SB.append(";"+Integer.toString(d.diff)+";"+Integer.toString(d.clones));
+        report.ConsoleReport(SB.toString().replace(".", ","));
+    }
+
+    private String consoleString(Configuration Config, float train, float train_acc, float test, float test_acc) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n [");
+        sb.append(Config.getReport().getAllDone());
+        sb.append("]. train (Fsc=");
+        sb.append(String.format("%.3f", train));
+        sb.append(" acc=");
+        sb.append(String.format("%.3f", train_acc));
+        sb.append(")  test (Fsc=");
+        sb.append(String.format("%.3f", test));
+        sb.append(" acc=");
+        sb.append(String.format("%.3f", test_acc));
+        sb.append(") time=");
+        sb.append(String.format("%.3f", myClock.GetTotalTime() / 1000.0));
+        sb.append("s");
+        return sb.toString();
+    }
+
+    protected void reportAllToFile(Configuration Config, Evaluator Eval, Individual TheBestOfTheBest) {
+        //REPORTING into files-------------------------------------------------------------------------
+        try {
+            // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
+            String CSV = Config.getReport().getCSVReportStatistic(Configuration.getConfiguration().toString(), true);
+            CSV = CSV + String.format("%.3f", totalTimeClock.GetTotalTime() / 1000.0d);
+            //            Config.getReport().ReportText(R);
+            //            Config.getReport().ConsoleReport(R);
+            Config.getReport().AppendCSVReportLineToFile(CSV);
+        } catch (IOException ex) {
+            Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (false) {
+            try {
+                //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
+                Config.getReport().ReportExText(Config.toString()
+                        + Eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) TheBestOfTheBest, "TRAIN")
+                        + Eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) TheBestOfTheBest, "TEST"));
+            } catch (IOException ex) {
+                Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        //END: REPORTING into files-------------------------------------------------------------------------
+    }
+
 //------------------------------------------------------------------------------
     private void updateTheBestIndividual(Individual I) {
         this.theBestIndividual = new RuleSet((RuleSet) (I));
@@ -71,11 +125,11 @@ public class EvoAlgorithm {
 
         if (config.isImageDataConfiguration() == true) {
 
-            ///this.mDataLoader = new DataLoader()
+            ///mDataLoader = new DataLoader()
             /**
              * todo: only ECCV_2002 -- insert universal code here
              */
-            this.mDataLoader = new DataLoader(config.getImageWordsFilename(),
+            mDataLoader = new DataLoader(config.getImageWordsFilename(),
                     config.getImageDocWordFilename(),
                     config.getImageBlobCountsFilename(),
                     config.getImageBlobsFilename(),
@@ -83,13 +137,16 @@ public class EvoAlgorithm {
                     config.getImageTESTBlobCountsFilename(),
                     config.getImageTESTBlobsFilename());
         } else {
-            this.mDataLoader = new DataLoader(Configuration.getConfiguration().getTrainFileName(), Configuration.getConfiguration().getTestFileName());
+            mDataLoader = new DataLoader(
+                    Configuration.getConfiguration().getTrainFileName(),
+                    Configuration.getConfiguration().getTestFileName());
         }
 
-        this.myClock = new Clock();
-        this.theBestIndividual = new RuleSet();
+        myClock = new Clock();
+        theBestIndividual = new RuleSet();
         System.out.print("done!");
-        System.out.print(Configuration.getConfiguration().getPrompt() + DataLoader.FileSummary() + "\n");
+        System.out.print(Configuration.getConfiguration().getPrompt()
+                + DataLoader.FileSummary() + "\n");
     }
 
 //------------------------------------------------------------------------------
@@ -118,125 +175,102 @@ public class EvoAlgorithm {
 
             //RUN N-times EA....
             for (int run = 0; run < testNo; run++) {
-                this.myClock.Reset();
-                this.myClock.Start();
+                // czas jednego powtórzenia kroswalidacji
+                myClock.Reset();
+                myClock.Start();
                 totalTimeClock.Start();
-                this.mRulePopulation = new Population(new RuleSet());
-                this.mRulePopulation.Initialise();
-                this.theBestIndividual = null;
-                boolean StopEval = false;
-                this.generationNo = 0;
 
-                this.mRulePopulation.Evaluate(DataLoader.getTrainData());
-                this.updateTheBestIndividual(this.mRulePopulation.getBestIndividual());
+                // inicjalizacja pojedynczego przebiegu algorytmu ewolucyjnego
+                // tworzenie nowej populacji
+                mRulePopulation = new Population(new RuleSet());
+                mRulePopulation.Initialise();
+                theBestIndividual = null;
+
+                // warunek stopu
+                boolean StopEval = false;
+                generationNo = 0;
+
+                mRulePopulation.Evaluate(DataLoader.getTrainData());
+                updateTheBestIndividual(mRulePopulation.getBestIndividual());
 
                 //EA works....
-                while (StopEval == false && Config.getStopGeneration() != this.generationNo) {
+                while (StopEval == false && Config.getStopGeneration() != generationNo) {
                     /*new generation*/
-                    Population nRulePop = this.mRulePopulation.generate(DataLoader.getTrainData());
+                    Population temporaryPopulation = mRulePopulation.recombinate();
+                    mRulePopulation = temporaryPopulation;
+                    // whats the use of temporary population?
 
-                    this.mRulePopulation = nRulePop;
-                    this.generationNo++;
-                    this.mRulePopulation.Evaluate(DataLoader.getTrainData());
+                    // we just advanced
+                    generationNo++;
+
+                    // evaluation
+                    mRulePopulation.Evaluate(DataLoader.getTrainData());
 
                     //the best individual?
-                    float f = this.mRulePopulation.getBestFitness();
-                    if (this.isTheBestIndividual(f)) {
-                        this.updateTheBestIndividual(this.mRulePopulation.getBestIndividual());
+                    // What's the use of it?!
+                    float f = mRulePopulation.getBestFitness();
+                    if (isTheBestIndividual(f)) {
+                        updateTheBestIndividual(mRulePopulation.getBestIndividual());
                     }
 
-                    if (Configuration.getConfiguration().getStopEval() <= this.mRulePopulation.getBestFitness()) {
+                    // stop condition
+                    if (Configuration.getConfiguration().getStopEval()
+                            <= mRulePopulation.getBestFitness()) {
                         StopEval = true;
                         break;
                     }
 
+                    // reporting
                     if (Config.isEcho()) {
-
-                        StringBuilder SB = new StringBuilder("\n" + generationNo + ";" + String.format("%.3f", this.theBestIndividual.getEvaluation().getFitness())
-                                + ";" + String.format("%.3f", this.theBestIndividual.getEvaluation().getAccuracy())
-                                + ";" + String.format("%.3f", this.mRulePopulation.getAvgFitness())
-                                + ";" + String.format("%.3f", this.mRulePopulation.getWorstFitness()));
-
-                        //diversity d = this.mRulePopulation.getDiversity();
-                        //SB.append(";"+Integer.toString(d.diff)+";"+Integer.toString(d.clones));
-                        Config.getReport().ConsoleReport(SB.toString().replace(".", ","));
+                        reportAfterOneGeneration(Config.getReport());
                     }
                 }//END: EA works
 
                 //REPORTS.... XXX to powinno się znaleźć w odpowiedniej metodzie
                 // odpowiedniego obiektu
-                this.myClock.Pause();
+                myClock.Pause();
                 totalTimeClock.Pause();
 
-                Eval.Evaluate(DataLoader.getTrainData(), this.theBestIndividual);
+                Eval.evaluate(DataLoader.getTrainData(), theBestIndividual);
 
-                float train = this.theBestIndividual.getEvaluation().getFsc();
-                float train_acc = this.theBestIndividual.getEvaluation().getAccuracy();
+                float train = theBestIndividual.getEvaluation().getFsc();
+                float train_acc = theBestIndividual.getEvaluation().getAccuracy();
 
-                Eval.Evaluate(DataLoader.getTestData(), this.theBestIndividual);
-                float test = this.theBestIndividual.getEvaluation().getFsc();
-                float test_acc = this.theBestIndividual.getEvaluation().getAccuracy();
+                Eval.evaluate(DataLoader.getTestData(), theBestIndividual);
+                float test = theBestIndividual.getEvaluation().getFsc();
+                float test_acc = theBestIndividual.getEvaluation().getAccuracy();
 
-                Config.getReport().ConsoleReport("\n ["
-                        + Config.getReport().getAllDone()
-                        + "]. train (Fsc=" + String.format("%.3f", train)
-                        + " acc=" + String.format("%.3f", train_acc)
-                        + ")  test (Fsc=" + String.format("%.3f", test)
-                        + " acc=" + String.format("%.3f", test_acc)
-                        + ") time=" + String.format("%.3f", (this.myClock.GetTotalTime() / 1000.0)) + "s");
-
-                Config.getReport().addCSVLine(generationNo, train, train_acc, test, test_acc, this.myClock.GetTotalTime() );
-                Config.getReport().AddStatistics(generationNo, train, test, train_acc, test_acc, this.myClock.GetTotalTime());
+                Config.getReport().report(generationNo, train, train_acc, test, test_acc, myClock.GetTotalTime());
 
                 if (false) // XXX turned off bigfile generation
-                try {
+                {
+                    try {
 
-                    Config.getReport().ReportExText(Config.toString()
-                            + Eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) this.theBestIndividual, "TRAIN") /*TODO REMOVE IT!*/
-                            + Eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) this.theBestIndividual, "TEST"));
-                } catch (IOException ex) {
-                    Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+                        Config.getReport().ReportExText(Config.toString()
+                                + Eval.FullClassificationReport(
+                                DataLoader.getTrainData(), (RuleSet) theBestIndividual, "TRAIN")
+                                + Eval.FullClassificationReport(
+                                DataLoader.getTestData(), (RuleSet) theBestIndividual, "TEST"));
+                    } catch (IOException ex) {
+                        Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
 
-                //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////
                 if (TheBestOfTheBest == null) {
-                    TheBestOfTheBest = new RuleSet((RuleSet) (this.theBestIndividual));
-                    Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
+                    TheBestOfTheBest = new RuleSet((RuleSet) (theBestIndividual));
+                    Eval.evaluate(DataLoader.getTestData(), TheBestOfTheBest);
                 }
-                if (TheBestOfTheBest.getEvaluation().getAccuracy() < this.theBestIndividual.getEvaluation().getAccuracy()) {
-                    TheBestOfTheBest = new RuleSet((RuleSet) (this.theBestIndividual));
-                    Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-                    Config.getReport().ConsoleReport(" <THE_BEST " + String.format("%.3f", TheBestOfTheBest.getEvaluation().getAccuracy()));
+                if (TheBestOfTheBest.getEvaluation().getAccuracy() < theBestIndividual.getEvaluation().getAccuracy()) {
+                    TheBestOfTheBest = new RuleSet((RuleSet) (theBestIndividual));
+                    Eval.evaluate(DataLoader.getTestData(), TheBestOfTheBest);
+                    Config.getReport().ConsoleReport(" <THE_BEST "
+                            + String.format("%.3f", TheBestOfTheBest.getEvaluation().getAccuracy()));
                 }
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            } //END: EA - run N times
-
+                ////////////////////////////////////////////////////////////////
+            }
         }//END: CROSSVALIDATION CV TIMES
-
-        //REPORTING into files-------------------------------------------------------------------------
-        try {
-           // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
-            String CSV = Config.getReport().getCSVReportStatistic(Configuration.getConfiguration().toString(), true);
-            CSV = CSV + String.format("%.3f", totalTimeClock.GetTotalTime() / 1000.0d);
-//            Config.getReport().ReportText(R);
-//            Config.getReport().ConsoleReport(R);
-            Config.getReport().AppendCSVReportLineToFile(CSV);
-
-        } catch (IOException ex) {
-            Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        ////// THE BEST of THE BEST LOG
-        if (false) // XXX turned off bigfile generation
-        try {
-            //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-            Config.getReport().ReportExText(Config.toString()
-                    + Eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) TheBestOfTheBest, "TRAIN")
-                    + Eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) TheBestOfTheBest, "TEST"));
-        } catch (IOException ex) {
-            Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        reportAllToFile(Config, Eval, TheBestOfTheBest);
         //END: REPORTING into files-------------------------------------------------------------------------
 
     }

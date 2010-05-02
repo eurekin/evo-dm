@@ -9,7 +9,6 @@ import data.*;
 
 public class Population {
 
-
     private ArrayList<Individual> Individuals;
 
     //-----------------------------------------------------------------------------------
@@ -38,7 +37,7 @@ public class Population {
      * @param Pm probability of mutation(>=0)
      * @return new population (new object)
      */
-    public Population generate(DataSource DS) {
+    public Population recombinate() {
         Population tmp = new Population();
         int i = 0; //individuals counter
         do {
@@ -86,22 +85,7 @@ public class Population {
         Evaluator E = Evaluator.getEvaluator();
 
         for (int i = 0; i < pop_size; i++) {
-            E.Evaluate(DSc, this.Individuals.get(i));
-            /**
-             * TODO BB evaluateBB
-             */
-            //E.EvaluateBB(DSc, this.Individuals.get(i));
-        }
-
-        /**
-         * TODO BB evaluateBB
-         */
-        //E.CalculateBB();
-        for (int i = 0; i < pop_size; i++) {
-            /**
-             * TODO BB evaluateBB
-             */
-            //E.UpdateFitnessBB(DSc, this.Individuals.get(i));
+            E.evaluate(DSc, this.Individuals.get(i));
         }
 
         /////// end EVALUATION
