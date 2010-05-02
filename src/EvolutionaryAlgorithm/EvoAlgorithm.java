@@ -17,10 +17,6 @@ public class EvoAlgorithm {
     private DataLoader dataLoader;
     private Population rulePopulation;
 
-    public boolean isTheBestIndividual(float f) {
-        return f > this.theBestInd.getEvaluation().getFitness();
-    }
-
     private Individual getNewBestOfTheBestIndividual(Individual bestInd,
             Evaluator eval, Configuration config) {
         if (bestInd == null) {
@@ -123,9 +119,10 @@ public class EvoAlgorithm {
                     // evaluation
                     rulePopulation.evaluate(DataLoader.getTrainData());
 
-                    //the best individual?
-                    if (isTheBestIndividual(rulePopulation.getBestFitness())) {
-                        updateTheBestIndividual(rulePopulation.getBestIndividual());
+                    //the best individual
+                    // W0000t ?! evaluation only for one class?! TODO XXX
+                    if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
+                        theBestInd = new RuleSet((RuleSet) (rulePopulation.getBestIndividual()));
                     }
 
                     // stop condition

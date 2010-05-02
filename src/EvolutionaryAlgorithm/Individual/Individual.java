@@ -13,10 +13,20 @@ public abstract class Individual {
         }
     }
 
+    /**
+     * XXX only for class number ZERO?!?
+     *
+     * @return
+     */
     public void setEvaluation(Evaluation E) {
         setEvaluation(0, E);
     }
 
+    /**
+     * XXX only for class number ZERO?!?
+     *
+     * @return
+     */
     public Evaluation getEvaluation() {
         return getEvaluation(0);
     }
