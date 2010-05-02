@@ -5,42 +5,12 @@
 
 package pl.eurekin.coevolution;
 
-import EvolutionaryAlgorithm.Individual.Individual;
+import EvolutionaryAlgorithm.Individual.RuleSet;
 
 /**
  *
  * @author Rekin
  */
-class ClassifyingIndividual extends Individual {
-
-    @Override
-    public void Initialise() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Individual Mutation() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Individual Crossover(Individual Indv1, Individual Indv2) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public int diversityMeasure(Individual I) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    protected int getGenesInIndividual() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public String toString() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+class ClassifyingIndividual extends RuleSet {
 
 }

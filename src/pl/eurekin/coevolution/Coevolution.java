@@ -23,7 +23,7 @@ public class Coevolution {
 
     public void evolve() {
         LOG.trace("Starting evolution.");
-        //LOG.
+       
     }
 
     private void createPopulations() {

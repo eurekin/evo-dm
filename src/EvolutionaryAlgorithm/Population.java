@@ -9,6 +9,7 @@ import data.*;
 
 public class Population {
 
+
     private ArrayList<Individual> Individuals;
 
     //-----------------------------------------------------------------------------------
