@@ -1,5 +1,3 @@
-// #[regen=yes,id=DCE.CDAF4B1A-454B-95E9-E711-63B839E7F67E]
-//import Individual;
 package EvolutionaryAlgorithm;
 
 import java.io.IOException;
@@ -12,15 +10,14 @@ import data.DataLoader;
 import data.Evaluator;
 import utils.Clock;
 
-// </editor-fold> 
 public class EvoAlgorithm {
 
     private Clock myClock;
     private Clock totalTimeClock = new Clock();
-    private Individual theBestIndividual;
+    private Individual theBestInd;
 
     public boolean isTheBestIndividual(float f) {
-        if (f > this.theBestIndividual.getEvaluation().getFitness()) {
+        if (f > this.theBestInd.getEvaluation().getFitness()) {
             return true;
         } else {
             return false;
@@ -28,7 +25,6 @@ public class EvoAlgorithm {
     }
 
     protected void reportAllToFile(Configuration Config, Evaluator Eval, Individual TheBestOfTheBest) {
-        //REPORTING into files-------------------------------------------------------------------------
         try {
             // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
             String CSV = Config.getReport().getCSVReportStatistic(Configuration.getConfiguration().toString(), true);
@@ -43,21 +39,34 @@ public class EvoAlgorithm {
             try {
                 //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
                 Config.getReport().ReportExText(Config.toString()
-                        + Eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) TheBestOfTheBest, "TRAIN")
-                        + Eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) TheBestOfTheBest, "TEST"));
+                        + Eval.FullClassificationReport(DataLoader.getTrainData(),
+                        (RuleSet) TheBestOfTheBest, "TRAIN")
+                        + Eval.FullClassificationReport(DataLoader.getTestData(),
+                        (RuleSet) TheBestOfTheBest, "TEST"));
             } catch (IOException ex) {
                 Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        //END: REPORTING into files-------------------------------------------------------------------------
     }
 
-//------------------------------------------------------------------------------
-    private void updateTheBestIndividual(Individual I) {
-        this.theBestIndividual = new RuleSet((RuleSet) (I));
+    private Individual getNewBestOfTheBestIndividual(Individual bestInd,
+            Evaluator Eval, Configuration Config) {
+        if (bestInd == null) {
+            bestInd = new RuleSet((RuleSet) (theBestInd));
+            Eval.evaluate(DataLoader.getTestData(), bestInd);
+        }
+        if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
+            bestInd = new RuleSet((RuleSet) (theBestInd));
+            Eval.evaluate(DataLoader.getTestData(), bestInd);
+            Config.getReport().reportBestInd(bestInd);
+        }
+        return bestInd;
     }
-//------------------------------------------------------------------------------
-    private long generationNo;
+
+    private void updateTheBestIndividual(Individual I) {
+        this.theBestInd = new RuleSet((RuleSet) (I));
+    }
+    private long generation;
     private Population mRulePopulation;
     private DataLoader mDataLoader;
 
@@ -65,18 +74,17 @@ public class EvoAlgorithm {
         return this.mDataLoader;
     }
 
-//------------------------------------------------------------------------------
     /**
      * testing constructor
      */
     public EvoAlgorithm() {
-        this.generationNo = 0;
+        this.generation = 0;
         this.mDataLoader = new DataLoader(null, null);
         this.myClock = new Clock();
         this.myClock.Reset();
         this.mRulePopulation = new Population(new RuleSet());
         this.mRulePopulation.Initialise();
-        this.theBestIndividual = new RuleSet();
+        this.theBestInd = new RuleSet();
 
     }
 
@@ -89,14 +97,12 @@ public class EvoAlgorithm {
         return Configuration.getConfiguration();
     }
 
-//  ------------------------------------------------------------------------------
     public EvoAlgorithm(Configuration config) {
 
         System.out.print(config.getPrompt() + "initalising...");
 
         if (config.isImageDataConfiguration() == true) {
 
-            ///mDataLoader = new DataLoader()
             /**
              * todo: only ECCV_2002 -- insert universal code here
              */
@@ -114,29 +120,29 @@ public class EvoAlgorithm {
         }
 
         myClock = new Clock();
-        theBestIndividual = new RuleSet();
+        theBestInd = new RuleSet();
         System.out.print("done!");
         System.out.print(Configuration.getConfiguration().getPrompt()
                 + DataLoader.FileSummary() + "\n");
     }
 
-//------------------------------------------------------------------------------
     public void start() {
 
-        Configuration Config = Configuration.getConfiguration();
-        Evaluator Eval = Evaluator.getEvaluator();
-        Individual TheBestOfTheBest = null;
+        Evaluator eval = Evaluator.getEvaluator();
+        Individual theBestOfTheBest = null;
         totalTimeClock = new Clock();
         totalTimeClock.Reset();
+        final Configuration config = Configuration.getConfiguration();
+        final Report report = config.getReport();
+        final boolean echo = config.isEcho();
 
 
-        int testNo = Config.getReport().getTestNumber();
-        int CROSSVALIDATION = Config.getCrossvalidationValue();
+        int testNo = report.getTestNumber();
+        int crossvalidationNo = config.getCrossvalidationValue();
 
         //CROSSVALIDATION CV TIMES
-        for (int cv = 0; cv < CROSSVALIDATION; cv++) {
-
-            Config.getReport().ConsoleReport("\n\n CROSSVALIDATION " + cv + "\n");
+        for (int cv = 0; cv < crossvalidationNo; cv++) {
+            report.indicateCrossvalidationFold(cv);
 
             if (cv == 0) {
                 DataLoader.DoCrossvalidation();
@@ -155,24 +161,24 @@ public class EvoAlgorithm {
                 // tworzenie nowej populacji
                 mRulePopulation = new Population(new RuleSet());
                 mRulePopulation.Initialise();
-                theBestIndividual = null;
+                theBestInd = null;
 
                 // warunek stopu
-                boolean StopEval = false;
-                generationNo = 0;
+                boolean stopEval = false;
+                generation = 0;
 
                 mRulePopulation.Evaluate(DataLoader.getTrainData());
                 updateTheBestIndividual(mRulePopulation.getBestIndividual());
 
                 //EA works....
-                while (StopEval == false && Config.getStopGeneration() != generationNo) {
+                while (stopEval == false && config.getStopGeneration() != generation) {
                     /*new generation*/
                     Population temporaryPopulation = mRulePopulation.recombinate();
                     mRulePopulation = temporaryPopulation;
                     // whats the use of temporary population?
 
                     // we just advanced
-                    generationNo++;
+                    generation++;
 
                     // evaluation
                     mRulePopulation.Evaluate(DataLoader.getTrainData());
@@ -187,66 +193,49 @@ public class EvoAlgorithm {
                     // stop condition
                     if (Configuration.getConfiguration().getStopEval()
                             <= mRulePopulation.getBestFitness()) {
-                        StopEval = true;
+                        stopEval = true;
                         break;
                     }
 
                     // reporting
-                    if (Config.isEcho()) {
-                        Config.getReport().reportAfterOneGeneration(theBestIndividual, mRulePopulation, generationNo);
+                    if (echo) {
+                        report.reportAfterOneGeneration(theBestInd, mRulePopulation, generation);
                     }
                 }//END: EA works
 
-                //REPORTS.... XXX to powinno się znaleźć w odpowiedniej metodzie
-                // odpowiedniego obiektu
+                //REPORTS.... 
                 myClock.Pause();
                 totalTimeClock.Pause();
 
-                Eval.evaluate(DataLoader.getTrainData(), theBestIndividual);
+                eval.evaluate(DataLoader.getTrainData(), theBestInd);
 
-                float train = theBestIndividual.getEvaluation().getFsc();
-                float train_acc = theBestIndividual.getEvaluation().getAccuracy();
+                float train = theBestInd.getEvaluation().getFsc();
+                float train_acc = theBestInd.getEvaluation().getAccuracy();
 
-                Eval.evaluate(DataLoader.getTestData(), theBestIndividual);
-                float test = theBestIndividual.getEvaluation().getFsc();
-                float test_acc = theBestIndividual.getEvaluation().getAccuracy();
+                eval.evaluate(DataLoader.getTestData(), theBestInd);
+                float test = theBestInd.getEvaluation().getFsc();
+                float test_acc = theBestInd.getEvaluation().getAccuracy();
 
-                Config.getReport().report(generationNo, train, train_acc, test, test_acc, myClock.GetTotalTime());
+                report.report(generation, train, train_acc, test, test_acc, myClock.GetTotalTime());
 
-                if (false) // XXX turned off bigfile generation
-                {
+                if (false) { // XXX turned off bigfile generation
                     try {
-
-                        Config.getReport().ReportExText(Config.toString()
-                                + Eval.FullClassificationReport(
-                                DataLoader.getTrainData(), (RuleSet) theBestIndividual, "TRAIN")
-                                + Eval.FullClassificationReport(
-                                DataLoader.getTestData(), (RuleSet) theBestIndividual, "TEST"));
+                        report.ReportExText(config.toString()
+                                + eval.FullClassificationReport(
+                                DataLoader.getTrainData(), (RuleSet) theBestInd, "TRAIN")
+                                + eval.FullClassificationReport(
+                                DataLoader.getTestData(), (RuleSet) theBestInd, "TEST"));
                     } catch (IOException ex) {
                         Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-
-                /////////////////////////////////////////////////////////////////
-                if (TheBestOfTheBest == null) {
-                    TheBestOfTheBest = new RuleSet((RuleSet) (theBestIndividual));
-                    Eval.evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-                }
-                if (TheBestOfTheBest.getEvaluation().getAccuracy() < theBestIndividual.getEvaluation().getAccuracy()) {
-                    TheBestOfTheBest = new RuleSet((RuleSet) (theBestIndividual));
-                    Eval.evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-                    Config.getReport().ConsoleReport(" <THE_BEST "
-                            + String.format("%.3f", TheBestOfTheBest.getEvaluation().getAccuracy()));
-                }
+                theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
                 ////////////////////////////////////////////////////////////////
             }
         }//END: CROSSVALIDATION CV TIMES
-        reportAllToFile(Config, Eval, TheBestOfTheBest);
-        //END: REPORTING into files-------------------------------------------------------------------------
-
+        reportAllToFile(config, eval, theBestOfTheBest);
     }
 
-//------------------------------------------------------------------------------
     public String toSting() {
         /**
          * @todo insert code here
@@ -254,13 +243,8 @@ public class EvoAlgorithm {
         return "";
     }
 
-//------------------------------------------------------------------------------
-    // <editor-fold defaultstate="collapsed" desc=" UML Marker "> 
-    // #[regen=yes,id=DCE.9B1B5C69-B3F8-1952-EE62-3C789905BD45]
-    // </editor-fold> 
     public long getGeneration() {
-        return this.generationNo;
+        return this.generation;
     }
-//------------------------------------------------------------------------------
 }
 

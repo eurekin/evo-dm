@@ -1,7 +1,12 @@
+# NetBeans project folder
 /nbproject/*
+
+# Builds
+/dist/*
 /build/*
+
+# Server jobs
 /jobs/*
 
-# ignore result files
+# Result files
 *.csv
-/dist/coevolution.jar

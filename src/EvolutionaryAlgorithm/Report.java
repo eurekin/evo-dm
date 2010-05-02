@@ -343,7 +343,7 @@ public class Report implements Serializable {
     }
 
 //------------------------------------------------------------------------------
-    public void ConsoleReport(String S) {
+    public void consoleReport(String S) {
         System.out.print(S);
     }
 
@@ -362,7 +362,7 @@ public class Report implements Serializable {
         sb.append(") time=");
         sb.append(String.format("%.3f", time / 1000.0));
         sb.append("s");
-        ConsoleReport(sb.toString());
+        consoleReport(sb.toString());
     }
 
     void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
@@ -402,7 +402,15 @@ public class Report implements Serializable {
         sb.append(String.format("%.3f", mRulePopulation.getAvgFitness()));
         sb.append(";");
         sb.append(String.format("%.3f", mRulePopulation.getWorstFitness()));
-        ConsoleReport(sb.toString().replace(".", ","));
+        consoleReport(sb.toString().replace(".", ","));
+    }
+
+    void reportBestInd(Individual theBestOfTheBest) {
+        consoleReport(" <THE_BEST " + String.format("%.3f", theBestOfTheBest.getEvaluation().getAccuracy()));
+    }
+
+    void indicateCrossvalidationFold(int no) {
+        consoleReport("\n\n CROSSVALIDATION " + no + "\n");
     }
 //------------------------------------------------------------------------------
 }
