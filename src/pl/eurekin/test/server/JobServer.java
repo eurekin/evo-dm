@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class JobServer {
 
     public static final int SERVER_PORT = 4444;
-    public static ArrayList<JobServerThread> threads = new ArrayList();
+    public static ArrayList<JobServerThread> threads = new ArrayList<JobServerThread>();
 
     public static void main(String... args) {
         try {

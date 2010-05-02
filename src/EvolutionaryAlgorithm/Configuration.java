@@ -219,7 +219,7 @@ public class Configuration implements Serializable {
     }
 //	-----------------------------------------------------------------------------
 
-    static public void NewConfiguration(String S, String ResearchComment) {
+    static public void newConfiguration(String S, String ResearchComment) {
         Config = new Configuration(S);
         Config.setResearchComment(ResearchComment);
     }

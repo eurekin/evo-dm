@@ -24,7 +24,7 @@ public class Main {
 
         // Struktury
         EvoAlgorithm e;
-        Configuration.NewConfiguration("_iris", "Finaru tesuto");
+        Configuration.newConfiguration("_iris", "Finaru tesuto");
         Configuration config = Configuration.getConfiguration();
 
         // Dane
@@ -34,7 +34,7 @@ public class Main {
 
         // test range
         double MAX = 1.0d;
-        List<Double> testValues = new ArrayList();
+        List<Double> testValues = new ArrayList<Double>();
 //        List<Double> testValuesA = new ArrayList();
 //        List<Double> testValuesB = new ArrayList();
 //        testValues.addAll(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5}));
@@ -63,7 +63,7 @@ public class Main {
             for (int i = 0; i < 5; i++) {
                 subClock.Reset();
                 subClock.Start();
-                Configuration.NewConfiguration("_iris", "IRIS with CX" + startTimeStr);
+                Configuration.newConfiguration("_iris", "IRIS with CX" + startTimeStr);
                 config = Configuration.getConfiguration();
 //                config.setSelection(vala);
                 config.setPcrossover(
@@ -97,7 +97,7 @@ public class Main {
 
     private static void testCrossvalidation(String configFilename, int times, int Cv, int tests) {
         singleTestPointStart();
-        Configuration.NewConfiguration("_iris", "IRIS with CX" + startTimeStr);
+        Configuration.newConfiguration("_iris", "IRIS with CX" + startTimeStr);
         Configuration configuration = Configuration.getConfiguration();
         singleTestPointStop();
     }
@@ -169,7 +169,7 @@ public class Main {
             double from,
             double to,
             int steps) {
-        ArrayList<Double> r = new ArrayList();
+        ArrayList<Double> r = new ArrayList<Double>();
         for (int i = 1; i <= steps; i++) {
             r.add(interpolate(i, 1, steps, from, to));
         }

@@ -21,7 +21,7 @@ import utils.Clock;
  */
 public class Client {
 
-    static List<Process> processes = new ArrayList();
+    static List<Process> processes = new ArrayList<Process>();
     // GUI only
     static boolean running = false;
 

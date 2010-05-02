@@ -46,7 +46,7 @@ public class JobScheduler {
 
     private static void testCrossvalidation(
             String configFilename, int times, int Cv, int tests) {
-        Configuration.NewConfiguration(
+        Configuration.newConfiguration(
                 configFilename, "testCrossvalidation" + startTimeStr);
         Configuration configuration = Configuration.getConfiguration();
         configuration.setCv(tests, Cv);

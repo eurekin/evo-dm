@@ -5,9 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
+import static org.apache.commons.codec.binary.Base64.*;
 /**
  *
  * @author eurekin
@@ -17,14 +15,14 @@ public class Base64 {
     public static String serializeObjectToString(Object o) {
         ObjectOutputStream oos = null;
         try {
-            BASE64Encoder enc = new BASE64Encoder();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
             oos.writeObject(o);
             oos.flush();
             oos.close();
             baos.close();
-            String res = enc.encode(baos.toByteArray());
+            // String res = enc.encode(baos.toByteArray());
+            String res = encodeBase64String(baos.toByteArray());
             return res;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -40,8 +38,7 @@ public class Base64 {
 
     public static Object deserializeObjectFrom(String str) {
         try {
-            BASE64Decoder dec = new BASE64Decoder();
-            byte[] decodeBuffer = dec.decodeBuffer(str);
+            byte[] decodeBuffer = decodeBase64(str);
             ByteArrayInputStream bins = new ByteArrayInputStream(decodeBuffer);
             ObjectInputStream ois = new ObjectInputStream(bins);
             Object res = ois.readObject();

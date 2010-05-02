@@ -29,7 +29,7 @@ public class DataLoader {
      * spit randomly data into N parts
      * before that all data is in TrainData
      */
-    public static void DoCrossvalidation() {
+    public static void doCrossvalidation() {
 
         //init
         crossValidationUpdate = 0;
@@ -80,7 +80,7 @@ public class DataLoader {
         TrainData.OrganizeData();
     }
 
-    public static void DoCrossvalidationNext() {
+    public static void doCrossvalidationNext() {
         crossValidationUpdate++;
         int parts = Configuration.getConfiguration().getCrossvalidationValue();
 
@@ -130,6 +130,25 @@ public class DataLoader {
 
     static float getArgMax(int argID) {
         return Data_arg_max[argID];
+    }
+
+    public static DataLoader getDataLoader(Configuration config) {
+        if (config.isImageDataConfiguration() == true) {
+            /**
+             * todo: only ECCV_2002 -- insert universal code here
+             */
+            return new DataLoader(config.getImageWordsFilename(),
+                    config.getImageDocWordFilename(),
+                    config.getImageBlobCountsFilename(),
+                    config.getImageBlobsFilename(),
+                    config.getImageTESTDocWordsFilename(),
+                    config.getImageTESTBlobCountsFilename(),
+                    config.getImageTESTBlobsFilename());
+        } else {
+            return new DataLoader(
+                    config.getTrainFileName(),
+                    config.getTestFileName());
+        }
     }
 
     /**

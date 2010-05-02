@@ -120,12 +120,12 @@ public class Population {
 
     //-----------------------------------------------------------------------------------
     public Population() {
-        this.Individuals = new ArrayList(Configuration.getConfiguration().getPopSize());
+        this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
     }
 
     //-----------------------------------------------------------------------------------
     public Population(Individual type) {
-        this.Individuals = new ArrayList(Configuration.getConfiguration().getPopSize());
+        this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
 
         // changes for extension
         Class c = type.getClass();

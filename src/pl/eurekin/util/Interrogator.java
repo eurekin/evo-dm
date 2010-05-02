@@ -29,7 +29,7 @@ public class Interrogator {
      * @throws Exception if anything goes wrong
      */
     public static List<String> getPropertyNames(Object obj) throws Exception {
-        ArrayList<String> result = new ArrayList();
+        ArrayList<String> result = new ArrayList<String>();
         for (PropertyDescriptor p : Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors()) {
             result.add(p.getName());
         }
@@ -110,7 +110,7 @@ public class Interrogator {
 
             new Object[]{1, 2, 3, 4, 5}
         };
-        ArrayList<String[]> plist = new ArrayList();
+        ArrayList<String[]> plist = new ArrayList<String[]>();
         String[] names = new String[]{"name", "type", "read method", "value", "write method"};
         for (PropertyDescriptor p : Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors()) {
             String[] desc = new String[5];

@@ -1,12 +1,16 @@
 package EvolutionaryAlgorithm;
 
 import EvolutionaryAlgorithm.Individual.Individual;
+import EvolutionaryAlgorithm.Individual.RuleSet;
+import data.DataLoader;
+import data.Evaluator;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import utils.Clock;
 
 public class Report implements Serializable {
 
@@ -412,5 +416,30 @@ public class Report implements Serializable {
     void indicateCrossvalidationFold(int no) {
         consoleReport("\n\n CROSSVALIDATION " + no + "\n");
     }
-//------------------------------------------------------------------------------
+
+    void reportAllToFile(Configuration config, Evaluator eval, Individual theBestOfTheBest, Clock totalTimeClock) {
+        final Report report = config.getReport();
+        try {
+            // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
+            String CSV = report.getCSVReportStatistic(Configuration.getConfiguration().toString(), true);
+            CSV = CSV + String.format("%.3f", totalTimeClock.GetTotalTime() / 1000.0d);
+            //            Config.getReport().ReportText(R);
+            //            Config.getReport().ConsoleReport(R);
+            report.AppendCSVReportLineToFile(CSV);
+        } catch (IOException ex) {
+            Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (false && theBestOfTheBest instanceof RuleSet) {
+            try {
+                //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
+                report.ReportExText(config.toString()
+                        + eval.FullClassificationReport(DataLoader.getTrainData(),
+                        (RuleSet) theBestOfTheBest, "TRAIN")
+                        + eval.FullClassificationReport(DataLoader.getTestData(),
+                        (RuleSet) theBestOfTheBest, "TEST"));
+            } catch (IOException ex) {
+                Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 }

@@ -22,7 +22,7 @@ import javax.swing.ListModel;
  */
 public class NewJFrame extends javax.swing.JFrame {
 
-    protected List<String> list = new ArrayList(Arrays.asList("one,two,three".split(",")));
+    protected List<String> list = new ArrayList<String>(Arrays.asList("one,two,three".split(",")));
     ListModel m = new DefaultListModel() {
 
     };
