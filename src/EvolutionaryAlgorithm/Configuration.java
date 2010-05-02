@@ -1,4 +1,4 @@
-package EvolutionaryAlgorithm;
+package evolutionaryAlgorithm;
 
 import java.io.File;
 import java.io.FileInputStream;

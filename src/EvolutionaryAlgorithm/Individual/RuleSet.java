@@ -1,7 +1,7 @@
-package EvolutionaryAlgorithm.Individual;
+package evolutionaryAlgorithm.individual;
 
-import EvolutionaryAlgorithm.Configuration;
-import EvolutionaryAlgorithm.Configuration.CrossoverType;
+import evolutionaryAlgorithm.Configuration;
+import evolutionaryAlgorithm.Configuration.CrossoverType;
 import utils.Rand;
 import java.util.ArrayList;
 

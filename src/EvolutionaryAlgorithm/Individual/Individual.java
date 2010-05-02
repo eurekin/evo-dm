@@ -1,4 +1,4 @@
-package EvolutionaryAlgorithm.Individual;
+package evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
 import data.Evaluation;

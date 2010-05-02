@@ -1,8 +1,8 @@
 package pl.eurekin.test.client;
 
 import pl.eurekin.test.server.JobServer;
-import EvolutionaryAlgorithm.Configuration;
-import EvolutionaryAlgorithm.EvoAlgorithm;
+import evolutionaryAlgorithm.Configuration;
+import evolutionaryAlgorithm.EvoAlgorithm;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package data;
 
-import EvolutionaryAlgorithm.Configuration;
+import evolutionaryAlgorithm.Configuration;
 
 public class Evaluation {
 

@@ -4,7 +4,7 @@
  */
 package pl.eurekin.test.server;
 
-import EvolutionaryAlgorithm.Configuration;
+import evolutionaryAlgorithm.Configuration;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;

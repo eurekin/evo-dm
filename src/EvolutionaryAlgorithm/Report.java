@@ -1,7 +1,7 @@
-package EvolutionaryAlgorithm;
+package evolutionaryAlgorithm;
 
-import EvolutionaryAlgorithm.Individual.Individual;
-import EvolutionaryAlgorithm.Individual.RuleSet;
+import evolutionaryAlgorithm.individual.Individual;
+import evolutionaryAlgorithm.individual.RuleSet;
 import data.DataLoader;
 import data.Evaluator;
 import java.io.FileNotFoundException;
@@ -441,5 +441,13 @@ public class Report implements Serializable {
                 Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    void evoAlgInitStart(String prompt) {
+        System.out.print(prompt + "initalising...");
+    }
+
+    void evoAlgInitStop(String prompt, String fileSummary) {
+        System.out.println("done!" + prompt + fileSummary);
     }
 }

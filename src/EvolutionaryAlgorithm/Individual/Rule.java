@@ -1,10 +1,10 @@
 
-package EvolutionaryAlgorithm.Individual;
+package evolutionaryAlgorithm.individual;
 
 
-import EvolutionaryAlgorithm.*;
-import EvolutionaryAlgorithm.Configuration.CrossoverType;
-import EvolutionaryAlgorithm.Configuration.MutationType;
+import evolutionaryAlgorithm.*;
+import evolutionaryAlgorithm.Configuration.CrossoverType;
+import evolutionaryAlgorithm.Configuration.MutationType;
 import utils.*;
 
 import java.util.ArrayList;

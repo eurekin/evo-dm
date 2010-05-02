@@ -2,8 +2,8 @@ package data;
 
 import java.util.ArrayList;
 
-import EvolutionaryAlgorithm.Configuration;
-import EvolutionaryAlgorithm.Individual.*;
+import evolutionaryAlgorithm.Configuration;
+import evolutionaryAlgorithm.individual.*;
 
 /*
  * Singleton class

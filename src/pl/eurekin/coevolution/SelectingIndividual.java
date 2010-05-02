@@ -5,7 +5,7 @@
 
 package pl.eurekin.coevolution;
 
-import EvolutionaryAlgorithm.Individual.Individual;
+import evolutionaryAlgorithm.individual.Individual;
 
 /**
  *

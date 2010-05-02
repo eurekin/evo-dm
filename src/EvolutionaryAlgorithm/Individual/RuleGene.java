@@ -1,6 +1,6 @@
 
-package EvolutionaryAlgorithm.Individual;
-import EvolutionaryAlgorithm.Configuration;
+package evolutionaryAlgorithm.individual;
+import evolutionaryAlgorithm.Configuration;
 import data.Condition;
 import utils.*;
 import java.util.*;

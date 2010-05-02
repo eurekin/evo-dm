@@ -1,4 +1,4 @@
-package EvolutionaryAlgorithm;
+package evolutionaryAlgorithm;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -6,32 +6,31 @@ import java.util.logging.Logger;
 import data.DataLoader;
 import data.Evaluator;
 import utils.Clock;
-import EvolutionaryAlgorithm.Individual.*;
+import evolutionaryAlgorithm.individual.*;
 
 public class EvoAlgorithm {
 
     private Clock myClock;
-    private Clock totalTimeClock = new Clock();
+    private long generation;
+    private Clock totalTimeClock;
     private Individual theBestInd;
+    private DataLoader dataLoader;
+    private Population rulePopulation;
 
     public boolean isTheBestIndividual(float f) {
-        if (f > this.theBestInd.getEvaluation().getFitness()) {
-            return true;
-        } else {
-            return false;
-        }
+        return f > this.theBestInd.getEvaluation().getFitness();
     }
 
     private Individual getNewBestOfTheBestIndividual(Individual bestInd,
-            Evaluator Eval, Configuration Config) {
+            Evaluator eval, Configuration config) {
         if (bestInd == null) {
             bestInd = new RuleSet((RuleSet) (theBestInd));
-            Eval.evaluate(DataLoader.getTestData(), bestInd);
+            eval.evaluate(DataLoader.getTestData(), bestInd);
         }
         if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
             bestInd = new RuleSet((RuleSet) (theBestInd));
-            Eval.evaluate(DataLoader.getTestData(), bestInd);
-            Config.getReport().reportBestInd(bestInd);
+            eval.evaluate(DataLoader.getTestData(), bestInd);
+            config.getReport().reportBestInd(bestInd);
         }
         return bestInd;
     }
@@ -39,9 +38,6 @@ public class EvoAlgorithm {
     private void updateTheBestIndividual(Individual I) {
         this.theBestInd = new RuleSet((RuleSet) (I));
     }
-    private long generation;
-    private Population rulePopulation;
-    private DataLoader dataLoader;
 
     public DataLoader getDataLoader() {
         return this.dataLoader;
@@ -52,13 +48,13 @@ public class EvoAlgorithm {
      */
     public EvoAlgorithm() {
         this.generation = 0;
-        this.dataLoader = new DataLoader(null, null);
-        this.myClock = new Clock();
         this.myClock.Reset();
-        this.rulePopulation = new Population(new RuleSet());
-        this.rulePopulation.Initialise();
+        this.myClock = new Clock();
         this.theBestInd = new RuleSet();
-
+        this.rulePopulation.Initialise();
+        this.totalTimeClock = new Clock();
+        this.dataLoader = new DataLoader(null, null);
+        this.rulePopulation = new Population(new RuleSet());
     }
 
     public EvoAlgorithm(String ConfigFileName, String ResearchComment) {
@@ -71,12 +67,13 @@ public class EvoAlgorithm {
     }
 
     public EvoAlgorithm(Configuration config) {
-        System.out.print(config.getPrompt() + "initalising...");
+        Report report = config.getReport();
+        String prompt = config.getPrompt();
+        report.evoAlgInitStart(prompt);
         dataLoader = DataLoader.getDataLoader(config);
         myClock = new Clock();
         theBestInd = new RuleSet();
-        System.out.print("done!");
-        System.out.print(config.getPrompt() + DataLoader.FileSummary() + "\n");
+        report.evoAlgInitStop(prompt, DataLoader.FileSummary());
     }
 
     public void start() {
@@ -89,7 +86,6 @@ public class EvoAlgorithm {
         final Report report = config.getReport();
         final boolean echo = config.isEcho();
 
-
         int testNo = report.getTestNumber();
         int crossvalidationNo = config.getCrossvalidationValue();
 
@@ -97,7 +93,6 @@ public class EvoAlgorithm {
         DataLoader.doCrossvalidation();
         for (int cv = 0; cv < crossvalidationNo; cv++) {
             report.indicateCrossvalidationFold(cv);
-
 
             //RUN N-times EA....
             for (int run = 0; run < testNo; run++) {
@@ -116,32 +111,27 @@ public class EvoAlgorithm {
                 boolean stopEval = false;
                 generation = 0;
 
-                rulePopulation.Evaluate(DataLoader.getTrainData());
+                rulePopulation.evaluate(DataLoader.getTrainData());
                 updateTheBestIndividual(rulePopulation.getBestIndividual());
 
                 //EA works....
                 while (stopEval == false && config.getStopGeneration() != generation) {
                     /*new generation*/
-                    Population temporaryPopulation = rulePopulation.recombinate();
-                    rulePopulation = temporaryPopulation;
-                    // whats the use of temporary population?
+                    rulePopulation = rulePopulation.recombinate();
 
                     // we just advanced
                     generation++;
 
                     // evaluation
-                    rulePopulation.Evaluate(DataLoader.getTrainData());
+                    rulePopulation.evaluate(DataLoader.getTrainData());
 
                     //the best individual?
-                    // What's the use of it?!
-                    float f = rulePopulation.getBestFitness();
-                    if (isTheBestIndividual(f)) {
+                    if (isTheBestIndividual(rulePopulation.getBestFitness())) {
                         updateTheBestIndividual(rulePopulation.getBestIndividual());
                     }
 
                     // stop condition
-                    if (Configuration.getConfiguration().getStopEval()
-                            <= rulePopulation.getBestFitness()) {
+                    if (config.getStopEval() <= rulePopulation.getBestFitness()) {
                         stopEval = true;
                         break;
                     }
@@ -157,15 +147,14 @@ public class EvoAlgorithm {
                 totalTimeClock.Pause();
 
                 eval.evaluate(DataLoader.getTrainData(), theBestInd);
-
-                float train = theBestInd.getEvaluation().getFsc();
+                float train_fsc = theBestInd.getEvaluation().getFsc();
                 float train_acc = theBestInd.getEvaluation().getAccuracy();
 
                 eval.evaluate(DataLoader.getTestData(), theBestInd);
-                float test = theBestInd.getEvaluation().getFsc();
+                float test_fsc = theBestInd.getEvaluation().getFsc();
                 float test_acc = theBestInd.getEvaluation().getAccuracy();
 
-                report.report(generation, train, train_acc, test, test_acc, myClock.GetTotalTime());
+                report.report(generation, train_fsc, train_acc, test_fsc, test_acc, myClock.GetTotalTime());
 
                 if (false) { // XXX turned off bigfile generation
                     try {
@@ -179,7 +168,6 @@ public class EvoAlgorithm {
                     }
                 }
                 theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
-                ////////////////////////////////////////////////////////////////
             }
             DataLoader.doCrossvalidationNext();
         }//END: CROSSVALIDATION CV TIMES

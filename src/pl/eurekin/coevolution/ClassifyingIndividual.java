@@ -5,7 +5,7 @@
 
 package pl.eurekin.coevolution;
 
-import EvolutionaryAlgorithm.Individual.RuleSet;
+import evolutionaryAlgorithm.individual.RuleSet;
 
 /**
  * Potrzebuje podmienić wyłącznie ewaluację

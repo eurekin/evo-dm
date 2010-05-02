@@ -1,10 +1,10 @@
-package EvolutionaryAlgorithm;
+package evolutionaryAlgorithm;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import utils.Rand;
-import EvolutionaryAlgorithm.Individual.Individual;
+import evolutionaryAlgorithm.individual.Individual;
 import data.*;
 
 public class Population {
@@ -79,7 +79,7 @@ public class Population {
      * @version Rule evaluation, scaling
      * @param DS dataSource needed to evaluate inidvluals
      */
-    public void Evaluate(DataSource DSc) {
+    public void evaluate(DataSource DSc) {
 
         int pop_size = Configuration.getConfiguration().getPopSize();
         Evaluator E = Evaluator.getEvaluator();

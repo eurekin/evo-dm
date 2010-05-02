@@ -1,6 +1,6 @@
 package utils;
 
-import EvolutionaryAlgorithm.EvoAlgorithm;
+import evolutionaryAlgorithm.EvoAlgorithm;
 
 
 

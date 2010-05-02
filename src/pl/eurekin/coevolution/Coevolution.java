@@ -4,7 +4,7 @@
  */
 package pl.eurekin.coevolution;
 
-import EvolutionaryAlgorithm.Population;
+import evolutionaryAlgorithm.Population;
 import org.apache.log4j.Logger;
 
 /**
