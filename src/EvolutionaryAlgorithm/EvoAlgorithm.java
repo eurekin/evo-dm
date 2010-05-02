@@ -77,7 +77,6 @@ public class EvoAlgorithm {
     }
 
     public void start() {
-
         Evaluator eval = Evaluator.getEvaluator();
         Individual theBestOfTheBest = null;
         totalTimeClock = new Clock();
@@ -85,8 +84,7 @@ public class EvoAlgorithm {
         final Configuration config = Configuration.getConfiguration();
         final Report report = config.getReport();
         final boolean echo = config.isEcho();
-
-        int testNo = report.getTestNumber();
+        final int testNo = report.getTestNumber();
         int crossvalidationNo = config.getCrossvalidationValue();
 
         //CROSSVALIDATION CV TIMES
@@ -142,7 +140,8 @@ public class EvoAlgorithm {
                     }
                 }//END: EA works
 
-                //REPORTS.... 
+                //REPORTS....
+                // XXX: move it to where it belongs
                 myClock.Pause();
                 totalTimeClock.Pause();
 
