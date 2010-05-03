@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CAREX
+Comment=Evolutionary Classification algorithm implementation
+Exec=/usr/bin/carex.sh
+Icon=/usr/share/doc/carex/carex.png
+Terminal=false
+Type=Application
+Categories=GNOME;Utility;
+StartupNotify=true
