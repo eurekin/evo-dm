@@ -1,13 +1,10 @@
 package pwr.evolutionaryAlgorithm;
 
-import pwr.evolutionaryAlgorithm.Configuration;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluator;
+import pwr.evolutionaryAlgorithm.individual.Individual;
+import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.utils.Clock;
-import pwr.evolutionaryAlgorithm.individual.*;
 
 public class EvoAlgorithm {
 
@@ -17,20 +14,6 @@ public class EvoAlgorithm {
     private Individual theBestInd;
     private DataLoader dataLoader;
     private Population rulePopulation;
-
-    private Individual getNewBestOfTheBestIndividual(Individual bestInd,
-            Evaluator eval, Configuration config) {
-        if (bestInd == null) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
-            eval.evaluate(DataLoader.getTestData(), bestInd);
-        }
-        if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
-            eval.evaluate(DataLoader.getTestData(), bestInd);
-            config.getReport().reportBestInd(bestInd);
-        }
-        return bestInd;
-    }
 
     private void updateTheBestIndividual(Individual I) {
         this.theBestInd = new RuleSet((RuleSet) (I));
@@ -97,7 +80,6 @@ public class EvoAlgorithm {
                 myClock.Start();
                 totalTimeClock.Start();
 
-                // inicjalizacja pojedynczego przebiegu algorytmu ewolucyjnego
                 // tworzenie nowej populacji
                 rulePopulation = new Population(new RuleSet());
                 rulePopulation.Initialise();
@@ -114,11 +96,7 @@ public class EvoAlgorithm {
                 while (stopEval == false && config.getStopGeneration() != generation) {
                     /*new generation*/
                     rulePopulation = rulePopulation.recombinate();
-
-                    // we just advanced
                     generation++;
-
-                    // evaluation
                     rulePopulation.evaluate(DataLoader.getTrainData());
 
                     //the best individual
@@ -134,43 +112,47 @@ public class EvoAlgorithm {
                         break;
                     }
 
-                    // reporting
                     if (echo) {
                         report.reportAfterOneGeneration(theBestInd, rulePopulation, generation);
                     }
                 }//END: EA works
 
-                //REPORTS....
-                // XXX: move it to where it belongs
                 myClock.Pause();
                 totalTimeClock.Pause();
 
-                eval.evaluate(DataLoader.getTrainData(), theBestInd);
-                float train_fsc = theBestInd.getEvaluation().getFsc();
-                float train_acc = theBestInd.getEvaluation().getAccuracy();
-
-                eval.evaluate(DataLoader.getTestData(), theBestInd);
-                float test_fsc = theBestInd.getEvaluation().getFsc();
-                float test_acc = theBestInd.getEvaluation().getAccuracy();
-
-                report.report(generation, train_fsc, train_acc, test_fsc, test_acc, myClock.GetTotalTime());
-
-                if (false) { // XXX turned off bigfile generation
-                    try {
-                        report.ReportExText(config.toString()
-                                + eval.FullClassificationReport(
-                                DataLoader.getTrainData(), (RuleSet) theBestInd, "TRAIN")
-                                + eval.FullClassificationReport(
-                                DataLoader.getTestData(), (RuleSet) theBestInd, "TEST"));
-                    } catch (IOException ex) {
-                        Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+                evaluateAndReport(eval, report, config);
                 theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
             }
             DataLoader.doCrossvalidationNext();
         }//END: CROSSVALIDATION CV TIMES
         report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
+    }
+
+    public void evaluateAndReport(Evaluator eval, Report report, Configuration config) {
+        eval.evaluate(DataLoader.getTrainData(), theBestInd);
+        float train_fsc = theBestInd.getEvaluation().getFsc();
+        float train_acc = theBestInd.getEvaluation().getAccuracy();
+
+        eval.evaluate(DataLoader.getTestData(), theBestInd);
+        float test_fsc = theBestInd.getEvaluation().getFsc();
+        float test_acc = theBestInd.getEvaluation().getAccuracy();
+
+        report.report(generation, train_fsc, train_acc, test_fsc, test_acc, myClock.GetTotalTime());
+        report.extendedReport(config, eval, (RuleSet) theBestInd);
+    }
+
+    public Individual getNewBestOfTheBestIndividual(Individual bestInd,
+            Evaluator eval, Configuration config) {
+        if (bestInd == null) {
+            bestInd = new RuleSet((RuleSet) (theBestInd));
+            eval.evaluate(DataLoader.getTestData(), bestInd);
+        }
+        if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
+            bestInd = new RuleSet((RuleSet) (theBestInd));
+            eval.evaluate(DataLoader.getTestData(), bestInd);
+            config.getReport().reportBestInd(bestInd);
+        }
+        return bestInd;
     }
 
     public long getGeneration() {

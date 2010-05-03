@@ -325,7 +325,7 @@ public class Report implements Serializable {
     }
 
 //---------------------------------------------------------------------------------------------------------
-    public void ReportExText(String S) throws IOException {
+    public void reportExText(String S) throws IOException {
         FileOutputStream f = null;
         try {
             f = new FileOutputStream(TestExFileReport, true);
@@ -337,6 +337,18 @@ public class Report implements Serializable {
         f.close();
     }
 
+    void extendedReport(Configuration config, Evaluator eval, RuleSet theBestInd) {
+        if (false) {
+            // XXX turned off bigfile generation
+            try {
+                reportExText(config.toString()
+                        + eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) theBestInd, "TRAIN")
+                        + eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) theBestInd, "TEST"));
+            } catch (IOException ex) {
+                Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 //---------------------------------------------------------------------------------------------------------
     public int getTestNumber() {
         return TestNumber;
@@ -433,7 +445,7 @@ public class Report implements Serializable {
         if (false && theBestOfTheBest instanceof RuleSet) {
             try {
                 //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-                report.ReportExText(config.toString()
+                report.reportExText(config.toString()
                         + eval.FullClassificationReport(DataLoader.getTrainData(),
                         (RuleSet) theBestOfTheBest, "TRAIN")
                         + eval.FullClassificationReport(DataLoader.getTestData(),
