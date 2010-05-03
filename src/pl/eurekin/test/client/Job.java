@@ -1,7 +1,7 @@
 package pl.eurekin.test.client;
 
-import evolutionaryAlgorithm.Configuration;
-import evolutionaryAlgorithm.EvoAlgorithm;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.EvoAlgorithm;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;

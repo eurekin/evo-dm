@@ -1,11 +1,12 @@
-package evolutionaryAlgorithm;
+package pwr.evolutionaryAlgorithm;
 
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import utils.Rand;
-import evolutionaryAlgorithm.individual.Individual;
-import data.*;
+import pwr.evolutionaryAlgorithm.utils.Rand;
+import pwr.evolutionaryAlgorithm.individual.Individual;
+import pwr.evolutionaryAlgorithm.data.*;
 
 public class Population {
 

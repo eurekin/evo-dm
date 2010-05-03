@@ -1,6 +1,6 @@
-package data;
+package pwr.evolutionaryAlgorithm.data;
 
-import evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;

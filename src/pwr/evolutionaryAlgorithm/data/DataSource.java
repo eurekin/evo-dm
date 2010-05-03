@@ -1,7 +1,7 @@
-package data;
+package pwr.evolutionaryAlgorithm.data;
 
 import java.util.*;
-import utils.Rand;
+import pwr.evolutionaryAlgorithm.utils.Rand;
 
 
 

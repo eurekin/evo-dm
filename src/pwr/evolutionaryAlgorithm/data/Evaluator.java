@@ -1,9 +1,9 @@
-package data;
+package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
 
-import evolutionaryAlgorithm.Configuration;
-import evolutionaryAlgorithm.individual.*;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.individual.*;
 
 /*
  * Singleton class

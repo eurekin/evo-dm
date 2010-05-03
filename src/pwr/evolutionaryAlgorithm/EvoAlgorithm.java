@@ -1,12 +1,13 @@
-package evolutionaryAlgorithm;
+package pwr.evolutionaryAlgorithm;
 
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import data.DataLoader;
-import data.Evaluator;
-import utils.Clock;
-import evolutionaryAlgorithm.individual.*;
+import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.Evaluator;
+import pwr.evolutionaryAlgorithm.utils.Clock;
+import pwr.evolutionaryAlgorithm.individual.*;
 
 public class EvoAlgorithm {
 
@@ -16,10 +17,6 @@ public class EvoAlgorithm {
     private Individual theBestInd;
     private DataLoader dataLoader;
     private Population rulePopulation;
-
-    public boolean isTheBestIndividual(float f) {
-        return f > this.theBestInd.getEvaluation().getFitness();
-    }
 
     private Individual getNewBestOfTheBestIndividual(Individual bestInd,
             Evaluator eval, Configuration config) {
@@ -61,7 +58,8 @@ public class EvoAlgorithm {
         this(setConfiguration(ConfigFileName, ResearchComment));
     }
 
-    private static Configuration setConfiguration(String configFileName, String researchComment) {
+    private static Configuration setConfiguration(String configFileName,
+            String researchComment) {
         Configuration.newConfiguration(configFileName, researchComment);
         return Configuration.getConfiguration();
     }
@@ -123,9 +121,11 @@ public class EvoAlgorithm {
                     // evaluation
                     rulePopulation.evaluate(DataLoader.getTrainData());
 
-                    //the best individual?
-                    if (isTheBestIndividual(rulePopulation.getBestFitness())) {
-                        updateTheBestIndividual(rulePopulation.getBestIndividual());
+                    //the best individual
+                    // W0000t ?! evaluation only for one class?! TODO XXX
+                    if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
+                        theBestInd = new RuleSet(
+                                (RuleSet) (rulePopulation.getBestIndividual()));
                     }
 
                     // stop condition

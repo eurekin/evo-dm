@@ -1,6 +1,6 @@
 package pl.eurekin.test.server;
 
-import evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;

@@ -1,6 +1,6 @@
-package data;
+package pwr.evolutionaryAlgorithm.data;
 
-import evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration;
 
 public class Evaluation {
 
