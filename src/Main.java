@@ -41,11 +41,12 @@ public class Main {
 //        testValues.addAll(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5}));
 //        testValues.addAll(range(10.0d, 5000d, 100));
 //        testValuesB.addAll(range(0.0d, 1.0d, 20));
-        for (int i = 0; i < 45; i++) {
-            double v = interpolate(i, 0, 45, 3, 6);
-            double l = Math.pow(10, -v);
-            testValues.add(l);
-        }
+//        for (int i = 0; i < 45; i++) {
+//            double v = interpolate(i, 0, 45, 3, 6);
+//            double l = Math.pow(10, -v);
+//            testValues.add(l);
+//        }
+        testValues.add(0.4d);
 
 
         // Algorytm
@@ -56,7 +57,8 @@ public class Main {
         Clock clock = new Clock();
         Clock subClock = new Clock();
         System.out.println("Testowane parametry: " + Arrays.toString(testValues.toArray(new Double[]{})));
-        for (double v = 0; v < 0.5d; v += 0.05d) {
+        //for (double v = 0; v < 0.5d; v += 0.05d) {
+        for (double v : testValues) {
             System.out.println("\n[MAIN] przebieg główny: " + count + " z " + testValues.size() + " (" + fraction(testValues.size(), count) + "%)");
             System.out.println("[MAIN] krzyzowanie           : " + v);
             clock.Reset();

@@ -15,26 +15,52 @@ public class EvoAlgorithm {
     private DataLoader dataLoader;
     private Population rulePopulation;
 
+    private void evolve( final Configuration config, final Report report) {
+        // warunek stopu
+        boolean stopEval = false;
+        generation = 0;
+        // MAIN Evolutionary Algorithm
+        while (stopEval == false && config.getStopGeneration() != generation) {
+            /*new generation*/
+            rulePopulation = rulePopulation.recombinate();
+            generation++;
+            rulePopulation.evaluate(DataLoader.getTrainData());
+            //the best individual
+            // W0000t ?! evaluation only for one class?! TODO XXX
+            if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
+                theBestInd = new RuleSet((RuleSet) (rulePopulation.getBestIndividual()));
+            }
+            if (config.getStopEval() <= rulePopulation.getBestFitness()) {
+                stopEval = true;
+                break;
+            }
+            if (config.isEcho()) {
+                report.reportAfterOneGeneration(theBestInd, rulePopulation, generation);
+            }
+        } //END: EA works
+        //END: EA works
+    }
+
     private void updateTheBestIndividual(Individual I) {
-        this.theBestInd = new RuleSet((RuleSet) (I));
+        theBestInd = new RuleSet((RuleSet) (I));
     }
 
     public DataLoader getDataLoader() {
-        return this.dataLoader;
+        return dataLoader;
     }
 
     /**
      * testing constructor
      */
     public EvoAlgorithm() {
-        this.generation = 0;
-        this.myClock.Reset();
-        this.myClock = new Clock();
-        this.theBestInd = new RuleSet();
-        this.rulePopulation.Initialise();
-        this.totalTimeClock = new Clock();
-        this.dataLoader = new DataLoader(null, null);
-        this.rulePopulation = new Population(new RuleSet());
+        generation = 0;
+        myClock.Reset();
+        myClock = new Clock();
+        theBestInd = new RuleSet();
+        rulePopulation.Initialise();
+        totalTimeClock = new Clock();
+        dataLoader = new DataLoader(null, null);
+        rulePopulation = new Population(new RuleSet());
     }
 
     public EvoAlgorithm(String ConfigFileName, String ResearchComment) {
@@ -64,7 +90,6 @@ public class EvoAlgorithm {
         totalTimeClock.Reset();
         final Configuration config = Configuration.getConfiguration();
         final Report report = config.getReport();
-        final boolean echo = config.isEcho();
         final int testNo = report.getTestNumber();
         int crossvalidationNo = config.getCrossvalidationValue();
 
@@ -85,41 +110,15 @@ public class EvoAlgorithm {
                 rulePopulation.Initialise();
                 theBestInd = null;
 
-                // warunek stopu
-                boolean stopEval = false;
-                generation = 0;
-
                 rulePopulation.evaluate(DataLoader.getTrainData());
                 updateTheBestIndividual(rulePopulation.getBestIndividual());
 
-                //EA works....
-                while (stopEval == false && config.getStopGeneration() != generation) {
-                    /*new generation*/
-                    rulePopulation = rulePopulation.recombinate();
-                    generation++;
-                    rulePopulation.evaluate(DataLoader.getTrainData());
-
-                    //the best individual
-                    // W0000t ?! evaluation only for one class?! TODO XXX
-                    if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
-                        theBestInd = new RuleSet(
-                                (RuleSet) (rulePopulation.getBestIndividual()));
-                    }
-
-                    // stop condition
-                    if (config.getStopEval() <= rulePopulation.getBestFitness()) {
-                        stopEval = true;
-                        break;
-                    }
-
-                    if (echo) {
-                        report.reportAfterOneGeneration(theBestInd, rulePopulation, generation);
-                    }
-                }//END: EA works
+                // EA START
+                evolve(config, report);
+                // EA DONE
 
                 myClock.Pause();
                 totalTimeClock.Pause();
-
                 evaluateAndReport(eval, report, config);
                 theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
             }
