@@ -57,7 +57,8 @@ public class EvoAlgorithm {
         this(setConfiguration(ConfigFileName, ResearchComment));
     }
 
-    private static Configuration setConfiguration(String configFileName, String researchComment) {
+    private static Configuration setConfiguration(String configFileName,
+            String researchComment) {
         Configuration.newConfiguration(configFileName, researchComment);
         return Configuration.getConfiguration();
     }
@@ -122,7 +123,8 @@ public class EvoAlgorithm {
                     //the best individual
                     // W0000t ?! evaluation only for one class?! TODO XXX
                     if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
-                        theBestInd = new RuleSet((RuleSet) (rulePopulation.getBestIndividual()));
+                        theBestInd = new RuleSet(
+                                (RuleSet) (rulePopulation.getBestIndividual()));
                     }
 
                     // stop condition
