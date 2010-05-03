@@ -1,6 +1,6 @@
-package utils;
+package pwr.evolutionaryAlgorithm.utils;
 
-import evolutionaryAlgorithm.EvoAlgorithm;
+import pwr.evolutionaryAlgorithm.EvoAlgorithm;
 
 
 

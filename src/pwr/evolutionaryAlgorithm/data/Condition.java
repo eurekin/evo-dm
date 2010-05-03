@@ -1,6 +1,6 @@
 
-package data;
-import evolutionaryAlgorithm.Configuration;
+package pwr.evolutionaryAlgorithm.data;
+import pwr.evolutionaryAlgorithm.Configuration;
 
 
 /**

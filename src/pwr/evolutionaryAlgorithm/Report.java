@@ -1,16 +1,17 @@
-package evolutionaryAlgorithm;
+package pwr.evolutionaryAlgorithm;
 
-import evolutionaryAlgorithm.individual.Individual;
-import evolutionaryAlgorithm.individual.RuleSet;
-import data.DataLoader;
-import data.Evaluator;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.individual.Individual;
+import pwr.evolutionaryAlgorithm.individual.RuleSet;
+import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.Evaluator;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utils.Clock;
+import pwr.evolutionaryAlgorithm.utils.Clock;
 
 public class Report implements Serializable {
 

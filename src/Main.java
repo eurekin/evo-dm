@@ -1,10 +1,11 @@
 
-import evolutionaryAlgorithm.*;
+import pwr.evolutionaryAlgorithm.EvoAlgorithm;
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import utils.Clock;
+import pwr.evolutionaryAlgorithm.utils.Clock;
 //import java.awt.Toolkit;
 
 /**

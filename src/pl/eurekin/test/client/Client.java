@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pl.eurekin.test.server.JobRunner;
-import utils.Clock;
+import pwr.evolutionaryAlgorithm.utils.Clock;
 
 /**
  *

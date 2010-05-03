@@ -1,12 +1,13 @@
-package evolutionaryAlgorithm;
+package pwr.evolutionaryAlgorithm;
 
+import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import data.DataLoader;
-import data.Evaluator;
-import utils.Clock;
-import evolutionaryAlgorithm.individual.*;
+import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.Evaluator;
+import pwr.evolutionaryAlgorithm.utils.Clock;
+import pwr.evolutionaryAlgorithm.individual.*;
 
 public class EvoAlgorithm {
 

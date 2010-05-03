@@ -1,7 +1,7 @@
-package evolutionaryAlgorithm.individual;
+package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
-import data.Evaluation;
+import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 public abstract class Individual {
 

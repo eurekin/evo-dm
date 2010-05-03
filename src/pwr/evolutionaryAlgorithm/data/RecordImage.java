@@ -1,4 +1,4 @@
-package data;
+package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
 

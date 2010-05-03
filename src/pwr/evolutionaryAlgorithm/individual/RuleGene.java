@@ -1,8 +1,8 @@
 
-package evolutionaryAlgorithm.individual;
-import evolutionaryAlgorithm.Configuration;
-import data.Condition;
-import utils.*;
+package pwr.evolutionaryAlgorithm.individual;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.data.Condition;
+import pwr.evolutionaryAlgorithm.utils.*;
 import java.util.*;
 
 

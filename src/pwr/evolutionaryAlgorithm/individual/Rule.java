@@ -1,16 +1,15 @@
 
-package evolutionaryAlgorithm.individual;
+package pwr.evolutionaryAlgorithm.individual;
 
 
-import evolutionaryAlgorithm.*;
-import evolutionaryAlgorithm.Configuration.CrossoverType;
-import evolutionaryAlgorithm.Configuration.MutationType;
-import utils.*;
+import pwr.evolutionaryAlgorithm.*;
+import pwr.evolutionaryAlgorithm.Configuration.MutationType;
+import pwr.evolutionaryAlgorithm.utils.*;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import data.Condition;
-import data.Evaluation;
+import pwr.evolutionaryAlgorithm.data.Condition;
+import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 
 // <editor-fold defaultstate="collapsed" desc=" UML Marker "> 

@@ -1,13 +1,13 @@
-package evolutionaryAlgorithm.individual;
+package pwr.evolutionaryAlgorithm.individual;
 
-import evolutionaryAlgorithm.Configuration;
-import evolutionaryAlgorithm.Configuration.CrossoverType;
-import utils.Rand;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
+import pwr.evolutionaryAlgorithm.utils.Rand;
 import java.util.ArrayList;
 
 //import data.DataSet;
-import data.DataLoader;
-import data.Evaluation;
+import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 /**
  *

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pl.eurekin.test.client.Job;
-import utils.Clock;
+import pwr.evolutionaryAlgorithm.utils.Clock;
 
 /**
  * Wykonuje zadania pomijając architekturę rozproszoną.
