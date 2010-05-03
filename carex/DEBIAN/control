@@ -1,0 +1,12 @@
+Package: carex
+Version: 0.1
+Section: devel
+Priority: extra
+Architecture: all
+Maintainer: Paweł Myszkowski 
+Description: my first sample application which isn't
+ doing anything special.
+ .
+ And other description goes
+ here too.
+ .
