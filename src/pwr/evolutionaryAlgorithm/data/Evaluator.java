@@ -58,7 +58,7 @@ public class Evaluator {
             RS.clearEvaluations();
 
             /// for each rule....
-            for (int r = 0; r < RS.RulesNo(); r++) {
+            for (int r = 0; r < RS.rulesNo(); r++) {
                 DSPart.clear();
                 //if rule is active and returns such class
                 if (RS.getRule(r).isActive()) {
@@ -84,7 +84,7 @@ public class Evaluator {
                 DSResult.clear();
 
                 //////////////////RULES ////////////////////////////////////////////////////
-                for (int r = 0; r < RS.RulesNo(); r++) {
+                for (int r = 0; r < RS.rulesNo(); r++) {
                     //if rule is activa and returns such class
                     if (RS.getRule(r).isActive() && RS.getRule(r).getClassID() == c) {
                         DSPart = EvaluateRule(DSc, RS.getRule(r));
@@ -156,7 +156,7 @@ public class Evaluator {
 
         DataSet DSpart, DScorrect = new DataSet();
 
-        int rules = RS.RulesNo();
+        int rules = RS.rulesNo();
 
         for (int r = 0; r < rules; r++) {
             DSpart = DSc.getCorrect(DSgenerated, RS.getRule(r).getClassID());
@@ -322,7 +322,7 @@ public class Evaluator {
             DSResult.clear();
             rSet.clearEvaluations();
             /// for each rule....
-            for (int r = 0; r < rSet.RulesNo(); r++) {
+            for (int r = 0; r < rSet.rulesNo(); r++) {
                 DSPart.clear();
                 //if rule is active and returns such class
                 if (rSet.getRule(r).isActive()) {
@@ -350,7 +350,7 @@ public class Evaluator {
                 }
 
                 //////////////////RULES ////////////////////////////////////////////////////
-                for (int r = 0; r < rSet.RulesNo(); r++) {
+                for (int r = 0; r < rSet.rulesNo(); r++) {
                     //if rule is activa and returns such class
                     if (rSet.getRule(r).isActive() && rSet.getRule(r).getClassID() == c) {
                         DSPart = EvaluateRule(dataSrc, rSet.getRule(r));

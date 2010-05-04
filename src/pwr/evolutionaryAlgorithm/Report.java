@@ -337,7 +337,7 @@ public class Report implements Serializable {
         f.close();
     }
 
-    void extendedReport(Configuration config, Evaluator eval, RuleSet theBestInd) {
+    public void extendedReport(Configuration config, Evaluator eval, RuleSet theBestInd) {
         if (false) {
             // XXX turned off bigfile generation
             try {
@@ -350,6 +350,7 @@ public class Report implements Serializable {
         }
     }
 //---------------------------------------------------------------------------------------------------------
+
     public int getTestNumber() {
         return TestNumber;
     }
@@ -382,7 +383,7 @@ public class Report implements Serializable {
         consoleReport(sb.toString());
     }
 
-    void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
+    public void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
         StringBuilder sb = new StringBuilder();
         sb.append(Configuration.getConfiguration().toCSVString());
         sb.append(';');
@@ -406,7 +407,7 @@ public class Report implements Serializable {
         addStatistics(generationNo, train, test, train_acc, test_acc, getTotalTime);
     }
 
-    void reportAfterOneGeneration(Individual theBestIndividual,
+    public void reportAfterOneGeneration(Individual theBestIndividual,
             Population mRulePopulation, long generationNo) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
@@ -422,15 +423,15 @@ public class Report implements Serializable {
         consoleReport(sb.toString().replace(".", ","));
     }
 
-    void reportBestInd(Individual theBestOfTheBest) {
+    public void reportBestInd(Individual theBestOfTheBest) {
         consoleReport(" <THE_BEST " + String.format("%.3f", theBestOfTheBest.getEvaluation().getAccuracy()));
     }
 
-    void indicateCrossvalidationFold(int no) {
+    public void indicateCrossvalidationFold(int no) {
         consoleReport("\n\n CROSSVALIDATION " + no + "\n");
     }
 
-    void reportAllToFile(Configuration config, Evaluator eval, Individual theBestOfTheBest, Clock totalTimeClock) {
+    public void reportAllToFile(Configuration config, Evaluator eval, Individual theBestOfTheBest, Clock totalTimeClock) {
         final Report report = config.getReport();
         try {
             // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
@@ -456,11 +457,11 @@ public class Report implements Serializable {
         }
     }
 
-    void evoAlgInitStart(String prompt) {
+    public void evoAlgInitStart(String prompt) {
         System.out.print(prompt + "initalising...");
     }
 
-    void evoAlgInitStop(String prompt, String fileSummary) {
+    public void evoAlgInitStop(String prompt, String fileSummary) {
         System.out.println("done!" + prompt + fileSummary);
     }
 }

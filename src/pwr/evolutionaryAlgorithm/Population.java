@@ -1,37 +1,24 @@
 package pwr.evolutionaryAlgorithm;
 
-import pwr.evolutionaryAlgorithm.Configuration;
 import java.util.ArrayList;
-import java.util.Comparator;
-
+import pwr.evolutionaryAlgorithm.data.DataSource;
+import pwr.evolutionaryAlgorithm.data.Evaluator;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.individual.Individual;
-import pwr.evolutionaryAlgorithm.data.*;
+import pwr.evolutionaryAlgorithm.individual.Rule;
+import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
 public class Population {
 
     private ArrayList<Individual> Individuals;
-
-    //-----------------------------------------------------------------------------------
-    class IndividualComparator implements Comparator {
-
-        public final int compare(Object a, Object b) {
-            if (((Individual) a).getEvaluation().getFitness() == ((Individual) b).getEvaluation().getFitness()) {
-                return 0;
-            } else if (((Individual) a).getEvaluation().getFitness() > ((Individual) b).getEvaluation().getFitness()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        } // end compare
-    } // end class StringComparator
     private float fitnessBest = 0.0f;
     private float fitnessWorst = 0.0f;
     private float fitnessAvg = 0.0f;
     private float fitnessSum = 0.0f;
 
-    //-----------------------------------------------------------------------------------
     /**
+     *
+     *
      * Krzyżowanie i mutacja
      * @param selection selection method 0-roullete, 1-random, 1+tournament (0..N)
      * @param Px probability of crossover (>=0)
@@ -41,36 +28,30 @@ public class Population {
     public Population recombinate() {
         Population tmp = new Population();
         int i = 0; //individuals counter
+        final Configuration configuration = Configuration.getConfiguration();
+        final int selection = configuration.getSelection();
+        final float crossoverValue = configuration.getCrossoverValue();
+        final int popSize = configuration.getPopSize();
+        Individual p1, p2;
         do {
-            Individual p1 = this.Select(Configuration.getConfiguration().getSelection());
-            Individual p2 = this.Select(Configuration.getConfiguration().getSelection());
+            p1 = select(selection);
+            p2 = select(selection);
 
-            if (Rand.GetRandomBooleanFlip(Configuration.getConfiguration().getCrossoverValue())) //crossover?
-            {
-                Individual o;
-                try {
-                    o = p1.Crossover(p1, p2);
-                    o = o.Mutation();
-                    tmp.addInividual(o);
-                    i++;
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            //crossover?
+            if (Rand.getRandomBooleanFlip(crossoverValue)) {
+                tmp.addInividual(p1.crossoverWith(p2).Mutation());
+                i++;
                 //System.out.print("\n X ("+p1.Fitness+" "+p2.Fitness+") => "+o.Fitness+" ");
             } else { //there is no crossover -> p1 and p2 into new population
-                Individual o1 = p1.Mutation();
-                tmp.addInividual(o1);
+                tmp.addInividual(p1.Mutation());
                 i++;
-                if (i < Configuration.getConfiguration().getPopSize()) //there is place?
+                if (i < popSize) //there is place?
                 {
-                    Individual o2 = p2.Mutation();
-                    tmp.addInividual(o2);
+                    tmp.addInividual(p2.Mutation());
                     i++;
                 }
             }
-
-        } while (i < Configuration.getConfiguration().getPopSize());
+        } while (i < popSize);
         return tmp;
     }
 
@@ -115,11 +96,10 @@ public class Population {
     public void Initialise() {
         //System.out.println("X"+this.PopSize+"_"+this.Individuals.size()+"_");
         for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-            this.Individuals.get(i).Initialise();
+            this.Individuals.get(i).Initialize();
         }
     }
 
-    //-----------------------------------------------------------------------------------
     public Population() {
         this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
     }
@@ -128,42 +108,44 @@ public class Population {
     public Population(Individual type) {
         this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
 
-        // changes for extension
+        /* Extension friendly version
+         * unused for performance reasons
         Class c = type.getClass();
         try {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                Individual ind;
-                ind = (Individual) c.newInstance();
-                this.Individuals.add(ind);
-            }
+        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+        Individual ind;
+        ind = (Individual) c.newInstance();
+        this.Individuals.add(ind);
+        }
         } catch (InstantiationException ex) {
-            ex.printStackTrace();
+        ex.printStackTrace();
         } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
-        }
+        ex.printStackTrace();
+        } */
 
 
-        /*
         if (type instanceof RuleSet) {
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-        RuleSet rs = new RuleSet();
-        this.Individuals.add(rs);
-        }
+            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+                RuleSet rs = new RuleSet();
+                this.Individuals.add(rs);
+            }
         } else if (type instanceof Rule) {
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-        Rule r = new Rule();
-        this.Individuals.add(r);
+            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+                Rule r = new Rule();
+                this.Individuals.add(r);
+            }
+        } else {
+            throw new RuntimeException("Oooops... Unsupported Individual type");
         }
-        }*/
     }
 
-    //-----------------------------------------------------------------------------------
     /**
      * Selects individual for population
      * @param selection 0-roullette, 1-random, 1+tournament selection
      * @return individual
      */
-    private Individual Select(int selection) {
+    private Individual select(int selection) {
+        // IF-ELSE class hierarchy struggling to be free XXX
 
         int indv = 0;
         ///////////////////////////// roullette wheel
@@ -178,13 +160,13 @@ public class Population {
             indv = i;
         } else ///////////////////////////// random selection
         if (selection == 1) {
-            indv = Rand.GetRandomInt(Configuration.getConfiguration().getPopSize());
+            indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
         } else ///////////////////////////// tournament selection with repeat
         if (selection > 1) {
             int bestID = 0, candID = 0;
             float bestFitness = 0, candFitness = 0;
             for (int i = 0; i < selection; i++) {
-                candID = Rand.GetRandomInt(Configuration.getConfiguration().getPopSize());
+                candID = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
                 candFitness = this.Individuals.get(candID).getEvaluation().getFitness();
                 if (i == 0 || (i != 0 & bestFitness < candFitness)) {
                     bestID = candID;
@@ -199,27 +181,22 @@ public class Population {
         return this.Individuals.get(indv);
     }
 
-    //-----------------------------------------------------------------------------------
     public void addInividual(Individual inv) {
         this.Individuals.add(inv);
     }
 
-    //-----------------------------------------------------------------------------------
     public float getAvgFitness() {
         return this.fitnessAvg;
     }
 
-    //-----------------------------------------------------------------------------------
     public float getWorstFitness() {
         return this.fitnessWorst;
     }
 
-    //-----------------------------------------------------------------------------------
     public float getBestFitness() {
         return this.fitnessBest;
     }
 
-    //-----------------------------------------------------------------------------------
     /**
      * Gets staticsits about population
      * @return [bestFitness; worstFitness;avgFitness;;;;]
@@ -229,11 +206,11 @@ public class Population {
         return r.toString();
     }
 
-    //-----------------------------------------------------------------------------------
     public Individual getBestIndividual() {
         float f = 0;
         int fi = 0;
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+        final int popSize = Configuration.getConfiguration().getPopSize();
+        for (int i = 0; i < popSize; i++) {
             if (f < this.Individuals.get(i).getEvaluation().getFitness()) {
                 f = this.Individuals.get(i).getEvaluation().getFitness();
                 fi = i;
@@ -242,12 +219,13 @@ public class Population {
         return (this.Individuals.get(fi));
     }
 
-    //-----------------------------------------------------------------------------------
     public String getBest() {
         StringBuilder s = new StringBuilder("");
         float f = 0;
         int fi = 0;
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+
+        final int popSize = Configuration.getConfiguration().getPopSize();
+        for (int i = 0; i < popSize; i++) {
             if (f < this.Individuals.get(i).getEvaluation().getFitness()) {
                 f = this.Individuals.get(i).getEvaluation().getFitness();
                 fi = i;
@@ -256,10 +234,8 @@ public class Population {
 
         s.append("BEST " + this.Individuals.get(fi).toString() + "\n");
         return s.toString();
-
     }
 
-    //-----------------------------------------------------------------------------------
     @Override
     public String toString() {
         //Arrays.sort(this.Individuals.toArray(), new IndividualComparator());
@@ -270,7 +246,6 @@ public class Population {
         return s.toString();
     }
 
-    //-----------------------------------------------------------------------------------
     public class diversity {
 
         public int diff;
@@ -282,18 +257,13 @@ public class Population {
         }
     }
 
-    // -----------------------------------------------------------------------------------
     public diversity getDiversity() {
         diversity d = new diversity();
         int tmp = 0;
         for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
             for (int j = i + 1; j < Configuration.getConfiguration().getPopSize(); j++) {
-                try {
-                    tmp = this.Individuals.get(i).diversityMeasure(this.Individuals.get(j));
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                tmp = this.Individuals.get(i).diversityMeasure(this.Individuals.get(j));
+
                 if (j != i) {
                     if (tmp == 0) {
                         d.clones++;
@@ -305,6 +275,5 @@ public class Population {
         }
         return d;
     }
-    //-----------------------------------------------------------------------------------
 }
 

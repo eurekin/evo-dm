@@ -10,7 +10,7 @@ import java.util.*;
  * Class containing Rules <>---- RuleGene
  * @author bred
  */
-class RuleGene {
+public class RuleGene {
    private BitSet Genes;
    
    static private boolean normalized = true;
@@ -37,7 +37,7 @@ class RuleGene {
 
     public void Mutation(){
         for (int i=0;i<Configuration.getConfiguration().getRuleGeneNoBits();i++){
-            if (Rand.GetRandomBooleanFlip( Configuration.getConfiguration().getMutationValue())){
+            if (Rand.getRandomBooleanFlip( Configuration.getConfiguration().getMutationValue())){
                 this.Genes.flip(i);
             }
         Cond = null;
@@ -49,7 +49,7 @@ class RuleGene {
      */
     public void Initialisation(){
         for (int i=0;i<this.Genes.length();i++){
-            this.Genes.set(i, Rand.GetRandomBooleanFlip(0.5f) );
+            this.Genes.set(i, Rand.getRandomBooleanFlip(0.5f) );
         }
         Cond = null;
     }

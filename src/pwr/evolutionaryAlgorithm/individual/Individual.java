@@ -13,20 +13,10 @@ public abstract class Individual {
         }
     }
 
-    /**
-     * XXX only for class number ZERO?!?
-     *
-     * @return
-     */
     public void setEvaluation(Evaluation E) {
         setEvaluation(0, E);
     }
 
-    /**
-     * XXX only for class number ZERO?!?
-     *
-     * @return
-     */
     public Evaluation getEvaluation() {
         return getEvaluation(0);
     }
@@ -43,15 +33,15 @@ public abstract class Individual {
         Evaluations.add(cl, E);
     }
 
-    public abstract void Initialise();
+    public abstract void Initialize();
 
     public abstract Individual Mutation();
 
-    public abstract Individual Crossover(final Individual Indv1, Individual Indv2) throws Exception;
+    public abstract Individual crossoverWith(final Individual Indv1);
 
-    public abstract int diversityMeasure(final Individual I) throws Exception;
+    public abstract int diversityMeasure(final Individual I);
 
-    protected abstract int getGenesInIndividual() throws Exception;
+    protected abstract int getGenesInIndividual();
 
     @Override
     public abstract String toString();

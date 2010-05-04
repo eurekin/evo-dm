@@ -14,7 +14,7 @@ import pwr.evolutionaryAlgorithm.individual.Individual;
 class SelectingIndividual extends Individual {
 
     @Override
-    public void Initialise() {
+    public void Initialize() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -23,23 +23,24 @@ class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
     @Override
-    public Individual Crossover(Individual Indv1, Individual Indv2) throws Exception {
+    public int diversityMeasure(Individual I) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public int diversityMeasure(Individual I) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    protected int getGenesInIndividual() throws Exception {
+    protected int getGenesInIndividual()  {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public String toString() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Individual crossoverWith(Individual ind)  {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

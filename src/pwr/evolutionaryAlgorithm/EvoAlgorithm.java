@@ -15,7 +15,7 @@ public class EvoAlgorithm {
     private DataLoader dataLoader;
     private Population rulePopulation;
 
-    private void evolve( final Configuration config, final Report report) {
+    private void evolve(final Configuration config, final Report report) {
         // warunek stopu
         boolean stopEval = false;
         generation = 0;
@@ -37,7 +37,7 @@ public class EvoAlgorithm {
             if (config.isEcho()) {
                 report.reportAfterOneGeneration(theBestInd, rulePopulation, generation);
             }
-        } //END: EA works
+        }
         //END: EA works
     }
 

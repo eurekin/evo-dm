@@ -25,7 +25,7 @@ public class RuleSet extends Individual {
     //------------------------------------------------------------------------------
     public RuleSet(final RuleSet RS) {
         this.Rules = new ArrayList<Rule>();
-        for (int i = 0; i < RS.RulesNo(); i++) {
+        for (int i = 0; i < RS.rulesNo(); i++) {
             this.Rules.add(new Rule(RS.Rules.get(i)));
         }
 
@@ -55,11 +55,11 @@ public class RuleSet extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
-    public void Initialise() {
+    @Override
+    public void Initialize() {
         this.Rules.clear();
 
-        int RULES = Rand.GetRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
+        int RULES = Rand.getRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
 
         if (FIXED_LENGTH == false) {
             RULES = Configuration.getConfiguration().getNumberOfRules();
@@ -68,24 +68,21 @@ public class RuleSet extends Individual {
         for (int i = 0; i < RULES; i++) {
             Rule r = new Rule();
             this.Rules.add(r);
-            this.Rules.get(i).Initialise();
+            this.Rules.get(i).Initialize();
         }
 
         this.clearEvaluations();
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public Evaluation getEvaluation() {
         return this.TotalEvaluation;
     }
 
-    //------------------------------------------------------------------------------
     public Evaluation getTotalEvaluation() {
         return this.TotalEvaluation;
     }
 
-    //------------------------------------------------------------------------------
     /*
      * do average value of all classes -> without unused (or not tested) class
      */
@@ -103,12 +100,12 @@ public class RuleSet extends Individual {
         this.TotalEvaluation.doAverage(usedClasses);
     }
 
-    //------------------------------------------------------------------------------
+    @Override
     protected int getGenesInIndividual() {
-        return this.RulesNo();
+        return this.rulesNo();
     }
 
-    //------------------------------------------------------------------------------
+    @Override
     public Individual Mutation() {
         RuleSet RS = new RuleSet();
         for (int i = 0; i < this.Rules.size(); i++) {
@@ -117,48 +114,37 @@ public class RuleSet extends Individual {
         return RS;
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public void clearEvaluations() {
         TotalEvaluation.clear();
         super.clearEvaluations();
-        for (int i = 0; i < this.RulesNo(); i++) {
+        for (int i = 0; i < this.rulesNo(); i++) {
             this.Rules.get(i).clearEvaluations();
         }
     }
-
-    //------------------------------------------------------------------------------
-
     /*
-     *DCC: Data Covering Crossover
+     *DCC: Data Covering crossoverWith
      */
-    public Individual CrossoverDCC(Individual Indv1, Individual Indv2) throws Exception {
+    public Individual CrossoverDCC(Individual Indv1, Individual Indv2) {
         /**
          * TODO: insert code here
          */
         return null;
     }
 
-    //  ------------------------------------------------------------------------------
     /*
-     *BCX: Best Class Crossover
+     *BCX: Best Class crossoverWith
      */
-    private Individual CrossoverBCX(Individual Indv1, Individual Indv2) throws Exception {
+    private static Individual CrossoverBCX(Individual Indv1, Individual Indv2) {
 
         /**
          * @TODO reczna zmiana Fixed lenght
          */
-        FIXED_LENGTH = true;
-
-        if (!(Indv1 instanceof RuleSet) || !(Indv2 instanceof RuleSet)) {
-            throw new Exception("Illegal Object is given!");
-        }
+         FIXED_LENGTH = true;
 
         RuleSet Parent1 = (RuleSet) Indv1;
         RuleSet Parent2 = (RuleSet) Indv2;
-
         RuleSet BetterClassParent = null;
-
         RuleSet Offspring = new RuleSet();
 
         for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
@@ -170,7 +156,7 @@ public class RuleSet extends Individual {
             }
 
             /// find
-            for (int r = 0; r < BetterClassParent.RulesNo(); r++) {
+            for (int r = 0; r < BetterClassParent.rulesNo(); r++) {
                 //if rule is activa and returns such class
                 if (BetterClassParent.getRule(r).isActive() && BetterClassParent.getRule(r).getClassID() == cl) {
                     Rule NewRule = new Rule(BetterClassParent.Rules.get(r));
@@ -181,46 +167,43 @@ public class RuleSet extends Individual {
         return Offspring;
     }
 
-    //------------------------------------------------------------------------------
-    public Individual Crossover(Individual Indv1, Individual Indv2) throws Exception {
+    @Override
+    public Individual crossoverWith(Individual Indv1)  {
 
         if (Configuration.getConfiguration().getCrossoverType() == CrossoverType.BCX) {
-            return CrossoverBCX(Indv1, Indv2);
+            return CrossoverBCX(Indv1, this);
         } else {
-            return CrossoverSimpleCut(Indv1, Indv2);
+            return CrossoverSimpleCut(Indv1, this);
         }
 
     }
 
-    //------------------------------------------------------------------------------
     /**
      * Random cut gives one individual as offsping
      * Chromosome FIXED lenght updated 
      * 
      */
-    private Individual CrossoverSimpleCut(Individual Indv1, Individual Indv2) throws Exception {
+    private static Individual CrossoverSimpleCut(Individual mother, Individual father)  {
 
-        RuleSet RS = new RuleSet();
+        RuleSet rs = new RuleSet();
+        RuleSet P1 = (RuleSet) mother;
+        RuleSet P2 = (RuleSet) father;
 
-        if (!(Indv1 instanceof RuleSet) || !(Indv2 instanceof RuleSet)) {
-            throw new Exception("Illegal Object is given!");
-        }
-
-        RuleSet P1 = (RuleSet) Indv1;
-        RuleSet P2 = (RuleSet) Indv2;
-
-        int MAX = P1.RulesNo();
+        int MAX = P1.rulesNo();
+        int cut;
         boolean biggerP2 = false;
 
-        int cut = Rand.GetRandomInt(P2.RulesNo());
 
-        if (FIXED_LENGTH == true && P1.RulesNo() < P2.RulesNo()) {
-            cut = Rand.GetRandomInt(P1.RulesNo());
+        if (FIXED_LENGTH && P1.rulesNo() < P2.rulesNo()) {
+            cut = Rand.getRandomInt(P1.rulesNo());
             biggerP2 = true;
+        } else {
+            cut = Rand.getRandomInt(P2.rulesNo());
         }
 
+        Rule d;
         for (int i = 0; i < MAX; i++) {
-            Rule d = null;
+            d = null;
             if (biggerP2) {
                 if (i <= cut) {
                     d = new Rule(P1.Rules.get(i));
@@ -234,12 +217,11 @@ public class RuleSet extends Individual {
                     d = new Rule(P1.Rules.get(i));
                 }
             }
-            RS.Rules.add(i, d);
+            rs.Rules.add(i, d);
         }
-        return RS;
+        return rs;
     }
 
-    //------------------------------------------------------------------------------
     public Rule getRule(int ruleID) {
         if (ruleID < this.Rules.size()) {
             return this.Rules.get(ruleID);
@@ -248,12 +230,10 @@ public class RuleSet extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
-    public int RulesNo() {
+    public int rulesNo() {
         return this.Rules.size();
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public String toString() {
         StringBuilder SB = new StringBuilder();
@@ -278,21 +258,20 @@ public class RuleSet extends Individual {
         return SB.toString();
     }
 
-    //------------------------------------------------------------------------------
     /**
      * returns a positive number of contained rules comparision
      */
-    public int diversityMeasure(final Individual I) throws Exception {
+    @Override
+    public int diversityMeasure(final Individual ind) {
         int diff = 0;
-        if (I instanceof RuleSet) {
-            RuleSet RS = (RuleSet) I;
-            for (int i = 0; i < this.RulesNo(); i++) {
+        if (ind instanceof RuleSet) {
+            RuleSet RS = (RuleSet) ind;
+            for (int i = 0; i < this.rulesNo(); i++) {
                 diff = diff + this.Rules.get(i).diversityMeasure(RS.Rules.get(i));
             }
         } else {
-            throw new Exception("Illegal Object is given!");
+            throw new RuntimeException("Illegal Object is given!");
         }
         return diff;
     }
-    //------------------------------------------------------------------------------
 }

@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package pwr.evolutionaryAlgorithm.utils;
 
-import java.util.Random;
+import pl.eurekin.util.MersenneTwisterFast;
 
 /**
  *
@@ -12,44 +8,28 @@ import java.util.Random;
  */
 public class Rand {
 
-    private static Random rnd = new Random();
-    // private static final MersenneTwisterFast rnd = new MersenneTwisterFast();
+    // private static final Random rnd = new Random();
+    private static final MersenneTwisterFast rnd = new MersenneTwisterFast();
 //  private static final MersenneTwister rnd= new MersenneTwister();
 
-    private static void initialise() {
-        //if (rnd==null) rnd = new Random();
-        // if(rnd==null) rnd = new MersenneTwisterFast();
-    }
-
-    public static int GetRandomInt(int maxVal) {
-        if (rnd == null) {
-            initialise();
-        }
+    public static int getRandomInt(int maxVal) {
         return rnd.nextInt(maxVal);
     }
 
     public static float GetRandomFloat() {
-        if (rnd == null) {
-            initialise();
-        }
         return rnd.nextFloat();
     }
 
     public static boolean GetRandomBoolean() {
-        if (rnd == null) {
-            initialise();
-        }
         return rnd.nextBoolean();
     }
 
-    public static boolean GetRandomBooleanFlip(float border) {
-        if (rnd == null) {
-            initialise();
-        }
-        if (Rand.GetRandomFloat() <= border) {
-            return true;
-        } else {
-            return false;
-        }
+    public static boolean getRandomBooleanFlip(float border) {
+        return rnd.nextFloat() <= border;
+    }
+
+    public static void main (String ... args) {
+        System.out.println(
+        Long.toHexString(Double.doubleToLongBits(Math.random())));
     }
 }

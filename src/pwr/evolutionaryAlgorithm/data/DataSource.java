@@ -162,7 +162,7 @@ public class DataSource {
 //------------------------------------------------------------------------------
     
     public Record removeRandomRecord(){
-    	int r = Rand.GetRandomInt( Data.size());
+    	int r = Rand.getRandomInt( Data.size());
     	Record R = Data.remove(r);
     	return R;
     }
