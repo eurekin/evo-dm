@@ -17,7 +17,7 @@ public class Population {
     private float fitnessSum = 0.0f;
 
     /**
-     *
+     * Proper OO implementation
      *
      * Krzyżowanie i mutacja
      * @param selection selection method 0-roullete, 1-random, 1+tournament (0..N)
@@ -63,10 +63,10 @@ public class Population {
      */
     public void evaluate(DataSource DSc) {
 
-        int pop_size = Configuration.getConfiguration().getPopSize();
+        int popSize = Configuration.getConfiguration().getPopSize();
         Evaluator E = Evaluator.getEvaluator();
 
-        for (int i = 0; i < pop_size; i++) {
+        for (int i = 0; i < popSize; i++) {
             E.evaluate(DSc, this.Individuals.get(i));
         }
 
@@ -75,7 +75,7 @@ public class Population {
         ////////// STATISTICS
         float fitness = 0.0f;
         fitnessSum = 0;
-        for (int i = 0; i < pop_size; i++) {
+        for (int i = 0; i < popSize; i++) {
             fitness = this.Individuals.get(i).getEvaluation().getFitness();
             fitnessSum = fitnessSum + fitness;
             if (i == 0) {
