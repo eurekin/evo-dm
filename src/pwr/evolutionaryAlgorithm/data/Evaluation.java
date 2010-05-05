@@ -11,55 +11,45 @@ public class Evaluation {
     protected float Accuracy;
     protected boolean done;
 
-//	------------------------------------------------------------------------------
     public float getFsc() {
         return this.Fsc;
     }
-//	------------------------------------------------------------------------------
 
     public void setPrecision(float f) {
         this.Precision = f;
         this.done = true;
     }
-//  ------------------------------------------------------------------------------
 
     public void setRecall(float f) {
         this.Recall = f;
         this.done = true;
     }
-//  ------------------------------------------------------------------------------
 
     public float getPrecision() {
         return this.Precision;
     }
-//  ------------------------------------------------------------------------------
 
     public float getRecall() {
         return this.Recall;
     }
-//  ------------------------------------------------------------------------------
 
     public float getAccuracy() {
         return this.Accuracy;
     }
-//  ------------------------------------------------------------------------------
 
     public void setAccuracy(float acc) {
         this.Accuracy = acc;
         this.done = true;
     }
-//  ------------------------------------------------------------------------------
 
     public void setFitness(float f) {
         this.Fitness = f;
         this.done = true;
     }
-//  ------------------------------------------------------------------------------
 
     public float getFitness() {
         return this.Fitness;
     }
-//  ------------------------------------------------------------------------------
 
     public void clear() {
         Precision = 0;
@@ -69,7 +59,6 @@ public class Evaluation {
         Accuracy = 0;
         this.done = false;
     }
-//	------------------------------------------------------------------------------
 
     public Evaluation(final Evaluation E) {
         this.Precision = E.Precision;
@@ -79,7 +68,6 @@ public class Evaluation {
         this.Accuracy = E.Accuracy;
         this.done = true;
     }
-//	------------------------------------------------------------------------------
 
     public Evaluation(float P, float R, float Fsc, float Acc) {
         this.Precision = P;
@@ -95,7 +83,6 @@ public class Evaluation {
         this.Accuracy = Acc;
         this.done = true;
     }
-//	------------------------------------------------------------------------------
 
     public void set(float P, float R, float Fsc, float Acc) {
         this.Precision = P;
@@ -128,7 +115,6 @@ public class Evaluation {
         this.done = false;
     }
 
-//	------------------------------------------------------------------------------
     public void doAverage(int classes) {
         this.Precision = this.Precision / classes;
         this.Recall = this.Recall / classes;
@@ -144,7 +130,6 @@ public class Evaluation {
         this.done = true;
     }
 
-//	------------------------------------------------------------------------------
     public Evaluation() {
         Precision = Configuration.getConfiguration().getFINTESSDEFAULT();
         Recall = Configuration.getConfiguration().getFINTESSDEFAULT();
@@ -153,12 +138,10 @@ public class Evaluation {
         Accuracy = Configuration.getConfiguration().getFINTESSDEFAULT();
         this.done = false;
     }
-//	------------------------------------------------------------------------------
 
     public boolean isDone() {
         return done;
     }
-//	------------------------------------------------------------------------------
 
     @Override
     public String toString() {
@@ -174,6 +157,5 @@ public class Evaluation {
         }
         return SB.toString();
     }
-//	------------------------------------------------------------------------------
 }
 

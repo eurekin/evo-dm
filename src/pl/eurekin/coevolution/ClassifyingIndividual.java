@@ -14,4 +14,8 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  */
 public class ClassifyingIndividual extends RuleSet {
 
+    void evaluateUsingSubset(SelectingIndividual s) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
 }

@@ -44,4 +44,8 @@ public class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    void evaluateUsingClassifier(ClassifyingIndividual c) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
 }

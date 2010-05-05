@@ -15,6 +15,12 @@ public class EvoAlgorithm {
     private DataLoader dataLoader;
     private Population rulePopulation;
 
+    /**
+     * Evolutionary Algorithm - core implementation
+     * 
+     * @param config supplying parameters
+     * @param report object to send messages to
+     */
     private void evolve(final Configuration config, final Report report) {
         // warunek stopu
         boolean stopEval = false;
@@ -40,7 +46,7 @@ public class EvoAlgorithm {
         //END: EA works
     }
 
-    private void updateTheBestIndividual(Individual I) {
+     private void updateTheBestIndividual(Individual I) {
         theBestInd = new RuleSet((RuleSet) (I));
     }
 

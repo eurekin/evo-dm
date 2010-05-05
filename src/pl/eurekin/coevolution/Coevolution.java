@@ -1,7 +1,8 @@
 package pl.eurekin.coevolution;
 
-import pwr.evolutionaryAlgorithm.Population;
+import java.util.Iterator;
 import org.apache.log4j.Logger;
+import pwr.evolutionaryAlgorithm.Population;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.Report;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
@@ -17,13 +18,13 @@ import pwr.evolutionaryAlgorithm.utils.Clock;
 public class Coevolution {
 
     public static final Logger LOG = Logger.getLogger(Coevolution.class);
-    private Population selectors;
-    private Population classifiers;
+    private Population<SelectingIndividual> selectors;
+    private Population<ClassifyingIndividual> classifiers;
     private Population selectingPopulation;
 
     private void createPopulations() {
-        selectors = new Population(new SelectingIndividual());
-        classifiers = new Population(new ClassifyingIndividual());
+        selectors = new Population<SelectingIndividual>(new SelectingIndividual());
+        classifiers = new Population<ClassifyingIndividual>(new ClassifyingIndividual());
     }
 
     public static void main(String... args) {
@@ -83,7 +84,7 @@ public class Coevolution {
         classifyingPopulation.init();
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
-        classifyingPopulation = new Population(new RuleSet());
+        createPopulations();
     }
 
     public Coevolution(String ConfigFileName, String ResearchComment) {
@@ -107,23 +108,7 @@ public class Coevolution {
     }
 
     public void start() {
-        /**
-         * Potrzebujemy dwóch ewaluatorów.
-         *
-         * Jednego do oceniania osobników klasyfikujących. Można skorzystać
-         * z istniejącego kodu. Należy zmodyfikować ocenę tak, aby uwzględnione
-         * zostały odpowiednie przykładu -- wyselekcjonowane przez drugą
-         * populację.
-         *
-         * Drugi ewaluator jest kwestią otwartą. Można zaimplemenentować
-         * ocenę osobnika wybierającego na podstawie tego, jak bardzo
-         * utrudnił osobnikowi oceniającemu. W ten sposób wyselekcjonują
-         * najcięższe przypadki - przynajmniej w zamierzeniu...
-         *
-         * Ocena osobników wybierających zależy od oceny osobników
-         * klasyfikujących i dlatego należy zadbać o poprawną kolejność
-         * wykonywania.
-         */
+
         Evaluator eval = Evaluator.getEvaluator();
         Individual theBestOfTheBest = null;
         totalTimeClock = new Clock();
@@ -153,8 +138,7 @@ public class Coevolution {
 
                 classifyingPopulation.evaluate(DataLoader.getTrainData());
                 // Stubs -
-                evaluateClassifyingPopulation(classifyingPopulation, selectingPopulation);
-                evaluateSelectingPopulation(selectingPopulation, classifyingPopulation);
+                evaluatePopulations();
 
                 updateTheBestIndividual(classifyingPopulation.getBestIndividual());
 
@@ -172,6 +156,16 @@ public class Coevolution {
         report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
     }
 
+    /**
+     * Implementacja musi ulec zmodyfikowaniu na potrzeby koewolucji.
+     *
+     * <p> Dodatkowe wyjaśnienie jak w:
+     * {@link #getNewBestOfTheBestIndividual(Individual, Evaluator, Configuration) }
+     * 
+     * @param eval
+     * @param report
+     * @param config
+     */
     public void evaluateAndReport(Evaluator eval, Report report, Configuration config) {
         eval.evaluate(DataLoader.getTrainData(), theBestInd);
         float train_fsc = theBestInd.getEvaluation().getFsc();
@@ -185,6 +179,19 @@ public class Coevolution {
         report.extendedReport(config, eval, (RuleSet) theBestInd);
     }
 
+    /**
+     * Żywcem wyjęte z Evolution.java. Możnaby dziedziczyć tą metodę ze
+     * wspomnianej klasy, jednak ze względów efektywnościowych tego nie
+     * robię. Rozszerzanie klas uniemożliwia wykonanie optymalizacji
+     * typy <em>inlining</em> przez kompilator. Ostatecznie najlepiej
+     * przekształcić tą metodę na statyczną i odwoływać się do niej z
+     * obydwu klas.
+     *
+     * @param bestInd
+     * @param eval
+     * @param config
+     * @return
+     */
     public Individual getNewBestOfTheBestIndividual(Individual bestInd,
             Evaluator eval, Configuration config) {
         if (bestInd == null) {
@@ -199,15 +206,55 @@ public class Coevolution {
         return bestInd;
     }
 
+    /**
+     * Pewne wątpliwości budzi obecność tej metody w klasie. W jaki
+     * sposób właściwie ta informacja miałaby być pobierana? Główny
+     * algorytm jest blokujący, więc w grę wchodzi jedynie inny wątek.
+     * To z kolei wymagałoby użycia mechanizmu synchronizacj.
+     * 
+     * @return aktualna liczba pokoleń
+     */
     public long getGeneration() {
-        return this.generation;
+        return generation;
     }
 
-    private void evaluateSelectingPopulation(Population selectingPopulation, Population classifyingPopulation) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+    /**
+     * <p>Ocenia osobniki w populacjach używając podejścia 1-1: jednemu
+     * osobnikowi klasyfikującemu przypada jeden wybierający.
+     *
+     * <p>Potrzebujemy dwóch ewaluatorów:
+     *
+     * <p>Jednego do oceniania osobników klasyfikujących. Można skorzystać
+     * z istniejącego kodu. Należy zmodyfikować ocenę tak, aby uwzględnione
+     * zostały odpowiednie przykładu -- wyselekcjonowane przez drugą
+     * populację.
+     *
+     * <p>Drugi ewaluator jest kwestią otwartą. Można zaimplemenentować
+     * ocenę osobnika wybierającego na podstawie tego, jak bardzo
+     * utrudnił osobnikowi oceniającemu. W ten sposób wyselekcjonują
+     * najcięższe przypadki - przynajmniej w zamierzeniu...
+     *
+     * <p>Ocena osobników wybierających zależy od oceny osobników
+     * klasyfikujących i dlatego należy zadbać o poprawną kolejność
+     * wykonywania.
+     */
+    private void evaluatePopulations() {
+        // boilerplate
+        Iterator<SelectingIndividual> si = selectingPopulation.iterator();
+        Iterator<ClassifyingIndividual> ci = classifyingPopulation.iterator();
+        SelectingIndividual s;
+        ClassifyingIndividual c;
+        while (si.hasNext() && ci.hasNext()) {
+            s = si.next();
+            c = ci.next();
 
-    private void evaluateClassifyingPopulation(Population classifyingPopulation, Population selectingPopulation) {
-        throw new UnsupportedOperationException("Not yet implemented");
+            // evaluation
+            c.evaluateUsingSubset(s);
+            s.evaluateUsingClassifier(c);
+        }
+
+        // health & safety
+        assert !si.hasNext() && !ci.hasNext() :
+                "Co-evolving populations differ in size";
     }
 }
