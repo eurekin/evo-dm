@@ -26,7 +26,6 @@ public class EvoAlgorithm {
             generation++;
             rulePopulation.evaluate(DataLoader.getTrainData());
             //the best individual
-            // W0000t ?! evaluation only for one class?! TODO XXX
             if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
                 theBestInd = new RuleSet((RuleSet) (rulePopulation.getBestIndividual()));
             }
@@ -57,10 +56,10 @@ public class EvoAlgorithm {
         myClock.Reset();
         myClock = new Clock();
         theBestInd = new RuleSet();
-        rulePopulation.Initialise();
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
         rulePopulation = new Population(new RuleSet());
+        rulePopulation.Initialise();
     }
 
     public EvoAlgorithm(String ConfigFileName, String ResearchComment) {

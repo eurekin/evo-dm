@@ -92,19 +92,18 @@ public class Population {
         ////////// END: STATISTICS
     }
 
-    //-----------------------------------------------------------------------------------
     public void Initialise() {
         //System.out.println("X"+this.PopSize+"_"+this.Individuals.size()+"_");
         for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
             this.Individuals.get(i).Initialize();
         }
+
     }
 
     public Population() {
         this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
     }
 
-    //-----------------------------------------------------------------------------------
     public Population(Individual type) {
         this.Individuals = new ArrayList<Individual>(Configuration.getConfiguration().getPopSize());
 
@@ -137,6 +136,7 @@ public class Population {
         } else {
             throw new RuntimeException("Oooops... Unsupported Individual type");
         }
+
     }
 
     /**
@@ -149,20 +149,7 @@ public class Population {
 
         int indv = 0;
         ///////////////////////////// roullette wheel
-        if (selection == 0) {
-            float rToken = Rand.GetRandomFloat() * this.fitnessSum;
-            float partSum = 0.0f;
-            int i = -1;
-            do {
-                i++;
-                partSum = partSum + this.Individuals.get(i).getEvaluation().getFitness();
-            } while (partSum <= rToken && i < (Configuration.getConfiguration().getPopSize() - 1));
-            indv = i;
-        } else ///////////////////////////// random selection
-        if (selection == 1) {
-            indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
-        } else ///////////////////////////// tournament selection with repeat
-        if (selection > 1) {
+        if (selection > 1) { ///////////////////////////// tournament selection with repeat
             int bestID = 0, candID = 0;
             float bestFitness = 0, candFitness = 0;
             for (int i = 0; i < selection; i++) {
@@ -174,8 +161,20 @@ public class Population {
                 }
             }
             indv = bestID;
+        } else if (selection == 1) { ///////////////////////////// random selection
+            indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
+        } else if (selection == 0) {
+            float rToken = Rand.GetRandomFloat() * fitnessSum;
+            float partSum = 0.0f;
+            int i = -1;
+            do {
+                i++;
+                partSum = partSum + Individuals.get(i).getEvaluation().getFitness();
+            } while (partSum <= rToken && i < (Configuration.getConfiguration().getPopSize() - 1));
+            indv = i;
+        } else {
+            throw new RuntimeException("Wrong selection: " + selection);
         }
-        //////////////////////////////////
 
         // if (Configuration.isEcho()) System.out.print(" s("+selection+")->"+indv+" \n");
         return this.Individuals.get(indv);
@@ -211,8 +210,9 @@ public class Population {
         int fi = 0;
         final int popSize = Configuration.getConfiguration().getPopSize();
         for (int i = 0; i < popSize; i++) {
-            if (f < this.Individuals.get(i).getEvaluation().getFitness()) {
-                f = this.Individuals.get(i).getEvaluation().getFitness();
+            final float fitness = this.Individuals.get(i).getEvaluation().getFitness();
+            if (f < fitness) {
+                f = fitness;
                 fi = i;
             }
         }
@@ -220,14 +220,15 @@ public class Population {
     }
 
     public String getBest() {
-        StringBuilder s = new StringBuilder("");
+        StringBuilder s = new StringBuilder();
         float f = 0;
         int fi = 0;
 
         final int popSize = Configuration.getConfiguration().getPopSize();
         for (int i = 0; i < popSize; i++) {
-            if (f < this.Individuals.get(i).getEvaluation().getFitness()) {
-                f = this.Individuals.get(i).getEvaluation().getFitness();
+            final float fitness = this.Individuals.get(i).getEvaluation().getFitness();
+            if (f < fitness) {
+                f = fitness;
                 fi = i;
             }
         }
