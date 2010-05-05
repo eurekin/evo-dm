@@ -6,7 +6,7 @@ package pwr.evolutionaryAlgorithm.data;
  *
  * @author pawelm
  */
-class Record {
+public class Record {
 
 private int size;
 private float [] values;
@@ -84,7 +84,6 @@ public boolean isSatisfy(Rule r){
 }
 */
 
-//------------------------------------------------------------------------------
 
 public boolean isSatisfy(Condition C){
     switch (C.getRelation()){
@@ -96,13 +95,11 @@ public boolean isSatisfy(Condition C){
     return false;
 }
 
-//------------------------------------------------------------------------------
 
 public float getMaxAttribValue(int attrib){
    return  this.values[attrib];
 }
 
-//------------------------------------------------------------------------------
 
 public float getMinAttribValue(int attrib){
     return  this.values[attrib];

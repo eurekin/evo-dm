@@ -8,7 +8,7 @@ import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
-public class Population {
+public class Population{
 
     private ArrayList<Individual> Individuals;
     private float fitnessBest = 0.0f;
@@ -55,7 +55,6 @@ public class Population {
         return tmp;
     }
 
-    //-----------------------------------------------------------------------------------
     /**
      * Evalutation of population
      * @version Rule evaluation, scaling
@@ -92,10 +91,10 @@ public class Population {
         ////////// END: STATISTICS
     }
 
-    public void Initialise() {
+    public void init() {
         //System.out.println("X"+this.PopSize+"_"+this.Individuals.size()+"_");
         for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-            this.Individuals.get(i).Initialize();
+            this.Individuals.get(i).init();
         }
 
     }
@@ -148,7 +147,7 @@ public class Population {
         // IF-ELSE class hierarchy struggling to be free XXX
 
         int indv = 0;
-        ///////////////////////////// roullette wheel
+
         if (selection > 1) { ///////////////////////////// tournament selection with repeat
             int bestID = 0, candID = 0;
             float bestFitness = 0, candFitness = 0;
@@ -163,7 +162,7 @@ public class Population {
             indv = bestID;
         } else if (selection == 1) { ///////////////////////////// random selection
             indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
-        } else if (selection == 0) {
+        } else if (selection == 0) {        ////////////////////// roullette wheel
             float rToken = Rand.GetRandomFloat() * fitnessSum;
             float partSum = 0.0f;
             int i = -1;

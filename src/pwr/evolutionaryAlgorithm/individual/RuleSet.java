@@ -56,7 +56,7 @@ public class RuleSet extends Individual {
     }
 
     @Override
-    public void Initialize() {
+    public void init() {
         this.Rules.clear();
 
         int RULES = Rand.getRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
@@ -68,7 +68,7 @@ public class RuleSet extends Individual {
         for (int i = 0; i < RULES; i++) {
             Rule r = new Rule();
             this.Rules.add(r);
-            this.Rules.get(i).Initialize();
+            this.Rules.get(i).init();
         }
 
         this.clearEvaluations();

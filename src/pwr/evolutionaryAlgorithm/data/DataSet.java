@@ -15,7 +15,6 @@ public class DataSet {
     private float Accuracy = 0;
     private float Fsc = 0;
     
-//------------------------------------------------------------------------------
     
     public void setEvaluation(float prec, float rec, float acc, float fsc){
         this.Precision = prec;
@@ -24,33 +23,28 @@ public class DataSet {
         this.Fsc = fsc;
     }
     
-//  ------------------------------------------------------------------------------
       
     public float getFsc(){
     	return this.Fsc;
     }
 
-//  ------------------------------------------------------------------------------
     
     public float getPrecision(){
         return Precision;
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public float getRecall(){
         return this.Recall;
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public float getAccuracy(){
         return this.Accuracy;
     }
     
-//  ------------------------------------------------------------------------------
       
 
     /**
@@ -58,49 +52,42 @@ public class DataSet {
      */
     private ArrayList<Record> records;
     
-//  ------------------------------------------------------------------------------
       
 
     public Record getRecord(int i){
         return this.records.get(i);
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public DataSet(  ){
     this.records = new ArrayList<Record>();
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public DataSet( DataSet D ){
     this.records = new ArrayList<Record>( D.records );
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public void removeRecord(final Record R){
         this.records.remove(R);
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public void addRecord(final Record R){
         this.records.add(R);
     }
     
-//  ------------------------------------------------------------------------------
       
 
    public long elements(){
       return this.records.size();
     }
    
-// ------------------------------------------------------------------------------
      
 
     public boolean empty(){
@@ -108,21 +95,18 @@ public class DataSet {
       else return false;
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public void clear(){
         this.records.clear();
     }
     
-//  ------------------------------------------------------------------------------
       
 
     public boolean contains(final Record R){
         return this.records.contains(R);
     }
     
-//  ------------------------------------------------------------------------------
       
     /**
      * @todo prosty kod! poprawic na linkedshaset (?)
@@ -144,7 +128,6 @@ public class DataSet {
         return Result;
     }
     
-//  ------------------------------------------------------------------------------
       
 
     /**
@@ -163,7 +146,6 @@ public class DataSet {
         return Result;
    }
    
-// ------------------------------------------------------------------------------
      
     @Override
    public String toString(){
@@ -173,7 +155,6 @@ public class DataSet {
    }
   
     
-//  ------------------------------------------------------------------------------
       
     
 }

@@ -12,6 +12,6 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  *
  * @author Rekin
  */
-class ClassifyingIndividual extends RuleSet {
+public class ClassifyingIndividual extends RuleSet {
 
 }

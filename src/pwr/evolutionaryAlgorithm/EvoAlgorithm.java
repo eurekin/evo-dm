@@ -59,7 +59,7 @@ public class EvoAlgorithm {
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
         rulePopulation = new Population(new RuleSet());
-        rulePopulation.Initialise();
+        rulePopulation.init();
     }
 
     public EvoAlgorithm(String ConfigFileName, String ResearchComment) {
@@ -106,7 +106,7 @@ public class EvoAlgorithm {
 
                 // tworzenie nowej populacji
                 rulePopulation = new Population(new RuleSet());
-                rulePopulation.Initialise();
+                rulePopulation.init();
                 theBestInd = null;
 
                 rulePopulation.evaluate(DataLoader.getTrainData());
@@ -122,7 +122,8 @@ public class EvoAlgorithm {
                 theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
             }
             DataLoader.doCrossvalidationNext();
-        }//END: CROSSVALIDATION CV TIMES
+        }
+        //END: CROSSVALIDATION CV TIMES
         report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
     }
 

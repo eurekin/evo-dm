@@ -21,11 +21,6 @@ public class Coevolution {
     private Population classifiers;
     private Population selectingPopulation;
 
-
-    public void evolve() {
-        LOG.trace("Starting evolution.");
-    }
-
     private void createPopulations() {
         selectors = new Population(new SelectingIndividual());
         classifiers = new Population(new ClassifyingIndividual());
@@ -36,9 +31,6 @@ public class Coevolution {
 
         LOG.trace("Ending main");
     }
-
-
-
     private Clock myClock;
     private long generation;
     private Clock totalTimeClock;
@@ -47,6 +39,7 @@ public class Coevolution {
     private Population classifyingPopulation;
 
     private void evolve(final Configuration config, final Report report) {
+        LOG.trace("Starting evolution.");
         // warunek stopu
         boolean stopEval = false;
         generation = 0;
@@ -87,7 +80,7 @@ public class Coevolution {
         myClock.Reset();
         myClock = new Clock();
         theBestInd = new RuleSet();
-        classifyingPopulation.Initialise();
+        classifyingPopulation.init();
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
         classifyingPopulation = new Population(new RuleSet());
@@ -114,6 +107,23 @@ public class Coevolution {
     }
 
     public void start() {
+        /**
+         * Potrzebujemy dwóch ewaluatorów.
+         *
+         * Jednego do oceniania osobników klasyfikujących. Można skorzystać
+         * z istniejącego kodu. Należy zmodyfikować ocenę tak, aby uwzględnione
+         * zostały odpowiednie przykładu -- wyselekcjonowane przez drugą
+         * populację.
+         *
+         * Drugi ewaluator jest kwestią otwartą. Można zaimplemenentować
+         * ocenę osobnika wybierającego na podstawie tego, jak bardzo
+         * utrudnił osobnikowi oceniającemu. W ten sposób wyselekcjonują
+         * najcięższe przypadki - przynajmniej w zamierzeniu...
+         *
+         * Ocena osobników wybierających zależy od oceny osobników
+         * klasyfikujących i dlatego należy zadbać o poprawną kolejność
+         * wykonywania.
+         */
         Evaluator eval = Evaluator.getEvaluator();
         Individual theBestOfTheBest = null;
         totalTimeClock = new Clock();
@@ -138,7 +148,7 @@ public class Coevolution {
                 // tworzenie nowej populacji
                 classifyingPopulation = new Population(new ClassifyingIndividual());
                 selectingPopulation = new Population(new SelectingIndividual());
-                classifyingPopulation.Initialise();
+                classifyingPopulation.init();
                 theBestInd = null;
 
                 classifyingPopulation.evaluate(DataLoader.getTrainData());

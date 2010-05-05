@@ -1,6 +1,8 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
+import pl.eurekin.coevolution.ClassifyingIndividual;
+import pl.eurekin.coevolution.SelectingIndividual;
 
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.*;
@@ -8,14 +10,12 @@ import pwr.evolutionaryAlgorithm.individual.*;
 /*
  * Singleton class
  */
-/////////////////////////////////////////////////////////////////////////////////
 public class Evaluator {
 
     static private Evaluator e = null;
     private ArrayList<DataSet> Datas = null;
     private int IndividualPointer = 0;
 
-//-----------------------------------------------------------------------------
     static public Evaluator getEvaluator() {
         if (e == null) {
             e = new Evaluator();
@@ -23,14 +23,12 @@ public class Evaluator {
         return e;
     }
 
-//------------------------------------------------------------------------------
     /**
      * private constructor
      */
     private Evaluator() {
     }
 
-//------------------------------------------------------------------------------
     public void evaluate(DataSource DSc, Individual I) {
         if (I instanceof RuleSet) {
             EvaluateRuleSet(DSc, (RuleSet) I);
@@ -39,7 +37,6 @@ public class Evaluator {
         }
     }
 
-//------------------------------------------------------------------------------
     /**
      * evaluates RuleSet
      * @param DSc datasource (traint/test)
@@ -103,7 +100,70 @@ public class Evaluator {
         return DSResult;
     }
 
-//------------------------------------------------------------------------------
+    /**
+     * evaluates RuleSet using specified subset of DataSource
+     * @param ds datasource (traint/test)
+     * @param RuleSet
+     * @return DataSet of all covered data
+     */
+    public DataSet EvaluateRuleSetUsingSelector(
+            DataSource ds, SelectingIndividual sl, ClassifyingIndividual cl) {
+
+        DataSet DSPart = new DataSet();
+        DataSet DSResult = new DataSet();
+
+        ///////////////////////////////////////////
+        /// only one class active!
+        if (Configuration.getConfiguration().isOneClassActive()) {
+            DSResult.clear();
+            cl.clearEvaluations();
+
+            /// for each rule....
+            for (int r = 0; r < cl.rulesNo(); r++) {
+                DSPart.clear();
+                //if rule is active and returns such class
+                if (cl.getRule(r).isActive()) {
+
+                    DSPart = EvaluateRule(ds, cl.getRule(r));
+                    DSResult = DataSet.OperatorPlus(DSResult, DSPart);
+
+                }
+            } ///// end: for each rule
+            /////// CLASS Summary ///////////////
+            EvaluateDataSet(ds, DSResult, Configuration.getConfiguration().getActiveClass());
+            ///
+            Evaluation E = new Evaluation(DSResult.getPrecision(), DSResult.getRecall(), DSResult.getFsc(), DSResult.getAccuracy());
+            cl.setEvaluation(E);
+        } // all classes are active
+        //for each class....
+        else {
+            cl.clearEvaluations();
+
+            ////////////////// CLASSESS ////////////////////////////////////////
+            for (int c = 0; c < DataLoader.getClassNumber(); c++) {
+                DSPart.clear();
+                DSResult.clear();
+
+                //////////////////RULES ////////////////////////////////////////
+                for (int r = 0; r < cl.rulesNo(); r++) {
+                    //if rule is activa and returns such class
+                    if (cl.getRule(r).isActive() && cl.getRule(r).getClassID() == c) {
+                        DSPart = EvaluateRule(ds, cl.getRule(r));
+                        DSResult = DataSet.OperatorPlus(DSResult, DSPart);
+                    }
+                }
+                ////////////////END: RULES /////////////////////////////////////
+
+                /////// CLASS Summary ///////////////
+                EvaluateDataSet(ds, DSResult, c);
+                Evaluation E = new Evaluation(DSResult.getPrecision(), DSResult.getRecall(), DSResult.getFsc(), DSResult.getAccuracy());
+                cl.setEvaluation(c, E);
+            }//////////////////END:CLASSESS ////////////////////////////////////
+        }
+        cl.doCountTotalEvaluation(DataLoader.getClassNumber());
+        return DSResult;
+    }
+
     private DataSet EvaluateRule(DataSource DSc, Rule R) {
 
         Configuration Config = Configuration.getConfiguration();
@@ -121,7 +181,6 @@ public class Evaluator {
         return DS;
     }
 
-//	------------------------------------------------------------------------------
     protected DataSet getCoveredDataSet(DataSource DS, Rule R) {
         Condition c = null;
         DataSet Cand = new DataSet();
@@ -151,7 +210,6 @@ public class Evaluator {
         return Cand;
     }
 
-//	------------------------------------------------------------------------------
     private DataSet getAllCorrectClassified(DataSource DSc, DataSet DSgenerated, RuleSet RS) {
 
         DataSet DSpart, DScorrect = new DataSet();
@@ -165,7 +223,6 @@ public class Evaluator {
         return DScorrect;
     }
 
-//	------------------------------------------------------------------------------
     public void clearBB() {
         int pop_size = Configuration.getConfiguration().getPopSize();
         if (Datas == null) {
@@ -174,14 +231,12 @@ public class Evaluator {
         this.IndividualPointer = 0;
     }
 
-//	------------------------------------------------------------------------------
     public void EvaluateBB(DataSource DSc, Individual I) {
         DataSet DSgenerated = this.EvaluateRuleSet(DSc, (RuleSet) I);
         DataSet DScorrect = this.getAllCorrectClassified(DSc, DSgenerated, (RuleSet) I);
         this.Datas.set(this.IndividualPointer++, DScorrect);
     }
 
-//	------------------------------------------------------------------------------
     public void CalculateBB() {
         //int pop_size = Configuration.getConfiguration().getPopSize();
         /**
@@ -189,16 +244,15 @@ public class Evaluator {
          */
     }
 
-//	------------------------------------------------------------------------------
     public void UpdateFitnessBB(Individual I, int IndvNo) {
         /**
          * TODO BB update fitness
          */
     }
 
-//	------------------------------------------------------------------------------
     /**
-     * Method that looks for DataSource ang gives information about DataSet (acc, prec, rec and Fsc) in given class
+     * Method that looks for DataSource ang gives information about DataSet
+     * (acc, prec, rec and Fsc) in given class
      */
     protected float EvaluateDataSet(DataSource DSc, DataSet DS, int class_id) {
 
@@ -267,7 +321,6 @@ public class Evaluator {
         //return accuracy;
     }
 
-//  ------------------------------------------------------------------------------
     /**
      * returns classification report for selectet rule
      * @param DSc datasource
@@ -303,7 +356,6 @@ public class Evaluator {
         return SB.toString();
     }
 
-    //------------------------------------------------------------------------------
     /**
      * Return as string Report of classification of selected RuleSet
      * @param DS dataSource (Train or Test) as dataScurce
@@ -340,7 +392,7 @@ public class Evaluator {
         //for each class....
         else {
             rSet.clearEvaluations();
-            ////////////////// CLASSESS ////////////////////////////////////////////////////
+            ////////////////// CLASSESS ////////////////////////////////////////
             for (int c = 0; c < DataLoader.getClassNumber(); c++) {
                 DSPart.clear();
                 DSResult.clear();
@@ -349,7 +401,7 @@ public class Evaluator {
                     SB.append("=> NO INSTANCES");
                 }
 
-                //////////////////RULES ////////////////////////////////////////////////////
+                //////////////////RULES ////////////////////////////////////////
                 for (int r = 0; r < rSet.rulesNo(); r++) {
                     //if rule is activa and returns such class
                     if (rSet.getRule(r).isActive() && rSet.getRule(r).getClassID() == c) {
@@ -360,13 +412,13 @@ public class Evaluator {
                         DSResult = DataSet.OperatorPlus(DSResult, DSPart);
                     }
                 }
-                ////////////////END: RULES ////////////////////////////////////////////////////
+                ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
                 EvaluateDataSet(dataSrc, DSResult, c);
                 Evaluation E = new Evaluation(DSResult.getPrecision(), DSResult.getRecall(), DSResult.getFsc(), DSResult.getAccuracy());
                 rSet.setEvaluation(c, E);
-            }//////////////////END:CLASSESS ////////////////////////////////////////////////////
+            }//////////////////END:CLASSESS ////////////////////////////////////
         }
         rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
 
@@ -377,5 +429,4 @@ public class Evaluator {
 
         return SB.toString();
     }
-//------------------------------------------------------------------------------
 }

@@ -11,10 +11,10 @@ import pwr.evolutionaryAlgorithm.individual.Individual;
  *
  * @author Rekin
  */
-class SelectingIndividual extends Individual {
+public class SelectingIndividual extends Individual {
 
     @Override
-    public void Initialize() {
+    public void init() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

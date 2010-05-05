@@ -53,7 +53,7 @@ public class Rule extends Individual {
 
     //------------------------------------------------------------------------------
     @Override
-    public void Initialize() {
+    public void init() {
         this.Active = Rand.GetRandomBoolean();
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
             ConditionOnAttribute.get(i).Initialisation();

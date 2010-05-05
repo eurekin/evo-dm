@@ -33,7 +33,7 @@ public abstract class Individual {
         Evaluations.add(cl, E);
     }
 
-    public abstract void Initialize();
+    public abstract void init();
 
     public abstract Individual Mutation();
 
