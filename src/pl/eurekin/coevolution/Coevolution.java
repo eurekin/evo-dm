@@ -2,14 +2,14 @@ package pl.eurekin.coevolution;
 
 import java.util.Iterator;
 import org.apache.log4j.Logger;
+import pwr.evolutionaryAlgorithm.Report;
 import pwr.evolutionaryAlgorithm.Population;
 import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.Report;
-import pwr.evolutionaryAlgorithm.data.DataLoader;
-import pwr.evolutionaryAlgorithm.data.Evaluator;
-import pwr.evolutionaryAlgorithm.individual.Individual;
-import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.utils.Clock;
+import pwr.evolutionaryAlgorithm.data.Evaluator;
+import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.individual.RuleSet;
+import pwr.evolutionaryAlgorithm.individual.Individual;
 
 /**
  *
@@ -69,8 +69,9 @@ public class Coevolution {
             generation++;
             classifyingPopulation.evaluate(DataLoader.getTrainData());
             //the best individual
-            if (classifyingPopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
-                theBestInd = new RuleSet((RuleSet) (classifyingPopulation.getBestIndividual()));
+            if (classifyingPopulation.getBestFitness()
+                    > theBestInd.getEvaluation().getFitness()) {
+                theBestInd = new RuleSet((RuleSet) classifyingPopulation.getBestIndividual());
             }
             if (config.getStopEval() <= classifyingPopulation.getBestFitness()) {
                 stopEval = true;
@@ -126,7 +127,6 @@ public class Coevolution {
     }
 
     public void start() {
-
         /**
          * Można wykorzystać ewaluator z podstawowej wersji, bo służy
          * właśnie do oceny na bazie całego zbioru. I w ten sposób
@@ -157,24 +157,42 @@ public class Coevolution {
                 createPopulations();
                 theBestInd = null;
 
-                classifyingPopulation.evaluate(DataLoader.getTrainData());
-                // Stubs -
+                // evolutionary version
+                // classifyingPopulation.evaluate(DataLoader.getTrainData());
+                // replaced by:
                 evaluatePopulations();
 
-                updateTheBestIndividual(classifyingPopulation.getBestIndividual());
-
+                /**
+                 * Unimplemented
+                 */
+                //evaluatePopulations();
+                /**
+                 * Unimplemented
+                 */
+                //updateTheBestIndividual(classifyingPopulation.getBestIndividual());
                 // EA START
-                evolve(config, report);
+                /**
+                 * Unimplemented
+                 */
+                //evolve(config, report);
                 // EA DONE
-
                 myClock.Pause();
                 totalTimeClock.Pause();
-                evaluateAndReport(eval, report, config);
-                theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
+                /**
+                 * Unimplemented
+                 */
+                //evaluateAndReport(eval, report, config);
+                /**
+                 * Unimplemented
+                 */
+                //theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
             }
             DataLoader.doCrossvalidationNext();
         }//END: CROSSVALIDATION CV TIMES
-        report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
+        /**
+         * Unimplemented
+         */
+        //report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
     }
 
     /**
@@ -205,8 +223,8 @@ public class Coevolution {
      *
      * <p>Żywcem wyjęte z Evolution.java. Możnaby dziedziczyć tą metodę ze
      * wspomnianej klasy, jednak ze względów efektywnościowych tego nie
-     * robię. Rozszerzanie klas uniemożliwia wykonanie optymalizacji
-     * typy <em>inlining</em> przez kompilator. Ostatecznie najlepiej
+     * robię. Rozszerzanie klas uniemożliwia wykonanie optymalizacji typy
+     * <em>inlining</em> przez kompilator. Ostatecznie najlepiej
      * przekształcić tą metodę na statyczną i odwoływać się do niej z
      * obydwu klas.
      *

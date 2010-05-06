@@ -61,7 +61,7 @@ public class Population<I extends Individual> implements Iterable<I> {
     /**
      * Evalutation of population
      * @version Rule evaluation, scaling
-     * @param DS dataSource needed to evaluate inidvluals
+     * @param DS dataSource needed to evaluate individuals
      */
     public void evaluate(DataSource DSc) {
 

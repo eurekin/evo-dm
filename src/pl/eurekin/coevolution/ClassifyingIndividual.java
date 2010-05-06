@@ -4,6 +4,7 @@
  */
 package pl.eurekin.coevolution;
 
+import pwr.evolutionaryAlgorithm.Population;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
 /**
@@ -36,6 +37,14 @@ public class ClassifyingIndividual extends RuleSet {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    /**
+     * Ewolucyjny odpowiednik:
+     * {@link Population#evaluate(DataSource) }
+     *
+     * Odpowiadająca metoda ocenia... I ROBI statystyki -- trzeba to
+     * uwzględnić w koewolucji.
+     * @param s
+     */
     void evaluateUsingSubset(SelectingIndividual s) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
