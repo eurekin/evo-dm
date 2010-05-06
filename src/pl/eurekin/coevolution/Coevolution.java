@@ -13,22 +13,41 @@ import pwr.evolutionaryAlgorithm.utils.Clock;
 
 /**
  *
+ * <p><b>Oceny<b>Każda z populacji wymaga osobnego podejścia do funkcji
+ * oceny. Osobnik klasyfikujący dodatkowo może być oceniany na dwa różne
+ * sposoby: <ol>
+ * <li>Na całym zbiorze</li>
+ * <li>Na wybranym podzbiorze</li>
+ * </ol>
+ *
  * @author Rekin
  */
 public class Coevolution {
 
     public static final Logger LOG = Logger.getLogger(Coevolution.class);
-    private Population<SelectingIndividual> selectors;
-    private Population<ClassifyingIndividual> classifiers;
-    private Population selectingPopulation;
+    private Population<SelectingIndividual> selectingPopulation;
+    private Population<ClassifyingIndividual> classifyingPopulation;
 
+    /**
+     * Creates & initializes both populations
+     */
     private void createPopulations() {
-        selectors = new Population<SelectingIndividual>(new SelectingIndividual());
-        classifiers = new Population<ClassifyingIndividual>(new ClassifyingIndividual());
+        selectingPopulation =
+                new Population<SelectingIndividual>(
+                new SelectingIndividual());
+        classifyingPopulation =
+                new Population<ClassifyingIndividual>(
+                new ClassifyingIndividual());
     }
 
     public static void main(String... args) {
         LOG.trace("Starting main");
+
+        Configuration.newConfiguration("_iris", "coTest");
+        Configuration conf = Configuration.getConfiguration();
+        Coevolution c = new Coevolution(conf);
+
+        c.start();
 
         LOG.trace("Ending main");
     }
@@ -37,7 +56,6 @@ public class Coevolution {
     private Clock totalTimeClock;
     private Individual theBestInd;
     private DataLoader dataLoader;
-    private Population classifyingPopulation;
 
     private void evolve(final Configuration config, final Report report) {
         LOG.trace("Starting evolution.");
@@ -109,8 +127,13 @@ public class Coevolution {
 
     public void start() {
 
+        /**
+         * Można wykorzystać ewaluator z podstawowej wersji, bo służy
+         * właśnie do oceny na bazie całego zbioru. I w ten sposób
+         * można obiektywnie porównywać osiągi koewolucji z ewolucją.
+         */
         Evaluator eval = Evaluator.getEvaluator();
-        Individual theBestOfTheBest = null;
+        ClassifyingIndividual theBestOfTheBest = null;
         totalTimeClock = new Clock();
         totalTimeClock.Reset();
         final Configuration config = Configuration.getConfiguration();
@@ -131,9 +154,7 @@ public class Coevolution {
                 totalTimeClock.Start();
 
                 // tworzenie nowej populacji
-                classifyingPopulation = new Population(new ClassifyingIndividual());
-                selectingPopulation = new Population(new SelectingIndividual());
-                classifyingPopulation.init();
+                createPopulations();
                 theBestInd = null;
 
                 classifyingPopulation.evaluate(DataLoader.getTrainData());
@@ -180,7 +201,9 @@ public class Coevolution {
     }
 
     /**
-     * Żywcem wyjęte z Evolution.java. Możnaby dziedziczyć tą metodę ze
+     * <p>
+     *
+     * <p>Żywcem wyjęte z Evolution.java. Możnaby dziedziczyć tą metodę ze
      * wspomnianej klasy, jednak ze względów efektywnościowych tego nie
      * robię. Rozszerzanie klas uniemożliwia wykonanie optymalizacji
      * typy <em>inlining</em> przez kompilator. Ostatecznie najlepiej
@@ -192,14 +215,14 @@ public class Coevolution {
      * @param config
      * @return
      */
-    public Individual getNewBestOfTheBestIndividual(Individual bestInd,
-            Evaluator eval, Configuration config) {
+    public ClassifyingIndividual getNewBestOfTheBestIndividual(
+            ClassifyingIndividual bestInd, Evaluator eval, Configuration config) {
         if (bestInd == null) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
+            bestInd = new ClassifyingIndividual((ClassifyingIndividual) theBestInd);
             eval.evaluate(DataLoader.getTestData(), bestInd);
         }
         if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
+            bestInd = new ClassifyingIndividual((ClassifyingIndividual) theBestInd);
             eval.evaluate(DataLoader.getTestData(), bestInd);
             config.getReport().reportBestInd(bestInd);
         }
@@ -240,8 +263,10 @@ public class Coevolution {
      */
     private void evaluatePopulations() {
         // boilerplate
-        Iterator<SelectingIndividual> si = selectingPopulation.iterator();
-        Iterator<ClassifyingIndividual> ci = classifyingPopulation.iterator();
+        Iterator<SelectingIndividual> si =
+                selectingPopulation.iterator();
+        Iterator<ClassifyingIndividual> ci =
+                classifyingPopulation.iterator();
         SelectingIndividual s;
         ClassifyingIndividual c;
         while (si.hasNext() && ci.hasNext()) {

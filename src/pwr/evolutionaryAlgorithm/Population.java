@@ -2,6 +2,8 @@ package pwr.evolutionaryAlgorithm;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import pl.eurekin.coevolution.ClassifyingIndividual;
+import pl.eurekin.coevolution.SelectingIndividual;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.data.Evaluator;
 import pwr.evolutionaryAlgorithm.utils.Rand;
@@ -9,8 +11,7 @@ import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
-public class Population<I extends Individual> implements Iterable<I>{
-
+public class Population<I extends Individual> implements Iterable<I> {
 
     private ArrayList<I> individuals;
     private float fitnessBest = 0.0f;
@@ -124,7 +125,23 @@ public class Population<I extends Individual> implements Iterable<I>{
         } */
 
 
-        if (type instanceof RuleSet) {
+        /**
+         * Fragile implementation...
+         * It has to be in this specific order to work.
+         *
+         * Subtypes goes first.
+         */
+        if (type instanceof ClassifyingIndividual) {
+            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+                ClassifyingIndividual r = new ClassifyingIndividual();
+                individuals.add((I) r);
+            }
+        } else if (type instanceof SelectingIndividual) {
+            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
+                SelectingIndividual r = new SelectingIndividual();
+                individuals.add((I) r);
+            }
+        } else if (type instanceof RuleSet) {
             for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
                 RuleSet rs = new RuleSet();
                 individuals.add((I) rs);
