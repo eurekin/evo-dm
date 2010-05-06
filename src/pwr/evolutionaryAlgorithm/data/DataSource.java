@@ -7,6 +7,7 @@ public class DataSource {
 
     private ArrayList<Record> Data;
     private long Data_Expected_by_Class[];
+    private ArrayList<ArrayList<Linker>> INDEX;
 
     public class Linker {
 
@@ -107,7 +108,6 @@ public class DataSource {
 
         return mid;
     }
-    private ArrayList<ArrayList<Linker>> INDEX;
 
     /**
      * main constructor of DataSource class
@@ -212,41 +212,11 @@ public class DataSource {
                 Data_Expected_by_Class[class_id]++;
             }
         }
-        //////////////////////////////////////////////////////////////////////////////////////////
-        ///SCALING NEEDED?
-     /* for (int i=0;i<DataLoader.getArgumentsNo();i++) { //for each attribute
-        float max = Data.get(0).getArgumentValue(i);
-
-        for (int r=0;r<Data.size();r++){ //add each record
-        float tmpValue;
-        if (  Data.get(r) instanceof RecordImage)
-        { //add each segment
-        tmpValue = Data.get(r).getArgumentValue(i);
-        do{
-        tmpValue= ((RecordImage)(Data.get(r))).getArgumentValueNext(i);
-        if (tmpValue>max) max=tmpValue;
-        }while(tmpValue != RecordImage.END_VALUE);
-        }
-        else {
-        tmpValue = Data.get(r).getArgumentValue(i);
-        if (tmpValue>max) max=tmpValue;
-        }
-        }
-        //scaling needed if max>1.0f and RecordImage
-        if (max>1.0f && Data.get(0) instanceof RecordImage){
-        for (int r=0;r<Data.size();r++) {
-        ((RecordImage)(Data.get(r))).DoScaleAtribute(i, max);
-        }
-
-        }
-        ////////////////////
-        }*/
-
 
         INDEX = new ArrayList<ArrayList<Linker>>(DataLoader.getArgumentsNo());
         for (int i = 0; i < DataLoader.getArgumentsNo(); i++) { //for each indekser...
 
-            INDEX.add(i, new ArrayList<Linker>()); //create it
+            INDEX.add(i, new ArrayList<Linker>(Data.size())); //create it
 
             for (int r = 0; r < Data.size(); r++) { //add each record
 
@@ -271,69 +241,62 @@ public class DataSource {
      * @param c condition
      * @return returns elements from datasource that condition is succeed
      */
-    public DataSet getDataSet(Condition c) {//throws Exception{
-
-        //if (c==null) throw new Exception("Condition is a null!");
-
+    public DataSet getDataSet(Condition c) {
         DataSet DSet = new DataSet();
 
         int point1 = 0;
         int point2 = 0;
 
-        point1 = binarySearch(c.getAttrib(), c.getValue1(), true);
-        point2 = binarySearch(c.getAttrib(), c.getValue2(), false);
+        final float cv1 = c.getValue1();
+        final float cv2 = c.getValue2();
+        final int attrib = c.getAttrib();
+
+        point1 = binarySearch(attrib, cv1, true);
+        point2 = binarySearch(attrib, cv2, false);
 
         if (point2 == -1) {
             point2 = Data.size() - 1;
         }
+        final ArrayList<Linker> idx = INDEX.get(attrib);
+        final Linker p1 = idx.get(point1);
+        final Linker p2 = idx.get(point2);
 
         if (c.getRelation() == Condition.RelationType.IN) {
-
-
-            if (INDEX.get(c.getAttrib()).get(point1).v >= c.getValue1()
-                    && INDEX.get(c.getAttrib()).get(point1).v <= c.getValue2()) {
-                DSet.addRecord(INDEX.get(c.getAttrib()).get(point1).R);
+            if (p1.v >= cv1 && p1.v <= cv2) {
+                DSet.addRecord(p1.R);
             }
-
             if (point1 < point2) {
                 for (int r = point1 + 1; r < point2; r++) {
-                    DSet.addRecord(INDEX.get(c.getAttrib()).get(r).R);
+                    DSet.addRecord(idx.get(r).R);
                 }
             }
-
-            if (INDEX.get(c.getAttrib()).get(point2).v >= c.getValue1()
-                    && INDEX.get(c.getAttrib()).get(point2).v <= c.getValue2()
-                    && point1 != point2) {
-                DSet.addRecord(INDEX.get(c.getAttrib()).get(point2).R);
+            if (p2.v >= cv1 && p2.v <= cv2 && point1 != point2) {
+                DSet.addRecord(p2.R);
             }
         } else { //not_in
-            //point1 = binarySearch(c.getAttrib(), c.getValue1(), true); //the point where record should be
-            //point2 = binarySearch(c.getAttrib(), c.getValue2(), false);
-
             //////////
-
             if (point1 > 0) {
                 for (int r = 0; r < point1; r++) {
-                    if (INDEX.get(c.getAttrib()).get(r).v < c.getValue1()) {
-                        DSet.addRecord(INDEX.get(c.getAttrib()).get(r).R);
+                    if (idx.get(r).v < cv1) {
+                        DSet.addRecord(idx.get(r).R);
                     }
                 }
             }
 
-            if (INDEX.get(c.getAttrib()).get(point1).v < c.getValue1()) {
-                DSet.addRecord(INDEX.get(c.getAttrib()).get(point1).R);
+            if (p1.v < cv1) {
+                DSet.addRecord(p1.R);
             }
-
+            Linker rec;
             if (point2 + 1 < Data.size()) {
                 for (int r = point2 + 1; r < Data.size(); r++) {
-                    if (INDEX.get(c.getAttrib()).get(r).v > c.getValue1()
-                            && INDEX.get(c.getAttrib()).get(r).v > c.getValue2()) {
-                        DSet.addRecord(INDEX.get(c.getAttrib()).get(r).R);
+                    rec = idx.get(r);
+                    if (rec.v > cv1 && rec.v > cv2) {
+                        DSet.addRecord(rec.R);
                     }
                 }
             }
-            if (INDEX.get(c.getAttrib()).get(point2).v > c.getValue2()) {
-                DSet.addRecord(INDEX.get(c.getAttrib()).get(point2).R);
+            if (p2.v > cv2) {
+                DSet.addRecord(p2.R);
             }
         }
         return DSet;

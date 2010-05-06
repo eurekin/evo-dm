@@ -22,7 +22,6 @@ public class RuleSet extends Individual {
     private ArrayList<Rule> Rules;
     private Evaluation TotalEvaluation;
 
-    //------------------------------------------------------------------------------
     public RuleSet(final RuleSet RS) {
         this.Rules = new ArrayList<Rule>();
         for (int i = 0; i < RS.rulesNo(); i++) {
@@ -40,7 +39,6 @@ public class RuleSet extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
     public RuleSet() {
         this.Rules = new ArrayList<Rule>();
 
@@ -125,6 +123,7 @@ public class RuleSet extends Individual {
     /*
      *DCC: Data Covering crossoverWith
      */
+
     public Individual CrossoverDCC(Individual Indv1, Individual Indv2) {
         /**
          * TODO: insert code here
@@ -140,7 +139,7 @@ public class RuleSet extends Individual {
         /**
          * @TODO reczna zmiana Fixed lenght
          */
-         FIXED_LENGTH = true;
+        FIXED_LENGTH = true;
 
         RuleSet Parent1 = (RuleSet) Indv1;
         RuleSet Parent2 = (RuleSet) Indv2;
@@ -168,7 +167,7 @@ public class RuleSet extends Individual {
     }
 
     @Override
-    public Individual crossoverWith(Individual Indv1)  {
+    public Individual crossoverWith(Individual Indv1) {
 
         if (Configuration.getConfiguration().getCrossoverType() == CrossoverType.BCX) {
             return CrossoverBCX(Indv1, this);
@@ -183,7 +182,7 @@ public class RuleSet extends Individual {
      * Chromosome FIXED lenght updated 
      * 
      */
-    private static Individual CrossoverSimpleCut(Individual mother, Individual father)  {
+    private static Individual CrossoverSimpleCut(Individual mother, Individual father) {
 
         RuleSet rs = new RuleSet();
         RuleSet P1 = (RuleSet) mother;

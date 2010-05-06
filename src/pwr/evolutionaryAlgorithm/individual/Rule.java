@@ -15,7 +15,6 @@ public class Rule extends Individual {
     public ArrayList<RuleGene> ConditionOnAttribute;
     protected BitSet ClassID;
 
-    //------------------------------------------------------------------------------
     /**
      * main constructor
      * @param Genes number of bits in gene
@@ -32,7 +31,6 @@ public class Rule extends Individual {
         this.ClassID = new BitSet(Configuration.getConfiguration().getClassBits());
     }
 
-    //------------------------------------------------------------------------------
     public Rule(final Rule R) {
         this.Active = R.Active;
         this.Evaluations = new ArrayList<Evaluation>();
@@ -51,7 +49,6 @@ public class Rule extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public void init() {
         this.Active = Rand.GetRandomBoolean();
@@ -65,7 +62,6 @@ public class Rule extends Individual {
         this.clearEvaluations();
     }
 
-    //------------------------------------------------------------------------------
     public boolean isCondition(int attribID) {
         return !(this.ConditionOnAttribute.get(attribID).isOff());
     }
@@ -75,20 +71,17 @@ public class Rule extends Individual {
         return this.ConditionOnAttribute.get(attribID).getCondition(attribID);
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public Evaluation getEvaluation(int cl) {
         return this.Evaluations.get(0);
     }
 
-//  ------------------------------------------------------------------------------
     @Override
     protected int getGenesInIndividual() {
         return Configuration.getConfiguration().getNumberOfAttributes();
     }
 
-    //------------------------------------------------------------------------------
-  /*  
+    /*
     private String toStringTechnical(){
     StringBuilder s = new StringBuilder("");
 
@@ -119,7 +112,6 @@ public class Rule extends Individual {
     return s.toString();
     }
      */
-    //------------------------------------------------------------------------------
     private String toStringBeauty() {
         StringBuilder s = new StringBuilder("");
 
@@ -148,14 +140,12 @@ public class Rule extends Individual {
         return s.toString();
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public String toString() {
         //return this.toStringTechnical();
         return this.toStringBeauty();
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public Individual Mutation() {
 
@@ -166,7 +156,6 @@ public class Rule extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
     /**
      * Directed: F-score Aided [Mutation]
      * Pm' := Pm + (1.0-Er)*Pm
@@ -212,7 +201,6 @@ public class Rule extends Individual {
         return tym;
     }
 
-    //------------------------------------------------------------------------------
     private Individual MutationSimple() {
 
         float Pmutation = Configuration.getConfiguration().getMutationValue();
@@ -256,7 +244,6 @@ public class Rule extends Individual {
         return tym;
     }
 
-    //------------------------------------------------------------------------------
     /**
      * todo: this method should be protected
      */
@@ -264,7 +251,6 @@ public class Rule extends Individual {
         return this.ConditionOnAttribute.get(no);
     }
 
-    //------------------------------------------------------------------------------
     public int getClassID() {
         int class_id = (int) BinaryCode.getFloatFromBinary(ClassID);
         /*DOMYSLNA KLASA 0*/
@@ -275,7 +261,6 @@ public class Rule extends Individual {
         }
     }
 
-    //------------------------------------------------------------------------------
     protected void setGene(int no, RuleGene g) {
         this.clearEvaluations();
         this.ConditionOnAttribute.set(no, g);
@@ -331,7 +316,6 @@ public class Rule extends Individual {
         return this.Active;
     }
 
-    //------------------------------------------------------------------------------
     public boolean isEmpty() {
         for (int attribID = 0; attribID < Configuration.getConfiguration().getNumberOfAttributes(); attribID++) {
             if (this.ConditionOnAttribute.get(attribID).isOff() == false) {
@@ -341,7 +325,6 @@ public class Rule extends Individual {
         return true;
     }
 
-    //------------------------------------------------------------------------------
     @Override
     public int diversityMeasure(final Individual I) {
         int diff = 0;
@@ -355,6 +338,5 @@ public class Rule extends Individual {
         }
         return diff;
     }
-    //------------------------------------------------------------------------------
 }
 

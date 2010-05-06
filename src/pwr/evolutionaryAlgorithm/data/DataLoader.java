@@ -24,8 +24,7 @@ public class DataLoader {
     static private int crossValidationUpdate = 0;
     static private ArrayList<ArrayList<Record>> CVstructure;
 
-    //------------------------------------------------------------------------------
-    /*
+        /*
      * spit randomly data into N parts
      * before that all data is in TrainData
      */
@@ -181,7 +180,6 @@ public class DataLoader {
         //TestData.OrganizeData();
     }
 
-//------------------------------------------------------------------------------
     public DataLoader(String words, String document_words, String blob_counts, String blobs, String test_document_words, String test_blob_counts, String test_blobs) {
 
         TestDataFileName = "";
@@ -282,7 +280,6 @@ public class DataLoader {
         return DS;
     }
 
-//------------------------------------------------------------------------------
     /**
      * makes a DataSource from gieven set of 4 files (only for images!)
      * @param words filename
@@ -403,7 +400,6 @@ public class DataLoader {
         return DS;
     }
 
-//------------------------------------------------------------------------------
     /**
      * Splits data into train and test data
      * @param Train % of test data
@@ -420,7 +416,6 @@ public class DataLoader {
     TrainData = TrainData_;
     }
      */
-//------------------------------------------------------------------------------
     public static String FileSummary() {
         StringBuilder s = new StringBuilder("");
         s.append(" dataFile:" + TrainDataFileName + " inst.:" + TrainData.size() + " atrib:" + Data_arguments + " classes:" + Data_ClassesNames.size());

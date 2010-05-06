@@ -60,6 +60,7 @@ public class Evaluator {
                 //if rule is active and returns such class
                 if (RS.getRule(r).isActive()) {
 
+                    // Co to w ogóle zwraca?
                     DSPart = EvaluateRule(DSc, RS.getRule(r));
                     DSResult = DataSet.OperatorPlus(DSResult, DSPart);
 
@@ -186,6 +187,13 @@ public class Evaluator {
         return E;
     }
 
+    /**
+     * Hmm... Zwraca zbiór rekordów...
+     *
+     * @param DS
+     * @param R
+     * @return
+     */
     protected DataSet getCoveredDataSet(DataSource DS, Rule R) {
         Condition c = null;
         DataSet Cand = new DataSet();
@@ -195,9 +203,7 @@ public class Evaluator {
         for (attribID = 0; attribID < numberOfAttributes; attribID++) {
             if (R.isCondition(attribID) == true) {
                 c = R.getCondition(attribID);
-
                 Cand = DS.getDataSet(c);
-
                 break;
             }
         }
@@ -319,7 +325,7 @@ public class Evaluator {
 
         DS.setEvaluation((float) precision, (float) recall, (float) accuracy, (float) Fmeasure);
 
-        if (Configuration.getConfiguration().isFsc() == true) {
+        if (Configuration.getConfiguration().isFsc()) {
             return (float) Fmeasure;
         } else {
             return accuracy;
