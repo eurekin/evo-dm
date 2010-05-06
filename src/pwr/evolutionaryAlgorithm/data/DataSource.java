@@ -50,20 +50,21 @@ public class DataSource {
      */
     private int binarySearch(int attrib, float key, boolean left) {
         int low = 0;
-        int high = INDEX.get(attrib).size() - 1;
+        final ArrayList<Linker> idx = INDEX.get(attrib);
+        int high = idx.size() - 1;
         int mid = 0;
 
-        if (key < INDEX.get(attrib).get(0).v) {
+        if (key < idx.get(0).v) {
             return 0;
         }
-        if (key > INDEX.get(attrib).get(high).v) {
+        if (key > idx.get(high).v) {
             return high;
         }
 
         while (low <= high) {
             mid = (low + high) / 2;
 
-            Linker L = INDEX.get(attrib).get(mid);
+            Linker L = idx.get(mid);
             if (L.compareTo(key) < 0) {
                 low = mid + 1;
             } else if (L.compareTo(key) > 0) {
@@ -76,11 +77,11 @@ public class DataSource {
         //if (mid!=0 || mid!=INDEX.get(attrib).size()-1) return mid;
         //else return -1;     // NOT_FOUND = -1
 
-        if (mid > 1 && INDEX.get(attrib).get(mid).v == key) {
-            if (mid > 0 && left == true) {
+        if (mid > 1 && idx.get(mid).v == key) {
+            if (mid > 0 && left) {
                 while (true) {
                     if (mid > 0) {
-                        if (INDEX.get(attrib).get(mid).v == INDEX.get(attrib).get(mid - 1).v) {
+                        if (idx.get(mid).v == idx.get(mid - 1).v) {
                             mid--;
                         } else {
                             return mid;
@@ -91,10 +92,10 @@ public class DataSource {
                 }
             }
 
-            if (left == false && mid < INDEX.get(attrib).size() - 1 && mid > 1) {
+            if (!left && mid < idx.size() - 1 && mid > 1) {
                 while (true) {
-                    if (mid < INDEX.get(attrib).size() - 1) {
-                        if (INDEX.get(attrib).get(mid).v == INDEX.get(attrib).get(mid + 1).v) {
+                    if (mid < idx.size() - 1) {
+                        if (idx.get(mid).v == idx.get(mid + 1).v) {
                             mid++;
                         } else {
                             return mid;
@@ -197,18 +198,20 @@ public class DataSource {
 
         int class_id = 0;
         int class_name = -1;
+        Record rec;
         for (int r = 0; r < Data.size(); r++) { //for each record
 
-            if (Data.get(r) instanceof RecordImage) {
-                class_name = Data.get(r).getClassName();
+            rec = Data.get(r);
+            if (rec instanceof RecordImage) {
+                class_name = rec.getClassName();
                 do {
                     class_id = class_name;
                     Data_Expected_by_Class[class_id]++;
-                    class_name = ((RecordImage) Data.get(r)).getClassNameNext();
+                    class_name = ((RecordImage) rec).getClassNameNext();
                 } while (class_name != -1);
             } else {
                 //class_name =  Data.get(r).getClassName();
-                class_id = Data.get(r).getClassName();
+                class_id = rec.getClassName();
                 Data_Expected_by_Class[class_id]++;
             }
         }
@@ -220,13 +223,14 @@ public class DataSource {
 
             for (int r = 0; r < Data.size(); r++) { //add each record
 
-                if (Data.get(r) instanceof Record) {
-                    INDEX.get(i).add(r, new Linker(Data.get(r).getArgumentValue(i), Data.get(r)));
+                rec = Data.get(r);
+                if (rec instanceof Record) {
+                    INDEX.get(i).add(r, new Linker(rec.getArgumentValue(i), rec));
                 } else { //add each segment
-                    float value = Data.get(r).getArgumentValue(i);
+                    float value = rec.getArgumentValue(i);
                     do {
-                        INDEX.get(i).add(r, new Linker(value, Data.get(r)));
-                        value = ((RecordImage) (Data.get(r))).getArgumentValueNext(i);
+                        INDEX.get(i).add(r, new Linker(value, rec));
+                        value = ((RecordImage) (rec)).getArgumentValueNext(i);
                     } while (value != -1);
                 }
             }
@@ -242,64 +246,57 @@ public class DataSource {
      * @return returns elements from datasource that condition is succeed
      */
     public DataSet getDataSet(Condition c) {
-        DataSet DSet = new DataSet();
-
-        int point1 = 0;
-        int point2 = 0;
+        DataSet res = new DataSet();
 
         final float cv1 = c.getValue1();
         final float cv2 = c.getValue2();
         final int attrib = c.getAttrib();
-
-        point1 = binarySearch(attrib, cv1, true);
-        point2 = binarySearch(attrib, cv2, false);
-
-        if (point2 == -1) {
-            point2 = Data.size() - 1;
+        final int p1 = binarySearch(attrib, cv1, true);
+        int p2 = binarySearch(attrib, cv2, false);
+        if (p2 == -1) {
+            p2 = Data.size() - 1;
         }
         final ArrayList<Linker> idx = INDEX.get(attrib);
-        final Linker p1 = idx.get(point1);
-        final Linker p2 = idx.get(point2);
+        final Linker l1 = idx.get(p1);
+        final Linker l2 = idx.get(p2);
 
         if (c.getRelation() == Condition.RelationType.IN) {
-            if (p1.v >= cv1 && p1.v <= cv2) {
-                DSet.addRecord(p1.R);
+            if (l1.v >= cv1 && l1.v <= cv2) {
+                res.addRecord(l1.R);
             }
-            if (point1 < point2) {
-                for (int r = point1 + 1; r < point2; r++) {
-                    DSet.addRecord(idx.get(r).R);
+            if (p1 < p2) {
+                for (int r = p1 + 1; r < p2; r++) {
+                    res.addRecord(idx.get(r).R);
                 }
             }
-            if (p2.v >= cv1 && p2.v <= cv2 && point1 != point2) {
-                DSet.addRecord(p2.R);
+            if (l2.v >= cv1 && l2.v <= cv2 && p1 != p2) {
+                res.addRecord(l2.R);
             }
         } else { //not_in
-            //////////
-            if (point1 > 0) {
-                for (int r = 0; r < point1; r++) {
+            if (p1 > 0) {
+                for (int r = 0; r < p1; r++) {
                     if (idx.get(r).v < cv1) {
-                        DSet.addRecord(idx.get(r).R);
+                        res.addRecord(idx.get(r).R);
                     }
                 }
             }
-
-            if (p1.v < cv1) {
-                DSet.addRecord(p1.R);
+            if (l1.v < cv1) {
+                res.addRecord(l1.R);
             }
             Linker rec;
-            if (point2 + 1 < Data.size()) {
-                for (int r = point2 + 1; r < Data.size(); r++) {
+            if (p2 + 1 < Data.size()) {
+                for (int r = p2 + 1; r < Data.size(); r++) {
                     rec = idx.get(r);
                     if (rec.v > cv1 && rec.v > cv2) {
-                        DSet.addRecord(rec.R);
+                        res.addRecord(rec.R);
                     }
                 }
             }
-            if (p2.v > cv2) {
-                DSet.addRecord(p2.R);
+            if (l2.v > cv2) {
+                res.addRecord(l2.R);
             }
         }
-        return DSet;
+        return res;
     }
 
     public DataSet getDataSet(DataSet s, Condition c) {
