@@ -6,16 +6,20 @@ package pwr.evolutionaryAlgorithm.data;
  */
 public class Record {
 
-    private int size;
+    private int id;
     private float[] values;
     private int className;
+
+    public int getId() {
+        return id;
+    }
 
     public Record() {
     }
 
-    Record(int size, float[] values, int className) {
+    Record(int id, float[] values, int className) {
+        this.id = id;
         this.values = values;
-        this.size = size;
         this.className = className;
     }
 

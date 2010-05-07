@@ -1,11 +1,9 @@
 package pwr.evolutionaryAlgorithm.individual;
 
+import java.util.ArrayList;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
 import pwr.evolutionaryAlgorithm.utils.Rand;
-import java.util.ArrayList;
-
-//import data.DataSet;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
 

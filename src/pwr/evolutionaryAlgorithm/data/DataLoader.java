@@ -4,6 +4,7 @@ import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ public class DataLoader {
     static private int crossValidationUpdate = 0;
     static private ArrayList<ArrayList<Record>> CVstructure;
 
-        /*
+    /*
      * spit randomly data into N parts
      * before that all data is in TrainData
      */
@@ -63,38 +64,27 @@ public class DataLoader {
         /// 0 TEST 1...N TRAIN
         // 0 - fill Test
         // p=1..N-1 - fil train
-        TestData.clear();
-        TrainData.clear();
-        for (int p = 0; p < parts; p++) {
-            for (int e = 0; e < CVstructure.get(p).size(); e++) {
-                if (p == 0) {
-                    TestData.addRecord(CVstructure.get(p).get(e));
-                } else {
-                    TrainData.addRecord(CVstructure.get(p).get(e));
-                }
-            }
-        }
-
-        TestData.OrganizeData();
-        TrainData.OrganizeData();
+        initCrossvalidationFold(0);
     }
 
     public static void doCrossvalidationNext() {
         crossValidationUpdate++;
-        int parts = Configuration.getConfiguration().getCrossvalidationValue();
+        initCrossvalidationFold(crossValidationUpdate);
+    }
 
+    private static void initCrossvalidationFold(int fold) {
+        int parts = Configuration.getConfiguration().getCrossvalidationValue();
         TestData.clear();
         TrainData.clear();
-        for (int p = 0; p < parts; p++) {
-            for (int e = 0; e < CVstructure.get(p).size(); e++) {
-                if (p == crossValidationUpdate) {
-                    TestData.addRecord(CVstructure.get(p).get(e));
+        for (int part = 0; part < parts; part++) {
+            for (Record r : CVstructure.get(part)) {
+                if (part == fold) {
+                    TestData.addRecord(r);
                 } else {
-                    TrainData.addRecord(CVstructure.get(p).get(e));
+                    TrainData.addRecord(r);
                 }
             }
         }
-
         TestData.OrganizeData();
         TrainData.OrganizeData();
     }
@@ -180,7 +170,13 @@ public class DataLoader {
         //TestData.OrganizeData();
     }
 
-    public DataLoader(String words, String document_words, String blob_counts, String blobs, String test_document_words, String test_blob_counts, String test_blobs) {
+    public DataLoader(String words,
+            String document_words,
+            String blob_counts,
+            String blobs,
+            String test_document_words,
+            String test_blob_counts,
+            String test_blobs) {
 
         TestDataFileName = "";
         TrainDataFileName = "";
@@ -210,19 +206,11 @@ public class DataLoader {
     private DataSource LoadCSVFile(String FileName) {
         DataSource DS = new DataSource();
         try {
-            FileInputStream fstream = new FileInputStream(FileName);
-
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            BufferedReader br = new BufferedReader(new FileReader(FileName));
             String strLine = br.readLine();
+            int from, to;
             ///////////////////// number of fields? ///////////////////////
-            Data_arguments = 0;
-            int from = 0, to = 0;
-            do {
-                to = strLine.indexOf("\t", from);
-                Data_arguments++;
-                from = to + 1;
-            } while (to < strLine.lastIndexOf("\t"));
+            Data_arguments = strLine.split("\t").length - 1;
             //////////////////////////////////////////////////////////////////////////
 
             boolean MinMaxWasNull = false;
@@ -237,6 +225,7 @@ public class DataLoader {
 
 
             ///// READ FIELDS //////////////////////////////////////////
+            int id = 0; // Coevolution
             while (strLine != null && strLine.length() != 0) {
                 from = 0;
                 to = 0;
@@ -246,7 +235,7 @@ public class DataLoader {
                     tab[i] = Float.valueOf(strLine.substring(from + 1, to - 1)).floatValue();
                     from = to + 1;
 
-                    ///////////////////// MIN & MAX values //////////////////////
+                    ///////////////////// MIN & MAX values /////////////////////
 
                     float tym_value = tab[i];
 
@@ -260,20 +249,20 @@ public class DataLoader {
                         Data_arg_min[i] = tym_value;
                     }
 
-                    ////////////////////////////////////////////////////////////////
+                    ////////////////////////////////////////////////////////////
                 }
                 //// READ class ID //////////////////////////////////////
                 String StringClassID = strLine.substring(from + 1, strLine.length() - 1);
                 if (!Data_ClassesNames.contains(StringClassID)) {
                     Data_ClassesNames.add(StringClassID);
                 }
-                //String class_id = strLine.substring(from+1,strLine.length()-1) ;
                 int class_id_ = DataLoader.getClassId(StringClassID);
-                DS.addRecord(new Record(Data_arguments, tab, class_id_));
+
+                DS.addRecord(new Record(id++, tab, class_id_));
                 strLine = br.readLine();
             }
             //Close the input stream
-            in.close();
+            br.close();
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
@@ -291,7 +280,7 @@ public class DataLoader {
     public DataSource LoadImages(String words, String document_words, String blob_counts, String blobs, boolean test) {
         DataSource DS = new DataSource();
 
-        //////////////READING & REGISTERING WORDS.... //////////////////////////////////////////////////////////////////
+        //////////////READING & REGISTERING WORDS.... //////////////////////////
         try {
             Data_ClassesNames.add(null); //there is no 0 class
             FileInputStream fstream = new FileInputStream(words);
@@ -310,7 +299,7 @@ public class DataLoader {
             System.err.println("Error: " + e.getMessage());
         }
 
-///////////// READING IMAGES & SEGMENTS ///////////////////////////////////////////////////////////////////////////////////////////
+///////////// READING IMAGES & SEGMENTS ////////////////////////////////////////
         try {
             FileInputStream fstreamDocWords = new FileInputStream(document_words);
             DataInputStream in = new DataInputStream(fstreamDocWords);
@@ -325,8 +314,7 @@ public class DataLoader {
                 WordsInImage++;
                 from = to + 1;
             } while (to < strLineWords.lastIndexOf(" "));
-            //////////////////////////////////////////////////////////////////////////
-
+            ////////////////////////////////////////////////////////////////////
             if (test == false) {
                 Data_arguments = Configuration.getConfiguration().getNumberOfAttributes();
                 if (Data_arg_max == null) {
@@ -400,31 +388,26 @@ public class DataLoader {
         return DS;
     }
 
-    /**
-     * Splits data into train and test data
-     * @param Train % of test data
-     */
-    /*
-    private static void SplitData (int Rate) {
-    DataSource TrainData_ = new DataSource();
-    int size = TrainData.size();
-    for (int i=0;i<size;i++){
-    Record R = TrainData.get(i);
-    if ( (i % Rate)==0) TestData.addRecord(R);
-    else TrainData_.addRecord(R);
-    }
-    TrainData = TrainData_;
-    }
-     */
     public static String FileSummary() {
         StringBuilder s = new StringBuilder("");
-        s.append(" dataFile:" + TrainDataFileName + " inst.:" + TrainData.size() + " atrib:" + Data_arguments + " classes:" + Data_ClassesNames.size());
+        s.append(" dataFile:");
+        s.append(TrainDataFileName);
+        s.append(" inst.:");
+        s.append(TrainData.size());
+        s.append(" atrib:");
+        s.append(Data_arguments);
+        s.append(" classes:");
+        s.append(Data_ClassesNames.size());
         s.append(" [");
         for (int i = 0; i < Data_ClassesNames.size(); i++) {
             s.append(" " + i + "'" + Data_ClassesNames.get(i) + "'");
         }
         s.append(" ]");
-        s.append(" Data(train=" + TrainData.size() + ", test=" + TestData.size() + ")");
+        s.append(" Data(train=");
+        s.append(TrainData.size());
+        s.append(", test=");
+        s.append(TestData.size());
+        s.append(")");
         return s.toString();
     }
 }
