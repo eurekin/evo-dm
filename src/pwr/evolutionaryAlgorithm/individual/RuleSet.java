@@ -17,17 +17,23 @@ public class RuleSet extends Individual {
      * TODO: remove this const form here!
      */
     private static boolean FIXED_LENGTH = false;
-    private ArrayList<Rule> Rules;
-    private Evaluation TotalEvaluation;
+    ArrayList<Rule> rules;
+    private Evaluation totalEvaluation;
 
+    public ArrayList<Rule> getRules() {
+        return rules;
+    }
+
+
+    
     public RuleSet(final RuleSet RS) {
-        this.Rules = new ArrayList<Rule>();
+        rules = new ArrayList<Rule>();
         for (int i = 0; i < RS.rulesNo(); i++) {
-            this.Rules.add(new Rule(RS.Rules.get(i)));
+            rules.add(new Rule(RS.rules.get(i)));
         }
 
-        TotalEvaluation = new Evaluation(RS.TotalEvaluation);
-        this.Evaluations = new ArrayList<Evaluation>();
+        totalEvaluation = new Evaluation(RS.totalEvaluation);
+        Evaluations = new ArrayList<Evaluation>();
         if (Configuration.getConfiguration().isOneClassActive()) {
             Evaluations.add(new Evaluation(RS.getEvaluation()));
         } else {
@@ -38,33 +44,33 @@ public class RuleSet extends Individual {
     }
 
     public RuleSet() {
-        this.Rules = new ArrayList<Rule>();
+        rules = new ArrayList<Rule>();
 
-        TotalEvaluation = new Evaluation();
-        this.Evaluations = new ArrayList<Evaluation>();
+        totalEvaluation = new Evaluation();
+        Evaluations = new ArrayList<Evaluation>();
         if (Configuration.getConfiguration().isOneClassActive()) {
             Evaluations.add(new Evaluation());
         } else {
             for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
-                this.Evaluations.add(new Evaluation());
+                Evaluations.add(new Evaluation());
             }
         }
     }
 
     @Override
     public void init() {
-        this.Rules.clear();
+        this.rules.clear();
 
         int RULES = Rand.getRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
 
-        if (FIXED_LENGTH == false) {
+        if (!FIXED_LENGTH) {
             RULES = Configuration.getConfiguration().getNumberOfRules();
         }
 
         for (int i = 0; i < RULES; i++) {
             Rule r = new Rule();
-            this.Rules.add(r);
-            this.Rules.get(i).init();
+            this.rules.add(r);
+            this.rules.get(i).init();
         }
 
         this.clearEvaluations();
@@ -72,28 +78,28 @@ public class RuleSet extends Individual {
 
     @Override
     public Evaluation getEvaluation() {
-        return this.TotalEvaluation;
+        return this.totalEvaluation;
     }
 
     public Evaluation getTotalEvaluation() {
-        return this.TotalEvaluation;
+        return this.totalEvaluation;
     }
 
     /*
      * do average value of all classes -> without unused (or not tested) class
      */
     public void doCountTotalEvaluation(int classess) {
-        this.TotalEvaluation.clear();
+        this.totalEvaluation.clear();
         int usedClasses = classess;
         //for each class
         for (int cl = 0; cl < classess; cl++) {
             if (!this.Evaluations.get(cl).isDone()) {
                 usedClasses--;
             } else {
-                this.TotalEvaluation.update(this.Evaluations.get(cl));
+                this.totalEvaluation.update(this.Evaluations.get(cl));
             }
         }
-        this.TotalEvaluation.doAverage(usedClasses);
+        this.totalEvaluation.doAverage(usedClasses);
     }
 
     @Override
@@ -104,18 +110,18 @@ public class RuleSet extends Individual {
     @Override
     public Individual Mutation() {
         RuleSet RS = new RuleSet();
-        for (int i = 0; i < this.Rules.size(); i++) {
-            RS.Rules.add(i, (Rule) this.Rules.get(i).Mutation());
+        for (int i = 0; i < this.rules.size(); i++) {
+            RS.rules.add(i, (Rule) this.rules.get(i).Mutation());
         }
         return RS;
     }
 
     @Override
     public void clearEvaluations() {
-        TotalEvaluation.clear();
+        totalEvaluation.clear();
         super.clearEvaluations();
         for (int i = 0; i < this.rulesNo(); i++) {
-            this.Rules.get(i).clearEvaluations();
+            this.rules.get(i).clearEvaluations();
         }
     }
     /*
@@ -132,32 +138,27 @@ public class RuleSet extends Individual {
     /*
      *BCX: Best Class crossoverWith
      */
-    private static Individual CrossoverBCX(Individual Indv1, Individual Indv2) {
+    private static Individual CrossoverBCX(Individual ind1, Individual ind2) {
 
         /**
          * @TODO reczna zmiana Fixed lenght
          */
         FIXED_LENGTH = true;
 
-        RuleSet Parent1 = (RuleSet) Indv1;
-        RuleSet Parent2 = (RuleSet) Indv2;
-        RuleSet BetterClassParent = null;
-        RuleSet Offspring = new RuleSet();
+        RuleSet p1 = (RuleSet) ind1, p2 = (RuleSet) ind2;
+        RuleSet fittest = null, Offspring = new RuleSet();
+        float f1, f2;
 
         for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
+            f1 = p1.Evaluations.get(cl).getFitness();
+            f2 = p2.Evaluations.get(cl).getFitness();
+            fittest = f1 > f2 ? p1 : p2;
 
-            if (Parent1.Evaluations.get(cl).getFitness() > Parent2.Evaluations.get(cl).getFitness()) {
-                BetterClassParent = Parent1;
-            } else {
-                BetterClassParent = Parent2;
-            }
-
-            /// find
-            for (int r = 0; r < BetterClassParent.rulesNo(); r++) {
+            // find
+            for (Rule rl : fittest.rules) {
                 //if rule is activa and returns such class
-                if (BetterClassParent.getRule(r).isActive() && BetterClassParent.getRule(r).getClassID() == cl) {
-                    Rule NewRule = new Rule(BetterClassParent.Rules.get(r));
-                    Offspring.Rules.add(NewRule);
+                if (rl.isActive() && rl.getClassID() == cl) {
+                    Offspring.rules.add(new Rule(rl));
                 }
             }
         }
@@ -165,12 +166,12 @@ public class RuleSet extends Individual {
     }
 
     @Override
-    public Individual crossoverWith(Individual Indv1) {
+    public Individual crossoverWith(Individual other) {
 
         if (Configuration.getConfiguration().getCrossoverType() == CrossoverType.BCX) {
-            return CrossoverBCX(Indv1, this);
+            return CrossoverBCX(this, other);
         } else {
-            return CrossoverSimpleCut(Indv1, this);
+            return CrossoverSimpleCut(this, other);
         }
 
     }
@@ -203,32 +204,28 @@ public class RuleSet extends Individual {
             d = null;
             if (biggerP2) {
                 if (i <= cut) {
-                    d = new Rule(P1.Rules.get(i));
+                    d = new Rule(P1.rules.get(i));
                 } else {
-                    d = new Rule(P2.Rules.get(i));
+                    d = new Rule(P2.rules.get(i));
                 }
             } else {
                 if (i <= cut) {
-                    d = new Rule(P2.Rules.get(i));
+                    d = new Rule(P2.rules.get(i));
                 } else {
-                    d = new Rule(P1.Rules.get(i));
+                    d = new Rule(P1.rules.get(i));
                 }
             }
-            rs.Rules.add(i, d);
+            rs.rules.add(i, d);
         }
         return rs;
     }
 
     public Rule getRule(int ruleID) {
-        if (ruleID < this.Rules.size()) {
-            return this.Rules.get(ruleID);
-        } else {
-            return null;
-        }
+        return this.rules.get(ruleID);
     }
 
     public int rulesNo() {
-        return this.Rules.size();
+        return this.rules.size();
     }
 
     @Override
@@ -236,7 +233,7 @@ public class RuleSet extends Individual {
         StringBuilder SB = new StringBuilder();
 
         SB.append("\n RULESET_EVAL");
-        SB.append("\n TOTAL " + TotalEvaluation.toString());
+        SB.append("\n TOTAL " + totalEvaluation.toString());
         ///classes evaluations...
         if (Configuration.getConfiguration().isOneClassActive()) {
             SB.append(Evaluations.get(0).toString());
@@ -248,8 +245,8 @@ public class RuleSet extends Individual {
         }
 
         SB.append("\n\n RULES");
-        for (int i = 0; i < this.Rules.size(); i++) {
-            SB.append("\n " + this.Rules.get(i).toString());
+        for (int i = 0; i < this.rules.size(); i++) {
+            SB.append("\n " + this.rules.get(i).toString());
         }
 
         return SB.toString();
@@ -264,7 +261,7 @@ public class RuleSet extends Individual {
         if (ind instanceof RuleSet) {
             RuleSet RS = (RuleSet) ind;
             for (int i = 0; i < this.rulesNo(); i++) {
-                diff = diff + this.Rules.get(i).diversityMeasure(RS.Rules.get(i));
+                diff = diff + this.rules.get(i).diversityMeasure(RS.rules.get(i));
             }
         } else {
             throw new RuntimeException("Illegal Object is given!");

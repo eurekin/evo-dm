@@ -11,8 +11,8 @@ import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 public class Rule extends Individual {
 
-    private boolean Active; //a bit inbforms if rule is active
-    public ArrayList<RuleGene> ConditionOnAttribute;
+    private boolean Active; //a bit informs if rule is active
+    public ArrayList<RuleGene> conditionOnAttribute;
     protected BitSet ClassID;
 
     /**
@@ -23,10 +23,10 @@ public class Rule extends Individual {
         this.Evaluations = new ArrayList<Evaluation>();
         Evaluations.add(new Evaluation());
         this.Active = true;
-        this.ConditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
+        this.conditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
             RuleGene dg = new RuleGene();
-            ConditionOnAttribute.add(dg);
+            conditionOnAttribute.add(dg);
         }
         this.ClassID = new BitSet(Configuration.getConfiguration().getClassBits());
     }
@@ -36,10 +36,10 @@ public class Rule extends Individual {
         this.Evaluations = new ArrayList<Evaluation>();
         Evaluations.add(new Evaluation(R.getEvaluation()));
 
-        this.ConditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
+        this.conditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
             RuleGene dg = new RuleGene(R.getGene(i));
-            ConditionOnAttribute.add(dg);
+            conditionOnAttribute.add(dg);
         }
 
         this.ClassID = new BitSet(Configuration.getConfiguration().getClassBits());
@@ -53,7 +53,7 @@ public class Rule extends Individual {
     public void init() {
         this.Active = Rand.GetRandomBoolean();
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-            ConditionOnAttribute.get(i).Initialisation();
+            conditionOnAttribute.get(i).Initialisation();
         }
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
             this.ClassID.set(i, Rand.GetRandomBoolean());
@@ -63,11 +63,11 @@ public class Rule extends Individual {
     }
 
     public boolean isCondition(int attribID) {
-        return !(this.ConditionOnAttribute.get(attribID).isOff());
+        return !(this.conditionOnAttribute.get(attribID).isOff());
     }
 
     public Condition getCondition(int attribID) {
-        return this.ConditionOnAttribute.get(attribID).getCondition(attribID);
+        return this.conditionOnAttribute.get(attribID).getCondition(attribID);
     }
 
     @Override
@@ -91,11 +91,11 @@ public class Rule extends Individual {
             boolean first = true;
 
             for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-                if (this.ConditionOnAttribute.get(i).isOff() == false) {
+                if (this.conditionOnAttribute.get(i).isOff() == false) {
                     if (!first) {
                         s.append(" AND ");
                     }
-                    s.append(" a" + this.ConditionOnAttribute.get(i).toString(i));
+                    s.append(" a" + this.conditionOnAttribute.get(i).toString(i));
                     first = false;
                 }
             }
@@ -152,7 +152,7 @@ public class Rule extends Individual {
 
         //body
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-            tym.ConditionOnAttribute.get(i).Mutation();
+            tym.conditionOnAttribute.get(i).Mutation();
         }
 
         //class
@@ -186,7 +186,7 @@ public class Rule extends Individual {
 
         //body
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-            tym.ConditionOnAttribute.get(i).Mutation();
+            tym.conditionOnAttribute.get(i).Mutation();
         }
 
         //class
@@ -204,7 +204,7 @@ public class Rule extends Individual {
      * todo: this method should be protected
      */
     public RuleGene getGene(int no) {
-        return this.ConditionOnAttribute.get(no);
+        return this.conditionOnAttribute.get(no);
     }
 
     public int getClassID() {
@@ -219,7 +219,7 @@ public class Rule extends Individual {
 
     protected void setGene(int no, RuleGene g) {
         this.clearEvaluations();
-        this.ConditionOnAttribute.set(no, g);
+        this.conditionOnAttribute.set(no, g);
     }
 
     /**
@@ -268,7 +268,7 @@ public class Rule extends Individual {
 
     public boolean isEmpty() {
         for (int attribID = 0; attribID < Configuration.getConfiguration().getNumberOfAttributes(); attribID++) {
-            if (this.ConditionOnAttribute.get(attribID).isOff() == false) {
+            if (this.conditionOnAttribute.get(attribID).isOff() == false) {
                 return false;
             }
         }
@@ -281,7 +281,7 @@ public class Rule extends Individual {
         if (I instanceof Rule) {
             Rule R = (Rule) I;
             for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-                diff = diff + ConditionOnAttribute.get(i).Diverse(R.ConditionOnAttribute.get(i));
+                diff = diff + conditionOnAttribute.get(i).Diverse(R.conditionOnAttribute.get(i));
             }
         } else {
             throw new RuntimeException("Illegal Object!");

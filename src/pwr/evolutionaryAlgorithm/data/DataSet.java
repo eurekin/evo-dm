@@ -1,9 +1,11 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 /**
- *
+ * Trzyma listę rekordów oraz informacje o precyzji, dokładności itp.
+ * 
  * @author pawelm
  */
 public class DataSet {
@@ -12,29 +14,6 @@ public class DataSet {
     private float Recall = 0;
     private float Accuracy = 0;
     private float Fsc = 0;
-
-    public void setEvaluation(float prec, float rec, float acc, float fsc) {
-        this.Precision = prec;
-        this.Recall = rec;
-        this.Accuracy = acc;
-        this.Fsc = fsc;
-    }
-
-    public float getFsc() {
-        return this.Fsc;
-    }
-
-    public float getPrecision() {
-        return Precision;
-    }
-
-    public float getRecall() {
-        return this.Recall;
-    }
-
-    public float getAccuracy() {
-        return this.Accuracy;
-    }
     /**
      * @todo LinkedHashSet na iteratorach!?
      */
@@ -86,11 +65,8 @@ public class DataSet {
      * @param DS2
      * @return
      */
-    static public DataSet OperatorPlus(final DataSet DS1, final DataSet DS2) {
-
+    public static DataSet operatorPlus(final DataSet DS1, final DataSet DS2) {
         DataSet Result = new DataSet(DS1);
-
-        //Result.records.addAll( DS1.records);
 
         //adding form DS2 if not already in DS1
         for (int e = 0; e < DS2.elements(); e++) {
@@ -108,7 +84,7 @@ public class DataSet {
      * @param DS2 DataSet2
      * @return DS1 - DS2
      */
-    static public DataSet OperatorMinus(final DataSet DS1, final DataSet DS2) {
+    public static DataSet OperatorMinus(final DataSet DS1, final DataSet DS2) {
         DataSet Result = new DataSet(DS1);
 
         for (int e = 0; e < DS1.elements(); e++) {
@@ -127,6 +103,29 @@ public class DataSet {
             SB.append(records.get(r).toString() + ";;;\n");
         }
         return SB.toString();
+    }
+
+    public void setEvaluation(float prec, float rec, float acc, float fsc) {
+        this.Precision = prec;
+        this.Recall = rec;
+        this.Accuracy = acc;
+        this.Fsc = fsc;
+    }
+
+    public float getFsc() {
+        return this.Fsc;
+    }
+
+    public float getPrecision() {
+        return Precision;
+    }
+
+    public float getRecall() {
+        return this.Recall;
+    }
+
+    public float getAccuracy() {
+        return this.Accuracy;
     }
 }
 

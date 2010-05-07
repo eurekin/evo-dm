@@ -28,6 +28,7 @@ public class Population<I extends Individual> implements Iterable<I> {
      * @param Pm probability of mutation(>=0)
      * @return new population (new object)
      */
+    @SuppressWarnings("unchecked")
     public Population<I> recombinate() {
         Population<I> tmp = new Population<I>();
         int i = 0; //individuals counter
@@ -106,8 +107,10 @@ public class Population<I extends Individual> implements Iterable<I> {
         this.individuals = new ArrayList<I>(Configuration.getConfiguration().getPopSize());
     }
 
+    @SuppressWarnings("unchecked")
     public Population(Individual type) {
-        this.individuals = new ArrayList<I>(Configuration.getConfiguration().getPopSize());
+        final int popSize = Configuration.getConfiguration().getPopSize();
+        this.individuals = new ArrayList<I>(popSize);
 
         /* Extension friendly version
          * unused for performance reasons
@@ -131,30 +134,31 @@ public class Population<I extends Individual> implements Iterable<I> {
          *
          * Subtypes goes first.
          */
+        Individual r;
         if (type instanceof ClassifyingIndividual) {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                ClassifyingIndividual r = new ClassifyingIndividual();
+            for (int i = 0; i < popSize; i++) {
+                r = new ClassifyingIndividual();
                 individuals.add((I) r);
             }
         } else if (type instanceof SelectingIndividual) {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                SelectingIndividual r = new SelectingIndividual();
+            for (int i = 0; i < popSize; i++) {
+                r = new SelectingIndividual();
                 individuals.add((I) r);
             }
         } else if (type instanceof RuleSet) {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                RuleSet rs = new RuleSet();
-                individuals.add((I) rs);
+            for (int i = 0; i < popSize; i++) {
+                r = new RuleSet();
+                individuals.add((I) r);
             }
         } else if (type instanceof Rule) {
-            for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-                Rule r = new Rule();
+            for (int i = 0; i < popSize; i++) {
+                r = new Rule();
                 individuals.add((I) r);
             }
         } else {
-            throw new RuntimeException("Oooops... Unsupported Individual type");
+            throw new RuntimeException(
+                    "Oooops... Unsupported Individual type");
         }
-
     }
 
     /**
