@@ -168,12 +168,12 @@ public class Evaluator {
     private DataSet EvaluateRule(DataSource DSc, Rule R) {
 
         Configuration Config = Configuration.getConfiguration();
-        DataSet DS = this.getCoveredDataSet(DSc, R);  //get DataSet covered by rule
+        DataSet DS = getCoveredDataSet(DSc, R);  //get DataSet covered by rule
 
-        if (Config.isOneClassActive() == true) {
-            EvaluateDataSet(DSc, DS, Config.getActiveClass());
-        } else {
+        if (!Config.isOneClassActive()) {
             EvaluateDataSet(DSc, DS, R.getClassID());
+        } else {
+            EvaluateDataSet(DSc, DS, Config.getActiveClass());
         }
 
         Evaluation E = createEvaluationFrom(DS);
@@ -188,7 +188,16 @@ public class Evaluator {
     }
 
     /**
-     * Hmm... Zwraca zbiór rekordów...
+     * <p>Mamy regułę
+     * <pre>
+     * długość IN <1,2> and szerokość IN<2,3>
+     * </pre>
+     *
+     * <p>Dla niej ta metoda zwróci {@code DataSet }zawierający wszystkie
+     * {@code Record }, które mogą zostać rozpatrywane przez tą regułę.
+     *
+     * <p>Dla podanego przykładu zwróci te rekordy które mają odpowiednią
+     * długość i szerokość (jednocześnie).
      *
      * @param DS
      * @param R
@@ -197,28 +206,34 @@ public class Evaluator {
     protected DataSet getCoveredDataSet(DataSource DS, Rule R) {
         Condition c = null;
         DataSet Cand = new DataSet();
-        int attribID = 0;
+        int att = 0;
         final int numberOfAttributes = Configuration.getConfiguration().getNumberOfAttributes();
         //for first review -> search for first enabled attribuite
-        for (attribID = 0; attribID < numberOfAttributes; attribID++) {
-            if (R.isCondition(attribID) == true) {
-                c = R.getCondition(attribID);
+        // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
+        // włączonego
+        for (att = 0; att < numberOfAttributes; att++) {
+            if (R.isCondition(att)) {
+                c = R.getCondition(att);
                 Cand = DS.getDataSet(c);
                 break;
             }
         }
-        //else: there is no data -> first enabled condition and no result
-        if (attribID != numberOfAttributes && Cand != null) {
-            int a = attribID;
+
+        if (att != numberOfAttributes && Cand != null) {
+            int a = att;
             do {
-                if (R.isCondition(a) == true) {
+                if (R.isCondition(a)) {
                     c = R.getCondition(a);
                     Cand = DS.getDataSet(Cand, c);
                 }
                 a++;
             } while (a < numberOfAttributes && !Cand.empty());
-        }//else
+        }
 
+        // A co gdy pierwszy włączony warunek zwraca pusty zbiór?
+        // Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
+        // a w związku z tym, że reguła jest _koniunkcją_ warunków, to
+        // pomijamy dalsze sprawdzenia. 
         return Cand;
     }
 

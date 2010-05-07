@@ -1,118 +1,72 @@
 package pwr.evolutionaryAlgorithm.data;
 
-
-
 /**
  *
  * @author pawelm
  */
 public class Record {
 
-private int size;
-private float [] values;
-private int className;
+    private int size;
+    private float[] values;
+    private int className;
 
-public Record() {
+    public Record() {
     }
 
-Record( int size, float [] values, int className ){
-    this.values = values;
-    this.size = size;
-    this.className = className;
-}
+    Record(int size, float[] values, int className) {
+        this.values = values;
+        this.size = size;
+        this.className = className;
+    }
 
-/**
- * returns value of given arguemnt ID
- * @param argId a given ID
- * @return value of selected argument
- */
-public float getArgumentValue(int argId){
-    return this.values[argId];
-}
+    /**
+     * returns value of given arguemnt ID
+     * @param argId a given ID
+     * @return value of selected argument
+     */
+    public float getArgumentValue(int argId) {
+        return this.values[argId];
+    }
 
-public int getClassName(){
-    return this.className;
-}
+    public int getClassName() {
+        return this.className;
+    }
 
-public int getClassNameNext(){
-    return -1;
-}
+    public int getClassNameNext() {
+        return -1;
+    }
 
+    public boolean hasClass(int class_id) {
+        return class_id == className;
+    }
 
-public boolean hasClass(int class_id){
-	  if (class_id==this.className) return true;
-	  else return false;
-}
+    public boolean isSatisfy(Condition C) {
+        final float atr = this.values[C.getAttrib()];
+        switch (C.getRelation()) {
+            case IN:
+                return atr >= C.getValue1() && atr <= C.getValue2();
 
-/*public boolean isSatisfy(Rule R){
-    return isSatisfy(R, 0);
-}*/
-/*
-public boolean hasTheSameClass(Rule R){
-  if (R.getClassID()==this.className) return true;
-  else return false;
-}
-*/
-/*
-public boolean isSatisfy(Rule R, int i){
-
-    int ATTR = Configuration.getNumberOfAttributes();
-    
-    if (i==0) i=-1;
-    if (i==ATTR) return false;
-
-    for (int ci = i+1;ci< ATTR; ci++){
-        RuleGene G = R.getGene(ci);
-        if ( !G.isOff() ){
-            if ( this.isSatisfy( G.getCondition(ci) )==false ) 
-                return false;
+            case NOT_IN:
+                return atr < C.getValue1() || atr > C.getValue2();
         }
+        return false;
     }
 
-    return true;
-}
-*/
-/*
-public boolean isSatisfy(Rule r){
-    switch (r.getRelation()){
-        case IN :                if ( this.values[ r.getAttrib() ] >= r.getValue1() && this.values[ r.getAttrib() ] <= r.getValue2()) return true;
-                                       else return false;
-        case NOT_IN :  if ( this.values[ r.getAttrib() ] < r.getValue1() || this.values[ r.getAttrib() ] > r.getValue2()) return true;
-                                       else return false;
+    public float getMaxAttribValue(int attrib) {
+        return this.values[attrib];
     }
-    return false;
-}
-*/
 
-
-public boolean isSatisfy(Condition C){
-    switch (C.getRelation()){
-        case IN :                if ( this.values[ C.getAttrib() ] >= C.getValue1() && this.values[ C.getAttrib() ] <= C.getValue2()) return true;
-                                       else return false;
-        case NOT_IN :  if ( this.values[ C.getAttrib() ] < C.getValue1() || this.values[ C.getAttrib() ] > C.getValue2()) return true;
-                                       else return false;
+    public float getMinAttribValue(int attrib) {
+        return this.values[attrib];
     }
-    return false;
-}
-
-
-public float getMaxAttribValue(int attrib){
-   return  this.values[attrib];
-}
-
-
-public float getMinAttribValue(int attrib){
-    return  this.values[attrib];
-}
 
     @Override
-public String toString(){
-    StringBuilder SB = new StringBuilder();
+    public String toString() {
+        StringBuilder SB = new StringBuilder();
 
-    for (int i=0;i<size;i++){
-        SB.append(values[i]+";");
+        for (float v : values) {
+            SB.append(v + ";");
+        }
+        return SB.toString().replace(".", ",");
     }
-    return SB.toString().replace(".", ",");
-}
-
 }

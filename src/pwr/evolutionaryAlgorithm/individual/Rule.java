@@ -66,7 +66,6 @@ public class Rule extends Individual {
         return !(this.ConditionOnAttribute.get(attribID).isOff());
     }
 
-    //------------------------------------------------------------------------------\
     public Condition getCondition(int attribID) {
         return this.ConditionOnAttribute.get(attribID).getCondition(attribID);
     }
@@ -81,37 +80,6 @@ public class Rule extends Individual {
         return Configuration.getConfiguration().getNumberOfAttributes();
     }
 
-    /*
-    private String toStringTechnical(){
-    StringBuilder s = new StringBuilder("");
-
-    if (!this.Active) s.append("[X]");
-    else s.append("[ ]");
-
-    boolean first = true;
-
-    for (int i=0;i<Configuration.getConfiguration().getNumberOfAttributes();i++){
-    if (!first) s.append(" AND ");
-    s.append( " a"+this.ConditionOnAttribute.get(i).toString(i) );
-    first = false;
-    }
-
-
-    s.append(" class ");
-    s.append(this.getClassID());
-    //s.append(this.ClassID.toString());
-
-    if (this.Fitness!=Configuration.getConfiguration().getFINTESSDEFAULT() && this.Fitness!=0.0){
-    s.append( " rec="+String.format("%.3f",this.Recall)
-    +" prec="+String.format("%.3f",this.Precision)
-    +" acc="+String.format("%.3f",this.Accuracy)
-    +" Fsc="+String.format("%.3f",this.Fsc));
-    }
-
-    else s.append(" not used (0.0)");
-    return s.toString();
-    }
-     */
     private String toStringBeauty() {
         StringBuilder s = new StringBuilder("");
 
@@ -142,7 +110,6 @@ public class Rule extends Individual {
 
     @Override
     public String toString() {
-        //return this.toStringTechnical();
         return this.toStringBeauty();
     }
 
@@ -217,17 +184,6 @@ public class Rule extends Individual {
         tym.clearEvaluations();
         //end: copying
 
-        //active flag
-        /*TODO wylaczona mutacja on/off reguly 
-        if ( Rand.GetRandomBooleanFlip(Pmutation)==true )    {
-        this.Active = !(this.Active);
-
-        //TODO REMOVE IT!
-        //if (this.Active==false) System.out.print("M-");
-        //else System.out.print("M+");
-
-        }*/
-
         //body
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
             tym.ConditionOnAttribute.get(i).Mutation();
@@ -286,12 +242,6 @@ public class Rule extends Individual {
             }
             tym.setGene(i, d);
         }
-
-        /*
-        boolean classFromOne = Rand.GetRandomBoolean();
-        if (classFromOne) tym.ClassID = ((Rule)Indv1).ClassID;
-        else tym.ClassID = ((Rule)Indv2).ClassID;
-         */
 
         boolean classFromOne = Rand.GetRandomBoolean();
         Rule R = null;
