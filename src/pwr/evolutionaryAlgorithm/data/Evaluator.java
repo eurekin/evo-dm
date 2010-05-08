@@ -276,44 +276,6 @@ public class Evaluator {
     }
 
     /**
-     * Method that looks for DataSource ang gives information about DataSet
-     * (acc, prec, rec and Fsc) in given class.
-     *
-     * As a side effect {@code DataSet ds}'s evaluation is updated to
-     * reflect computated values. Thus it's best candidate for a method
-     * of DataSet class.
-     */
-    protected void evaluateDataSet(DataSource dSrc, DataSet ds, int classId) {
-        final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
-        final float alpha, expected, correct, generated;
-
-        // get input data
-        alpha = 0.5f;
-        generated = ds.size();
-        expected = dSrc.getExpected(classId);
-        correct = dSrc.getCorrect(ds, classId).size();
-
-        // recall & precision - corrected to handle division by zero
-        rcl = expected == 0 ? 0 : correct / expected;
-        prc = generated == 0 ? 0 : correct / generated;
-
-        // E score
-        pPt = prc == 0 ? 0 : alpha / prc;
-        rPt = rcl == 0 ? 0 : (1 - alpha) / rcl;
-        eSc = pPt + rPt == 0 ? 1 : 1 - (1 / (pPt + rPt));
-
-        // F Score
-        fSc = 1 - eSc;
-
-        // Accuracy
-        out = dSrc.size() - expected - generated + 2 * correct;
-        acc = prc == 0 || rcl == 0.0 ? 0 : out / dSrc.size();
-
-        // return
-        ds.setEvaluation(prc, rcl, acc, fSc);
-    }
-
-    /**
      * returns classification report for selected rule
      *
      * @param dSrc datasource

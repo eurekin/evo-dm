@@ -77,6 +77,14 @@ public class DataSet {
         return Result;
     }
 
+    /**
+     * Method that looks for DataSource ang gives information about DataSet
+     * (acc, prec, rec and Fsc) in given class.
+     *
+     * As a side effect {@code DataSet ds}'s evaluation is updated to
+     * reflect computated values. Thus it's best candidate for a method
+     * of DataSet class.
+     */
     public void evaluate(DataSource dSrc, int classId) {
         final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
         final float alpha, expected, correct, generated;
