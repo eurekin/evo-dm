@@ -72,7 +72,8 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            evaluateDataSet(DSc, DSResult, Configuration.getConfiguration().getActiveClass());
+//            evaluateDataSet(DSc, DSResult, Configuration.getConfiguration().getActiveClass());
+            DSResult.evaluate(DSc, Configuration.getConfiguration().getActiveClass());
             ///
             Evaluation E = new Evaluation(DSResult);
             RS.setEvaluation(E);
@@ -97,7 +98,7 @@ public class Evaluator {
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                evaluateDataSet(DSc, DSResult, c);
+                DSResult.evaluate(DSc, c);
                 Evaluation evl = new Evaluation(DSResult);
                 RS.setEvaluation(c, evl);
             }//////////////////END:CLASSESS ////////////////////////////////////
@@ -134,7 +135,8 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            evaluateDataSet(ds, DSResult, Configuration.getConfiguration().getActiveClass());
+            final int activeClass = Configuration.getConfiguration().getActiveClass();
+            DSResult.evaluate(ds, activeClass);
             ci.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
         //for each class....
@@ -163,7 +165,7 @@ public class Evaluator {
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                evaluateDataSet(ds, DSResult, c);
+                DSResult.evaluate(ds, c);
                 Evaluation E = new Evaluation(DSResult);
                 ci.setEvaluation(c, E);
             }//////////////////END:CLASSESS ////////////////////////////////////
@@ -175,13 +177,14 @@ public class Evaluator {
     private DataSet evaluateRule(DataSource dSrc, Rule rule) {
 
         Configuration cfg = Configuration.getConfiguration();
+        final int activeClass = cfg.isOneClassActive() ? cfg.getActiveClass() : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
         // Wybierane są tutaj te rekordy, których dotyczy reguła rule.
         DataSet ds = getCoveredDataSet(dSrc, rule);  //get DataSet covered by rule
 
         //
-        evaluateDataSet(dSrc, ds, cfg.isOneClassActive() ? cfg.getActiveClass() : rule.getClassID());
+        ds.evaluate(dSrc, activeClass);
         rule.setEvaluation(new Evaluation(ds));
         return ds;
     }
@@ -280,15 +283,15 @@ public class Evaluator {
      * reflect computated values. Thus it's best candidate for a method
      * of DataSet class.
      */
-    protected float evaluateDataSet(DataSource dSrc, DataSet ds, int classId) {
-        final float alpha, expected, correct, generated;
+    protected void evaluateDataSet(DataSource dSrc, DataSet ds, int classId) {
         final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
+        final float alpha, expected, correct, generated;
 
         // get input data
         alpha = 0.5f;
-        generated = ds.elements();
+        generated = ds.size();
         expected = dSrc.getExpected(classId);
-        correct = dSrc.getCorrect(ds, classId).elements();
+        correct = dSrc.getCorrect(ds, classId).size();
 
         // recall & precision - corrected to handle division by zero
         rcl = expected == 0 ? 0 : correct / expected;
@@ -308,7 +311,6 @@ public class Evaluator {
 
         // return
         ds.setEvaluation(prc, rcl, acc, fSc);
-        return Configuration.getConfiguration().isFsc() ? fSc : acc;
     }
 
     /**
@@ -324,21 +326,21 @@ public class Evaluator {
 
         sb.append("\n" + r.toString());
 
-        long correct = dSrc.getCorrect(ds, r.getClassID()).elements();
+        long correct = dSrc.getCorrect(ds, r.getClassID()).size();
         long expected = 0;
         if (Configuration.getConfiguration().isOneClassActive() == true) {
             expected = dSrc.getExpected(Configuration.getConfiguration().getActiveClass());
         } else {
             expected = dSrc.getExpected(r.getClassID());
         }
-        long generated = ds.elements();
+        long generated = ds.size();
 
         sb.append("\n Generated=" + generated);
         sb.append(" Correct=" + correct);
         sb.append(" Expected=" + expected);
         sb.append(" InCorrect=" + (generated - correct));
 
-        long elements = ds.elements();
+        long elements = ds.size();
         for (int iter = 0; iter < elements; iter++) {
             if (!ds.getRecord(iter).hasClass(r.getClassID())) {
                 sb.append("\n---" + ds.getRecord(iter).toString());
@@ -375,9 +377,10 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            evaluateDataSet(dSrc, DSResult, Configuration.getConfiguration().getActiveClass());
+            final int activeClass = Configuration.getConfiguration().getActiveClass();
+            DSResult.evaluate(dSrc, activeClass);
             ///
-            Evaluation E = new Evaluation(DSResult.getPrecision(), DSResult.getRecall(), DSResult.getFsc(), DSResult.getAccuracy());
+            Evaluation E = new Evaluation(DSResult);
             rSet.setEvaluation(E);
         } // all classes are active
         //for each class....
@@ -406,8 +409,8 @@ public class Evaluator {
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                evaluateDataSet(dSrc, DSResult, c);
-                Evaluation E = new Evaluation(DSResult.getPrecision(), DSResult.getRecall(), DSResult.getFsc(), DSResult.getAccuracy());
+                DSResult.evaluate(dSrc, c);
+                Evaluation E = new Evaluation(DSResult);
                 rSet.setEvaluation(c, E);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }

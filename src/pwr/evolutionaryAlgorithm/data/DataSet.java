@@ -38,7 +38,7 @@ public class DataSet {
         this.records.add(R);
     }
 
-    public long elements() {
+    public long size() {
         return this.records.size();
     }
 
@@ -68,13 +68,43 @@ public class DataSet {
         DataSet Result = new DataSet(DS1);
 
         //adding form DS2 if not already in DS1
-        for (int e = 0; e < DS2.elements(); e++) {
+        for (int e = 0; e < DS2.size(); e++) {
             Record R = DS2.records.get(e);
             if (Result.records.contains(R) == false) {
                 Result.records.add(R);
             }
         }
         return Result;
+    }
+
+    public void evaluate(DataSource dSrc, int classId) {
+        final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
+        final float alpha, expected, correct, generated;
+
+        // get input data
+        alpha = 0.5f;
+        generated = size();
+        expected = dSrc.getExpected(classId);
+        correct = dSrc.getCorrect(this, classId).size();
+
+        // recall & precision - corrected to handle division by zero
+        rcl = expected == 0 ? 0 : correct / expected;
+        prc = generated == 0 ? 0 : correct / generated;
+
+        // E score
+        pPt = prc == 0 ? 0 : alpha / prc;
+        rPt = rcl == 0 ? 0 : (1 - alpha) / rcl;
+        eSc = pPt + rPt == 0 ? 1 : 1 - (1 / (pPt + rPt));
+
+        // F Score
+        fSc = 1 - eSc;
+
+        // Accuracy
+        out = dSrc.size() - expected - generated + 2 * correct;
+        acc = prc == 0 || rcl == 0.0 ? 0 : out / dSrc.size();
+
+        // return
+        setEvaluation(prc, rcl, acc, fSc);
     }
 
     /**
@@ -86,7 +116,7 @@ public class DataSet {
     public static DataSet OperatorMinus(final DataSet DS1, final DataSet DS2) {
         DataSet Result = new DataSet(DS1);
 
-        for (int e = 0; e < DS1.elements(); e++) {
+        for (int e = 0; e < DS1.size(); e++) {
             Record R = DS1.records.get(e);
             if (DS2.records.contains(R) == true) {
                 Result.records.remove(R);
@@ -105,10 +135,10 @@ public class DataSet {
     }
 
     public void setEvaluation(float prec, float rec, float acc, float fsc) {
-        this.Precision = prec;
+        this.Fsc = fsc;
         this.Recall = rec;
         this.Accuracy = acc;
-        this.Fsc = fsc;
+        this.Precision = prec;
     }
 
     public float getFsc() {

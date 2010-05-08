@@ -235,7 +235,7 @@ public class DataSource {
     /**
      *
      * @param c condition
-     * @return returns elements from datasource that condition is succeed
+     * @return returns size from datasource that condition is succeed
      */
     public DataSet getDataSet(Condition c) {
         DataSet res = new DataSet();
@@ -293,7 +293,7 @@ public class DataSource {
 
     public DataSet getDataSet(DataSet ds, Condition c) {
         DataSet result = new DataSet();
-        for (int d = 0; d < ds.elements(); d++) {
+        for (int d = 0; d < ds.size(); d++) {
             if (ds.getRecord(d).isSatisfy(c)) {
                 result.addRecord(ds.getRecord(d));
             }
@@ -306,26 +306,27 @@ public class DataSource {
     }
 
     /**
-     * Returns set of records classified correctly in s dataset
+     * Returns set of records classified correctly in a dataset
+     * 
      * @param s set of dataset
      * @param class_id class of classification
      * @return set of records
      */
     public DataSet getCorrect(DataSet s, int class_id) {
-        DataSet CorrectDS = new DataSet();
-        for (int i = 0; i < s.elements(); i++) {
+        DataSet correctDS = new DataSet();
+        for (int i = 0; i < s.size(); i++) {
             int RecordClass = s.getRecord(i).getClassName();
             do {
                 if (class_id == RecordClass) {
-                    CorrectDS.addRecord(s.getRecord(i));
+                    correctDS.addRecord(s.getRecord(i));
                 }
                 RecordClass = s.getRecord(i).getClassNameNext();
             } while (RecordClass != -1);
         }
-        return CorrectDS;
+        return correctDS;
     }
 
-    /*
+    /**
      * returns report
      * RECORDS_TOTAL
      * RECORDS_IN_CLASS
