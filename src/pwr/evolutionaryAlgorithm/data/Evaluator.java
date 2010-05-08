@@ -7,14 +7,19 @@ import pl.eurekin.coevolution.SelectingIndividual;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.*;
 
-/*
+/**
+ * Dlaczego singleton, a nie klasa z metodami i polami statycznymi?
+ *
  * Singleton class
  */
 public class Evaluator {
 
     static private Evaluator e = null;
-    private ArrayList<DataSet> Datas = null;
-    private int IndividualPointer = 0;
+    /**
+     * Używane tylko przez BB - best breed (?)
+     */
+    private ArrayList<DataSet> data = null;
+    private int individualPointer = 0;
 
     static public Evaluator getEvaluator() {
         if (e == null) {
@@ -69,7 +74,7 @@ public class Evaluator {
             /////// CLASS Summary ///////////////
             evaluateDataSet(DSc, DSResult, Configuration.getConfiguration().getActiveClass());
             ///
-            Evaluation E = createEvaluationFrom(DSResult);
+            Evaluation E = new Evaluation(DSResult);
             RS.setEvaluation(E);
         } // all classes are active
         //for each class....
@@ -93,8 +98,8 @@ public class Evaluator {
 
                 /////// CLASS Summary ///////////////
                 evaluateDataSet(DSc, DSResult, c);
-                Evaluation E = createEvaluationFrom(DSResult);
-                RS.setEvaluation(c, E);
+                Evaluation evl = new Evaluation(DSResult);
+                RS.setEvaluation(c, evl);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
         RS.doCountTotalEvaluation(DataLoader.getClassNumber());
@@ -130,7 +135,7 @@ public class Evaluator {
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
             evaluateDataSet(ds, DSResult, Configuration.getConfiguration().getActiveClass());
-            ci.setEvaluation(createEvaluationFrom(DSResult));
+            ci.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
         //for each class....
         else {
@@ -141,11 +146,15 @@ public class Evaluator {
 
 
                 // Z punktu widzenia implementacji koewolucji najważniejszy
-                // jest moment kiedy mogę odfiltrować pewne rekordy.
+                // jest moment kiedy mogę odfiltrować rekordy. Zostawić tylko
+                // te, które wybrane są przez osobnika wybierającego. Problem
+                // w tym, żeby zachować poprawność oceniania populacji. Gdzieś
+                // trzeba zmodyfikować ocenę, gdyż w koewolucji osobnik klasy-
+                // fikujący widzi tylko podzbiór danych.
 
-                // Fill DSResult with appropiate rules
+                // Fill DSResult with appropriate rules
                 for (Rule rule : ci.getRules()) {
-                    //if rule is activa and returns such class
+                    //if rule is active and returns such class
                     if (rule.isActive() && rule.getClassID() == c) {
                         DSPart = evaluateRule(ds, rule);
                         DSResult = DataSet.operatorPlus(DSResult, DSPart);
@@ -155,7 +164,7 @@ public class Evaluator {
 
                 /////// CLASS Summary ///////////////
                 evaluateDataSet(ds, DSResult, c);
-                Evaluation E = createEvaluationFrom(DSResult);
+                Evaluation E = new Evaluation(DSResult);
                 ci.setEvaluation(c, E);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
@@ -167,24 +176,14 @@ public class Evaluator {
 
         Configuration cfg = Configuration.getConfiguration();
 
-        // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne
+        // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
+        // Wybierane są tutaj te rekordy, których dotyczy reguła rule.
         DataSet ds = getCoveredDataSet(dSrc, rule);  //get DataSet covered by rule
 
-        if (!cfg.isOneClassActive()) {
-            evaluateDataSet(dSrc, ds, rule.getClassID());
-        } else {
-            evaluateDataSet(dSrc, ds, cfg.getActiveClass());
-        }
-        rule.setEvaluation(createEvaluationFrom(ds));
+        //
+        evaluateDataSet(dSrc, ds, cfg.isOneClassActive() ? cfg.getActiveClass() : rule.getClassID());
+        rule.setEvaluation(new Evaluation(ds));
         return ds;
-    }
-
-    private static Evaluation createEvaluationFrom(DataSet DS) {
-        return new Evaluation(
-                DS.getPrecision(),
-                DS.getRecall(),
-                DS.getFsc(),
-                DS.getAccuracy());
     }
 
     /**
@@ -205,35 +204,42 @@ public class Evaluator {
      */
     protected DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
         Condition c = null;
-        DataSet can = new DataSet();
+        DataSet cnd = new DataSet();
         int att = 0;
         final int numberOfAttributes = Configuration.getConfiguration().getNumberOfAttributes();
-        //for first review -> search for first enabled attribuite
+        //for first review -> search for first enabled attribute
         // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
         // włączonego
         for (att = 0; att < numberOfAttributes; att++) {
             if (r.isCondition(att)) {
                 c = r.getCondition(att);
-                can = dSrc.getDataSet(c);
+
+                // Tutaj dzieje się magia rodem z opowieści o bazach danych.
+                // Ta metoda zwraca DataSet spełniający warunek c używając
+                // do tego przeszukiwania binarnego.
+                cnd = dSrc.getDataSet(c);
                 break;
             }
         }
 
-        if (att != numberOfAttributes && can != null) {
+        if (att != numberOfAttributes && cnd != null) {
+            // Znaleziono pierwszy aktywny Condition o numerze att.
+            // Warunek jest spełniony dla rekordów zawartych w cnd.
+            // Pozostaje uwzględnić resztę warunków z reguły r.
             do {
                 if (r.isCondition(att)) {
                     c = r.getCondition(att);
-                    can = dSrc.getDataSet(can, c);
+                    cnd = dSrc.getDataSet(cnd, c);
                 }
                 att++;
-            } while (att < numberOfAttributes && !can.empty());
+            } while (att < numberOfAttributes && !cnd.empty());
         }
 
         // A co gdy pierwszy włączony warunek zwraca pusty zbiór?
         // Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
         // a w związku z tym, że reguła jest _koniunkcją_ warunków, to
         // dalsze sprawdzenia są niepotrzebne.
-        return can;
+        return cnd;
     }
 
     private DataSet getAllCorrectClassified(DataSource DSc,
@@ -249,18 +255,21 @@ public class Evaluator {
         return DScorrect;
     }
 
+    /**
+     * Best breed implementation
+     */
     public void clearBB() {
         int pop_size = Configuration.getConfiguration().getPopSize();
-        if (Datas == null) {
-            this.Datas = new ArrayList<DataSet>(pop_size);
+        if (data == null) {
+            data = new ArrayList<DataSet>(pop_size);
         }
-        this.IndividualPointer = 0;
+        individualPointer = 0;
     }
 
-    public void EvaluateBB(DataSource DSc, Individual I) {
-        DataSet DSgenerated = this.EvaluateRuleSet(DSc, (RuleSet) I);
-        DataSet DScorrect = this.getAllCorrectClassified(DSc, DSgenerated, (RuleSet) I);
-        this.Datas.set(this.IndividualPointer++, DScorrect);
+    public void evaluateBB(DataSource DSc, Individual I) {
+        DataSet DSgenerated = EvaluateRuleSet(DSc, (RuleSet) I);
+        DataSet DScorrect = getAllCorrectClassified(DSc, DSgenerated, (RuleSet) I);
+        data.set(individualPointer++, DScorrect);
     }
 
     /**
@@ -268,8 +277,8 @@ public class Evaluator {
      * (acc, prec, rec and Fsc) in given class.
      *
      * As a side effect {@code DataSet ds}'s evaluation is updated to
-     * reflect computated values. Thus it should be a method on DataSet
-     * object.
+     * reflect computated values. Thus it's best candidate for a method
+     * of DataSet class.
      */
     protected float evaluateDataSet(DataSource dSrc, DataSet ds, int classId) {
         final float alpha, expected, correct, generated;
@@ -304,6 +313,7 @@ public class Evaluator {
 
     /**
      * returns classification report for selected rule
+     *
      * @param dSrc datasource
      * @param ds dataset of generated data
      * @param r Selected rule

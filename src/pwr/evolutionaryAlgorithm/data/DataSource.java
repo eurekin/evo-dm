@@ -5,8 +5,11 @@ import pwr.evolutionaryAlgorithm.utils.Rand;
 
 public class DataSource {
 
-    private ArrayList<Record> Data;
-    private long Data_Expected_by_Class[];
+    private ArrayList<Record> data;
+    private long dataExpectedByClass[];
+    /**
+     * INDEX. Could be cleanly abstracted as a list of DataIndex of some sort.
+     */
     private ArrayList<ArrayList<Linker>> INDEX;
 
     public class Linker {
@@ -116,114 +119,103 @@ public class DataSource {
      * @param TestDataFileName name of file with data for tests
      */
     public DataSource() {
-        Data = new ArrayList<Record>();
+        data = new ArrayList<Record>();
     }
 
     public DataSource(DataSource DS) {
-        if (DS.Data != null) {
-            Data = (DS.Data);
-        } else {
-            Data = new ArrayList<Record>();
-        }
+        data = DS.data != null ? DS.data : new ArrayList<Record>();
 
         if (DS.INDEX != null) {
             INDEX = new ArrayList<ArrayList<Linker>>(DS.INDEX);
-        } else {
-            INDEX = null;
         }
 
-        if (DS.Data_Expected_by_Class != null) {
+        if (DS.dataExpectedByClass != null) {
             int classes = DataLoader.getClassNumber();
-            Data_Expected_by_Class = new long[classes];
+            dataExpectedByClass = new long[classes];
             for (int i = 0; i < classes; i++) {
-                Data_Expected_by_Class[i] = DS.Data_Expected_by_Class[i];
+                dataExpectedByClass[i] = DS.dataExpectedByClass[i];
             }
         } else {
-            Data_Expected_by_Class = null;
+            dataExpectedByClass = null;
         }
     }
 
     public boolean addRecord(Record R) {
-        if (Data.add(R)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (data.add(R));
     }
 
     public Record removefirstRecord() {
-        if (Data.size() < 1) {
+        if (data.size() < 1) {
             return null;
         } else {
-            Record Rd = Data.remove(0);
+            Record Rd = data.remove(0);
             return Rd;
         }
     }
 
     public Record removeRandomRecord() {
-        int r = Rand.getRandomInt(Data.size());
-        Record R = Data.remove(r);
-        return R;
+        return data.remove(Rand.getRandomInt(data.size()));
     }
 
     public void clear() {
-        if (Data != null) {
-            Data.clear();
+        if (data != null) {
+            data.clear();
         }
-        Data_Expected_by_Class = null;
+        dataExpectedByClass = null;
         if (INDEX != null) {
             INDEX.clear();
         }
     }
 
     public int size() {
-        return Data.size();
+        return data.size();
     }
 
     public Record get(int i) {
-        return Data.get(i);
+        return data.get(i);
     }
 
     /**
+     * Initializes "data expected by class" statistic and creates index.
+     *
      * method of data organization into collections
      */
     public void OrganizeData() {
 
         //////////////////////////////////////////////////////////////////////////////////////////
         //Expected - for each class
-        Data_Expected_by_Class = new long[DataLoader.getClassNumber()];
+        dataExpectedByClass = new long[DataLoader.getClassNumber()];
         for (int i = 0; i < DataLoader.getClassNumber(); i++) {
-            Data_Expected_by_Class[i] = 0;
+            dataExpectedByClass[i] = 0;
         }
 
         int class_id = 0;
         int class_name = -1;
         Record rec;
-        for (int r = 0; r < Data.size(); r++) { //for each record
+        for (int r = 0; r < data.size(); r++) { //for each record
 
-            rec = Data.get(r);
+            rec = data.get(r);
             if (rec instanceof RecordImage) {
                 class_name = rec.getClassName();
                 do {
                     class_id = class_name;
-                    Data_Expected_by_Class[class_id]++;
+                    dataExpectedByClass[class_id]++;
                     class_name = ((RecordImage) rec).getClassNameNext();
                 } while (class_name != -1);
             } else {
-                //class_name =  Data.get(r).getClassName();
                 class_id = rec.getClassName();
-                Data_Expected_by_Class[class_id]++;
+                dataExpectedByClass[class_id]++;
             }
         }
 
         INDEX = new ArrayList<ArrayList<Linker>>(DataLoader.getArgumentsNo());
         for (int i = 0; i < DataLoader.getArgumentsNo(); i++) { //for each indekser...
 
-            INDEX.add(i, new ArrayList<Linker>(Data.size())); //create it
+            INDEX.add(i, new ArrayList<Linker>(data.size())); //create it
 
-            for (int r = 0; r < Data.size(); r++) { //add each record
+            for (int r = 0; r < data.size(); r++) { //add each record
 
-                rec = Data.get(r);
+                rec = data.get(r);
                 if (rec instanceof Record) {
                     INDEX.get(i).add(r, new Linker(rec.getArgumentValue(i), rec));
                 } else { //add each segment
@@ -254,7 +246,7 @@ public class DataSource {
         final int p1 = binarySearch(attrib, cv1, true);
         int p2 = binarySearch(attrib, cv2, false);
         if (p2 == -1) {
-            p2 = Data.size() - 1;
+            p2 = data.size() - 1;
         }
         final ArrayList<Linker> idx = INDEX.get(attrib);
         final Linker l1 = idx.get(p1);
@@ -284,8 +276,8 @@ public class DataSource {
                 res.addRecord(l1.R);
             }
             Linker rec;
-            if (p2 + 1 < Data.size()) {
-                for (int r = p2 + 1; r < Data.size(); r++) {
+            if (p2 + 1 < data.size()) {
+                for (int r = p2 + 1; r < data.size(); r++) {
                     rec = idx.get(r);
                     if (rec.v > cv1 && rec.v > cv2) {
                         res.addRecord(rec.R);
@@ -299,18 +291,18 @@ public class DataSource {
         return res;
     }
 
-    public DataSet getDataSet(DataSet s, Condition c) {
-        DataSet DSet = new DataSet();
-        for (int d = 0; d < s.elements(); d++) {
-            if (s.getRecord(d).isSatisfy(c) == true) {
-                DSet.addRecord(s.getRecord(d));
+    public DataSet getDataSet(DataSet ds, Condition c) {
+        DataSet result = new DataSet();
+        for (int d = 0; d < ds.elements(); d++) {
+            if (ds.getRecord(d).isSatisfy(c)) {
+                result.addRecord(ds.getRecord(d));
             }
         }
-        return DSet;
+        return result;
     }
 
     public long getExpected(int classID) {
-        return Data_Expected_by_Class[classID];
+        return dataExpectedByClass[classID];
     }
 
     /**
@@ -342,11 +334,11 @@ public class DataSource {
     public String toString() {
         StringBuilder SB = new StringBuilder();
 
-        SB.append("\n RECORDS=" + this.Data.size() + "  Records_in_class ");
+        SB.append("\n RECORDS=" + this.data.size() + "  Records_in_class ");
 
         int classes = DataLoader.getClassNumber();
         for (int i = 0; i < classes; i++) {
-            SB.append(" c" + i + " [" + Data_Expected_by_Class[i] + "] ");
+            SB.append(" c" + i + " [" + dataExpectedByClass[i] + "] ");
         }
         return SB.toString();
     }

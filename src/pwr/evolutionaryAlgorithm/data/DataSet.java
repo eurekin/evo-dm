@@ -1,7 +1,6 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 
 /**
  * Trzyma listę rekordów oraz informacje o precyzji, dokładności itp.

@@ -159,19 +159,20 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
     // Tempering parameters
     private static final int TEMPERING_MASK_B = 0x9d2c5680;
     private static final int TEMPERING_MASK_C = 0xefc60000;
-    private int mt[]; // the array for the state vector
+    private int _mt[]; // the array for the state vector
     private int mti; // mti==N+1 means mt[N] is not initialized
-    private int mag01[];
+    private int _mag01[];
     // a good initial seed (of int size, though stored in a long)
     //private static final long GOOD_SEED = 4357;
     private double __nextNextGaussian;
     private boolean __haveNextNextGaussian;
 
     /* We're overriding all internal data, to my knowledge, so this should be okay */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         MersenneTwisterFast f = (MersenneTwisterFast) (super.clone());
-        f.mt = (int[]) (mt.clone());
-        f.mag01 = (int[]) (mag01.clone());
+        f._mt = (int[]) (_mt.clone());
+        f._mag01 = (int[]) (_mag01.clone());
         return f;
     }
 
@@ -186,13 +187,13 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti != other.mti) {
             return false;
         }
-        for (int x = 0; x < mag01.length; x++) {
-            if (mag01[x] != other.mag01[x]) {
+        for (int x = 0; x < _mag01.length; x++) {
+            if (_mag01[x] != other._mag01[x]) {
                 return false;
             }
         }
-        for (int x = 0; x < mt.length; x++) {
-            if (mt[x] != other.mt[x]) {
+        for (int x = 0; x < _mt.length; x++) {
+            if (_mt[x] != other._mt[x]) {
                 return false;
             }
         }
@@ -201,14 +202,14 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
 
     /** Reads the entire state of the MersenneTwister RNG from the stream */
     public void readState(DataInputStream stream) throws IOException {
-        int len = mt.length;
+        int len = _mt.length;
         for (int x = 0; x < len; x++) {
-            mt[x] = stream.readInt();
+            _mt[x] = stream.readInt();
         }
 
-        len = mag01.length;
+        len = _mag01.length;
         for (int x = 0; x < len; x++) {
-            mag01[x] = stream.readInt();
+            _mag01[x] = stream.readInt();
         }
 
         mti = stream.readInt();
@@ -218,14 +219,14 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
 
     /** Writes the entire state of the MersenneTwister RNG to the stream */
     public void writeState(DataOutputStream stream) throws IOException {
-        int len = mt.length;
+        int len = _mt.length;
         for (int x = 0; x < len; x++) {
-            stream.writeInt(mt[x]);
+            stream.writeInt(_mt[x]);
         }
 
-        len = mag01.length;
+        len = _mag01.length;
         for (int x = 0; x < len; x++) {
-            stream.writeInt(mag01[x]);
+            stream.writeInt(_mag01[x]);
         }
 
         stream.writeInt(mti);
@@ -269,21 +270,21 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         // doing our own Gaussian variable.
         __haveNextNextGaussian = false;
 
-        mt = new int[N];
+        _mt = new int[N];
 
-        mag01 = new int[2];
-        mag01[0] = 0x0;
-        mag01[1] = MATRIX_A;
+        _mag01 = new int[2];
+        _mag01[0] = 0x0;
+        _mag01[1] = MATRIX_A;
 
-        mt[0] = (int) (seed & 0xffffffff);
+        _mt[0] = (int) (seed & 0xffffffff);
         for (mti = 1; mti < N; mti++) {
-            mt[mti] =
-                    (1812433253 * (mt[mti - 1] ^ (mt[mti - 1] >>> 30)) + mti);
+            _mt[mti] =
+                    (1812433253 * (_mt[mti - 1] ^ (_mt[mti - 1] >>> 30)) + mti);
             /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
             /* In the previous versions, MSBs of the seed affect   */
             /* only MSBs of the array mt[].                        */
             /* 2002/01/09 modified by Makoto Matsumoto             */
-            mt[mti] &= 0xffffffff;
+            _mt[mti] &= 0xffffffff;
             /* for >32 bit machines */
         }
     }
@@ -304,12 +305,12 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         j = 0;
         k = (N > array.length ? N : array.length);
         for (; k != 0; k--) {
-            mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >>> 30)) * 1664525)) + array[j] + j; /* non linear */
-            mt[i] &= 0xffffffff; /* for WORDSIZE > 32 machines */
+            _mt[i] = (_mt[i] ^ ((_mt[i - 1] ^ (_mt[i - 1] >>> 30)) * 1664525)) + array[j] + j; /* non linear */
+            _mt[i] &= 0xffffffff; /* for WORDSIZE > 32 machines */
             i++;
             j++;
             if (i >= N) {
-                mt[0] = mt[N - 1];
+                _mt[0] = _mt[N - 1];
                 i = 1;
             }
             if (j >= array.length) {
@@ -317,15 +318,15 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             }
         }
         for (k = N - 1; k != 0; k--) {
-            mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >>> 30)) * 1566083941)) - i; /* non linear */
-            mt[i] &= 0xffffffff; /* for WORDSIZE > 32 machines */
+            _mt[i] = (_mt[i] ^ ((_mt[i - 1] ^ (_mt[i - 1] >>> 30)) * 1566083941)) - i; /* non linear */
+            _mt[i] &= 0xffffffff; /* for WORDSIZE > 32 machines */
             i++;
             if (i >= N) {
-                mt[0] = mt[N - 1];
+                _mt[0] = _mt[N - 1];
                 i = 1;
             }
         }
-        mt[0] = 0x80000000; /* MSB is 1; assuring non-zero initial array */
+        _mt[0] = 0x80000000; /* MSB is 1; assuring non-zero initial array */
     }
 
     public final int nextInt() {
@@ -334,8 +335,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -351,7 +352,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -366,8 +367,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -383,7 +384,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -398,8 +399,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -415,7 +416,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -430,24 +431,24 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] lmt = this._mt; // locals are slightly faster
+            final int[] lmag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + M] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + M] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
             for (; kk < N - 1; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + (M - N)] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + (M - N)] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
-            y = (mt[N - 1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
-            mt[N - 1] = mt[M - 1] ^ (y >>> 1) ^ mag01[y & 0x1];
+            y = (lmt[N - 1] & UPPER_MASK) | (lmt[0] & LOWER_MASK);
+            lmt[N - 1] = lmt[M - 1] ^ (y >>> 1) ^ lmag01[y & 0x1];
 
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -475,24 +476,24 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] lmt = this._mt; // locals are slightly faster
+            final int[] lmag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + M] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + M] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
             for (; kk < N - 1; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + (M - N)] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + (M - N)] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
-            y = (mt[N - 1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
-            mt[N - 1] = mt[M - 1] ^ (y >>> 1) ^ mag01[y & 0x1];
+            y = (lmt[N - 1] & UPPER_MASK) | (lmt[0] & LOWER_MASK);
+            lmt[N - 1] = lmt[M - 1] ^ (y >>> 1) ^ lmag01[y & 0x1];
 
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -519,8 +520,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -536,7 +537,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -545,8 +546,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 z = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -562,7 +563,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        z = mt[mti++];
+        z = _mt[mti++];
         z ^= z >>> 11;                          // TEMPERING_SHIFT_U(z)
         z ^= (z << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(z)
         z ^= (z << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(z)
@@ -578,24 +579,24 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] lmt = this._mt; // locals are slightly faster
+            final int[] lmag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + M] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + M] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
             for (; kk < N - 1; kk++) {
-                y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
-                mt[kk] = mt[kk + (M - N)] ^ (y >>> 1) ^ mag01[y & 0x1];
+                y = (lmt[kk] & UPPER_MASK) | (lmt[kk + 1] & LOWER_MASK);
+                lmt[kk] = lmt[kk + (M - N)] ^ (y >>> 1) ^ lmag01[y & 0x1];
             }
-            y = (mt[N - 1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
-            mt[N - 1] = mt[M - 1] ^ (y >>> 1) ^ mag01[y & 0x1];
+            y = (lmt[N - 1] & UPPER_MASK) | (lmt[0] & LOWER_MASK);
+            lmt[N - 1] = lmt[M - 1] ^ (y >>> 1) ^ lmag01[y & 0x1];
 
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -611,8 +612,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             if (mti >= N) // generate N words at one time
             {
                 int kk;
-                final int[] mt = this.mt; // locals are slightly faster
-                final int[] mag01 = this.mag01; // locals are slightly faster
+                final int[] mt = this._mt; // locals are slightly faster
+                final int[] mag01 = this._mag01; // locals are slightly faster
 
                 for (kk = 0; kk < N - M; kk++) {
                     y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -628,7 +629,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 mti = 0;
             }
 
-            y = mt[mti++];
+            y = _mt[mti++];
             y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
             y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
             y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -645,8 +646,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -662,7 +663,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -671,8 +672,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 z = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -688,7 +689,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        z = mt[mti++];
+        z = _mt[mti++];
         z ^= z >>> 11;                          // TEMPERING_SHIFT_U(z)
         z ^= (z << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(z)
         z ^= (z << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(z)
@@ -712,8 +713,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             if (mti >= N) // generate N words at one time
             {
                 int kk;
-                final int[] mt = this.mt; // locals are slightly faster
-                final int[] mag01 = this.mag01; // locals are slightly faster
+                final int[] mt = this._mt; // locals are slightly faster
+                final int[] mag01 = this._mag01; // locals are slightly faster
 
                 for (kk = 0; kk < N - M; kk++) {
                     y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -729,7 +730,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 mti = 0;
             }
 
-            y = mt[mti++];
+            y = _mt[mti++];
             y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
             y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
             y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -738,8 +739,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             if (mti >= N) // generate N words at one time
             {
                 int kk;
-                final int[] mt = this.mt; // locals are slightly faster
-                final int[] mag01 = this.mag01; // locals are slightly faster
+                final int[] mt = this._mt; // locals are slightly faster
+                final int[] mag01 = this._mag01; // locals are slightly faster
 
                 for (kk = 0; kk < N - M; kk++) {
                     z = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -755,7 +756,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 mti = 0;
             }
 
-            z = mt[mti++];
+            z = _mt[mti++];
             z ^= z >>> 11;                          // TEMPERING_SHIFT_U(z)
             z ^= (z << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(z)
             z ^= (z << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(z)
@@ -776,8 +777,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -793,7 +794,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -802,8 +803,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 z = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -819,7 +820,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        z = mt[mti++];
+        z = _mt[mti++];
         z ^= z >>> 11;                          // TEMPERING_SHIFT_U(z)
         z ^= (z << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(z)
         z ^= (z << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(z)
@@ -844,8 +845,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 if (mti >= N) // generate N words at one time
                 {
                     int kk;
-                    final int[] mt = this.mt; // locals are slightly faster
-                    final int[] mag01 = this.mag01; // locals are slightly faster
+                    final int[] mt = this._mt; // locals are slightly faster
+                    final int[] mag01 = this._mag01; // locals are slightly faster
 
                     for (kk = 0; kk < N - M; kk++) {
                         y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -861,7 +862,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                     mti = 0;
                 }
 
-                y = mt[mti++];
+                y = _mt[mti++];
                 y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
                 y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
                 y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -870,8 +871,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 if (mti >= N) // generate N words at one time
                 {
                     int kk;
-                    final int[] mt = this.mt; // locals are slightly faster
-                    final int[] mag01 = this.mag01; // locals are slightly faster
+                    final int[] mt = this._mt; // locals are slightly faster
+                    final int[] mag01 = this._mag01; // locals are slightly faster
 
                     for (kk = 0; kk < N - M; kk++) {
                         z = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -887,7 +888,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                     mti = 0;
                 }
 
-                z = mt[mti++];
+                z = _mt[mti++];
                 z ^= z >>> 11;                          // TEMPERING_SHIFT_U(z)
                 z ^= (z << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(z)
                 z ^= (z << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(z)
@@ -896,8 +897,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 if (mti >= N) // generate N words at one time
                 {
                     int kk;
-                    final int[] mt = this.mt; // locals are slightly faster
-                    final int[] mag01 = this.mag01; // locals are slightly faster
+                    final int[] mt = this._mt; // locals are slightly faster
+                    final int[] mag01 = this._mag01; // locals are slightly faster
 
                     for (kk = 0; kk < N - M; kk++) {
                         a = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -913,7 +914,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                     mti = 0;
                 }
 
-                a = mt[mti++];
+                a = _mt[mti++];
                 a ^= a >>> 11;                          // TEMPERING_SHIFT_U(a)
                 a ^= (a << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(a)
                 a ^= (a << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(a)
@@ -922,8 +923,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 if (mti >= N) // generate N words at one time
                 {
                     int kk;
-                    final int[] mt = this.mt; // locals are slightly faster
-                    final int[] mag01 = this.mag01; // locals are slightly faster
+                    final int[] mt = this._mt; // locals are slightly faster
+                    final int[] mag01 = this._mag01; // locals are slightly faster
 
                     for (kk = 0; kk < N - M; kk++) {
                         b = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -939,7 +940,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                     mti = 0;
                 }
 
-                b = mt[mti++];
+                b = _mt[mti++];
                 b ^= b >>> 11;                          // TEMPERING_SHIFT_U(b)
                 b ^= (b << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(b)
                 b ^= (b << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(b)
@@ -968,8 +969,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
         if (mti >= N) // generate N words at one time
         {
             int kk;
-            final int[] mt = this.mt; // locals are slightly faster
-            final int[] mag01 = this.mag01; // locals are slightly faster
+            final int[] mt = this._mt; // locals are slightly faster
+            final int[] mag01 = this._mag01; // locals are slightly faster
 
             for (kk = 0; kk < N - M; kk++) {
                 y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -985,7 +986,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             mti = 0;
         }
 
-        y = mt[mti++];
+        y = _mt[mti++];
         y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
         y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
         y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -1008,8 +1009,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             if (mti >= N) // generate N words at one time
             {
                 int kk;
-                final int[] mt = this.mt; // locals are slightly faster
-                final int[] mag01 = this.mag01; // locals are slightly faster
+                final int[] mt = this._mt; // locals are slightly faster
+                final int[] mag01 = this._mag01; // locals are slightly faster
 
                 for (kk = 0; kk < N - M; kk++) {
                     y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -1025,7 +1026,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 mti = 0;
             }
 
-            y = mt[mti++];
+            y = _mt[mti++];
             y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
             y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
             y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)
@@ -1041,8 +1042,8 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
             if (mti >= N) // generate N words at one time
             {
                 int kk;
-                final int[] mt = this.mt; // locals are slightly faster
-                final int[] mag01 = this.mag01; // locals are slightly faster
+                final int[] mt = this._mt; // locals are slightly faster
+                final int[] mag01 = this._mag01; // locals are slightly faster
 
                 for (kk = 0; kk < N - M; kk++) {
                     y = (mt[kk] & UPPER_MASK) | (mt[kk + 1] & LOWER_MASK);
@@ -1058,7 +1059,7 @@ public class MersenneTwisterFast implements Serializable, Cloneable {
                 mti = 0;
             }
 
-            y = mt[mti++];
+            y = _mt[mti++];
             y ^= y >>> 11;                          // TEMPERING_SHIFT_U(y)
             y ^= (y << 7) & TEMPERING_MASK_B;       // TEMPERING_SHIFT_S(y)
             y ^= (y << 15) & TEMPERING_MASK_C;      // TEMPERING_SHIFT_T(y)

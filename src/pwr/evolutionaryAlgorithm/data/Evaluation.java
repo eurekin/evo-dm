@@ -69,6 +69,10 @@ public class Evaluation {
         this.done = true;
     }
 
+    public Evaluation(DataSet ds) {
+        this(ds.getPrecision(), ds.getRecall(), ds.getFsc(), ds.getAccuracy());
+    }
+
     public Evaluation(float P, float R, float Fsc, float Acc) {
         this.Precision = P;
         this.Recall = R;
@@ -98,7 +102,6 @@ public class Evaluation {
         this.Accuracy = Acc;
         this.done = true;
     }
-//	------------------------------------------------------------------------------	
 
     public void update(final Evaluation E) {
         this.Precision = this.Precision + E.Precision;

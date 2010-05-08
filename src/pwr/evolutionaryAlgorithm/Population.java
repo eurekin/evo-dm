@@ -171,7 +171,7 @@ public class Population<I extends Individual> implements Iterable<I> {
 
         int indv = 0;
 
-        if (selection > 1) { ///////////////////////////// tournament selection with repeat
+        if (selection > 1) { ////////////////// tournament selection with repeat
             int bestID = 0, candID = 0;
             float bestFitness = 0, candFitness = 0;
             for (int i = 0; i < selection; i++) {
@@ -183,9 +183,9 @@ public class Population<I extends Individual> implements Iterable<I> {
                 }
             }
             indv = bestID;
-        } else if (selection == 1) { ///////////////////////////// random selection
+        } else if (selection == 1) { ////////////////////////// random selection
             indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
-        } else if (selection == 0) {        ////////////////////// roullette wheel
+        } else if (selection == 0) {        //////////////////// roullette wheel
             float rToken = Rand.GetRandomFloat() * fitnessSum;
             float partSum = 0.0f;
             int i = -1;
