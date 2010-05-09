@@ -60,21 +60,23 @@ public class DataSet {
 
     /**
      * @todo prosty kod! poprawic na linkedshaset (?)
-     * @param DS1
-     * @param DS2
+     * @param ds1
+     * @param ds2
      * @return
      */
-    public static DataSet operatorPlus(final DataSet DS1, final DataSet DS2) {
-        DataSet Result = new DataSet(DS1);
+    public static DataSet operatorPlus(final DataSet ds1, final DataSet ds2) {
+        DataSet result = new DataSet(ds1);
+        ArrayList<Record> resRec = result.records;
 
         //adding form DS2 if not already in DS1
-        for (int e = 0; e < DS2.size(); e++) {
-            Record R = DS2.records.get(e);
-            if (Result.records.contains(R) == false) {
-                Result.records.add(R);
+        for (Record r : ds2.records) {
+            // ... To ewidentnie sugeruje konieczność użycia zbioru
+            // zamiast listy
+            if (!resRec.contains(r)) {
+                resRec.add(r);
             }
         }
-        return Result;
+        return result;
     }
 
     /**
@@ -96,20 +98,20 @@ public class DataSet {
         correct = dSrc.getCorrect(this, classId).size();
 
         // recall & precision - corrected to handle division by zero
-        rcl = expected == 0 ? 0 : correct / expected;
-        prc = generated == 0 ? 0 : correct / generated;
+        rcl = expected == 0f ? 0f : correct / expected;
+        prc = generated == 0f ? 0f : correct / generated;
 
         // E score
-        pPt = prc == 0 ? 0 : alpha / prc;
-        rPt = rcl == 0 ? 0 : (1 - alpha) / rcl;
-        eSc = pPt + rPt == 0 ? 1 : 1 - (1 / (pPt + rPt));
+        pPt = prc == 0f ? 0f : alpha / prc;
+        rPt = rcl == 0f ? 0f : (1f - alpha) / rcl;
+        eSc = pPt + rPt == 0f ? 1f : 1f - (1f / (pPt + rPt));
 
         // F Score
-        fSc = 1 - eSc;
+        fSc = 1f - eSc;
 
         // Accuracy
-        out = dSrc.size() - expected - generated + 2 * correct;
-        acc = prc == 0 || rcl == 0.0 ? 0 : out / dSrc.size();
+        out = dSrc.size() - expected - generated + 2f * correct;
+        acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
 
         // return
         setEvaluation(prc, rcl, acc, fSc);

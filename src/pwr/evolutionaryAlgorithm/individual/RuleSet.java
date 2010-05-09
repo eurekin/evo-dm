@@ -24,8 +24,6 @@ public class RuleSet extends Individual {
         return rules;
     }
 
-
-    
     public RuleSet(final RuleSet RS) {
         rules = new ArrayList<Rule>();
         for (int i = 0; i < RS.rulesNo(); i++) {
@@ -33,12 +31,12 @@ public class RuleSet extends Individual {
         }
 
         totalEvaluation = new Evaluation(RS.totalEvaluation);
-        Evaluations = new ArrayList<Evaluation>();
+        evaluations = new ArrayList<Evaluation>();
         if (Configuration.getConfiguration().isOneClassActive()) {
-            Evaluations.add(new Evaluation(RS.getEvaluation()));
+            evaluations.add(new Evaluation(RS.getEvaluation()));
         } else {
             for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
-                this.Evaluations.add(RS.getEvaluation(cl));
+                this.evaluations.add(RS.getEvaluation(cl));
             }
         }
     }
@@ -47,12 +45,12 @@ public class RuleSet extends Individual {
         rules = new ArrayList<Rule>();
 
         totalEvaluation = new Evaluation();
-        Evaluations = new ArrayList<Evaluation>();
+        evaluations = new ArrayList<Evaluation>();
         if (Configuration.getConfiguration().isOneClassActive()) {
-            Evaluations.add(new Evaluation());
+            evaluations.add(new Evaluation());
         } else {
             for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
-                Evaluations.add(new Evaluation());
+                evaluations.add(new Evaluation());
             }
         }
     }
@@ -78,28 +76,28 @@ public class RuleSet extends Individual {
 
     @Override
     public Evaluation getEvaluation() {
-        return this.totalEvaluation;
+        return totalEvaluation;
     }
 
     public Evaluation getTotalEvaluation() {
-        return this.totalEvaluation;
+        return totalEvaluation;
     }
 
-    /*
+    /**
      * do average value of all classes -> without unused (or not tested) class
      */
     public void doCountTotalEvaluation(int classess) {
-        this.totalEvaluation.clear();
+        totalEvaluation.clear();
         int usedClasses = classess;
         //for each class
         for (int cl = 0; cl < classess; cl++) {
-            if (!this.Evaluations.get(cl).isDone()) {
+            if (!evaluations.get(cl).isDone()) {
                 usedClasses--;
             } else {
-                this.totalEvaluation.update(this.Evaluations.get(cl));
+                totalEvaluation.update(evaluations.get(cl));
             }
         }
-        this.totalEvaluation.doAverage(usedClasses);
+        totalEvaluation.doAverage(usedClasses);
     }
 
     @Override
@@ -150,8 +148,8 @@ public class RuleSet extends Individual {
         float f1, f2;
 
         for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
-            f1 = p1.Evaluations.get(cl).getFitness();
-            f2 = p2.Evaluations.get(cl).getFitness();
+            f1 = p1.evaluations.get(cl).getFitness();
+            f2 = p2.evaluations.get(cl).getFitness();
             fittest = f1 > f2 ? p1 : p2;
 
             // find
@@ -236,11 +234,11 @@ public class RuleSet extends Individual {
         SB.append("\n TOTAL " + totalEvaluation.toString());
         ///classes evaluations...
         if (Configuration.getConfiguration().isOneClassActive()) {
-            SB.append(Evaluations.get(0).toString());
+            SB.append(evaluations.get(0).toString());
         } else {
             SB.append("\n classes ");
             for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
-                SB.append("\n cl_" + cl + " [" + Evaluations.get(cl).toString() + "]");
+                SB.append("\n cl_" + cl + " [" + evaluations.get(cl).toString() + "]");
             }
         }
 

@@ -109,42 +109,42 @@ public class Evaluator {
 
     /**
      * evaluates RuleSet using specified subset of DataSource
-     * @param ds datasource (traint/test)
+     * @param dSrc datasource (train/test)
      * @param RuleSet
      * @return DataSet of all covered data
      */
     public DataSet evaluateRuleSetUsingSelector(
-            DataSource ds, SelectingIndividual sl, ClassifyingIndividual ci) {
+            DataSource dSrc, SelectingIndividual sl, ClassifyingIndividual ci) {
 
-        DataSet DSPart = new DataSet();
-        DataSet DSResult = new DataSet();
+        DataSet DSetPart = new DataSet();
+        DataSet DSetResult = new DataSet();
 
         ci.clearEvaluations();
         ///////////////////////////////////////////
         /// only one class active!
         if (Configuration.getConfiguration().isOneClassActive()) {
-            DSResult.clear();
+            DSetResult.clear();
 
             /// for each rule....
             for (Rule rule : ci.getRules()) {
-                DSPart.clear();
+                DSetPart.clear();
                 //if rule is active and returns such class
                 if (rule.isActive()) {
-                    DSPart = evaluateRule(ds, rule);
-                    DSResult = DataSet.operatorPlus(DSResult, DSPart);
+                    DSetPart = evaluateRule(dSrc, rule);
+                    DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
             final int activeClass = Configuration.getConfiguration().getActiveClass();
-            DSResult.evaluate(ds, activeClass);
-            ci.setEvaluation(new Evaluation(DSResult));
+            DSetResult.evaluate(dSrc, activeClass);
+            ci.setEvaluation(new Evaluation(DSetResult));
         } // all classes are active
         //for each class....
         else {
             ////////////////// CLASSESS ////////////////////////////////////////
             for (int c = 0; c < DataLoader.getClassNumber(); c++) {
-                DSPart.clear();
-                DSResult.clear();
+                DSetPart.clear();
+                DSetResult.clear();
 
 
                 // Z punktu widzenia implementacji koewolucji najważniejszy
@@ -154,26 +154,34 @@ public class Evaluator {
                 // trzeba zmodyfikować ocenę, gdyż w koewolucji osobnik klasy-
                 // fikujący widzi tylko podzbiór danych.
 
-                // Fill DSResult with appropriate rules
+                // Fill DSetResult with appropriate racords related to class c
                 for (Rule rule : ci.getRules()) {
                     //if rule is active and returns such class
                     if (rule.isActive() && rule.getClassID() == c) {
-                        DSPart = evaluateRule(ds, rule);
-                        DSResult = DataSet.operatorPlus(DSResult, DSPart);
+                        DSetPart = evaluateRule(dSrc, rule);
+                        DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
                     }
                 }
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                DSResult.evaluate(ds, c);
-                Evaluation E = new Evaluation(DSResult);
-                ci.setEvaluation(c, E);
+                DSetResult.evaluate(dSrc, c);
+                ci.setEvaluation(c, new Evaluation(DSetResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
+
+        // do average value of all classes -> without unused (or not tested) class
+        // Pozostało jedynie policzenie średniej wartości, ze wszystkich klas.
         ci.doCountTotalEvaluation(DataLoader.getClassNumber());
-        return DSResult;
+        return DSetResult;
     }
 
+    /**
+     *
+     * @param dSrc
+     * @param rule
+     * @return
+     */
     private DataSet evaluateRule(DataSource dSrc, Rule rule) {
 
         Configuration cfg = Configuration.getConfiguration();

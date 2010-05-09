@@ -307,7 +307,7 @@ public class Configuration implements Serializable {
         return RULE_CLASS_BITS;
     }
 
-    public float getFINTESSDEFAULT() {
+    public float getFITNESS_DEFAULT() {
         return FITNESS_DEFAULT;
     }
 

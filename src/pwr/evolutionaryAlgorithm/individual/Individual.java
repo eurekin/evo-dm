@@ -5,11 +5,11 @@ import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 public abstract class Individual {
 
-    protected ArrayList<Evaluation> Evaluations;
+    protected ArrayList<Evaluation> evaluations;
 
     public void clearEvaluations() {
-        for (int i = 0; i < this.Evaluations.size(); i++) {
-            this.Evaluations.get(i).clear();
+        for (Evaluation evl : evaluations) {
+            evl.clear();
         }
     }
 
@@ -22,15 +22,15 @@ public abstract class Individual {
     }
 
     public Evaluation getEvaluation(int cl) {
-        if (cl < Evaluations.size() && Evaluations.get(cl) != null) {
-            return Evaluations.get(cl);
+        if (cl < evaluations.size() && evaluations.get(cl) != null) {
+            return evaluations.get(cl);
         } else {
             return null;
         }
     }
 
-    public void setEvaluation(int cl, Evaluation E) {
-        Evaluations.add(cl, E);
+    public void setEvaluation(int cl, Evaluation evl) {
+        evaluations.set(cl, evl);
     }
 
     public abstract void init();

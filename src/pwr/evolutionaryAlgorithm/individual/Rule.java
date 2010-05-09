@@ -20,8 +20,8 @@ public class Rule extends Individual {
      * @param Genes number of bits in gene
      */
     public Rule() {
-        this.Evaluations = new ArrayList<Evaluation>();
-        Evaluations.add(new Evaluation());
+        this.evaluations = new ArrayList<Evaluation>();
+        evaluations.add(new Evaluation());
         this.Active = true;
         this.conditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
@@ -33,8 +33,8 @@ public class Rule extends Individual {
 
     public Rule(final Rule R) {
         this.Active = R.Active;
-        this.Evaluations = new ArrayList<Evaluation>();
-        Evaluations.add(new Evaluation(R.getEvaluation()));
+        this.evaluations = new ArrayList<Evaluation>();
+        evaluations.add(new Evaluation(R.getEvaluation()));
 
         this.conditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
@@ -72,7 +72,7 @@ public class Rule extends Individual {
 
     @Override
     public Evaluation getEvaluation(int cl) {
-        return this.Evaluations.get(0);
+        return this.evaluations.get(0);
     }
 
     @Override

@@ -2,6 +2,30 @@ package pwr.evolutionaryAlgorithm.data;
 
 import pwr.evolutionaryAlgorithm.Configuration;
 
+/**
+ * RuleSet używa metod {@link #doAverage(int) } oraz {@link #update() } do
+ * obliczania ocen.
+ *
+ * <p>Pytanie co to oznacza zmienna {@link #done } Ustawiana jest: <ol>
+ * <li> na {@code true} przy ustawianiu jednej z ocen:
+ * precision, recall, accuracy, fitness
+ * ({@link #setPrecision(float)}, {@link #setRecall(float)},
+ * {@link #setAccuracy(float)}, {@link #setFitness(float)}),</li>
+ * <li> na {@code true} w konstruktorze kopiującym
+ * ( {@link #Evaluation(Evaluation) } konstruktor ten NIE
+ * kopiuje wartości zmiennej {@code done}),</li>
+ * <li> na {@code true} w metodzie
+ * {@link #set(float, float, float, float) },</li>
+ * <li>na {@code true} w metodzie {@link #clear() },</li>
+ * <li>na  {@code false} w metodzie {@link #update(Evaluation) },</li>
+ * <li>na {@code true} w metodzie {@link #doAverage(int) }</li>.
+ * </ol>
+ *
+ * <p>Wydaje się, że jest to flaga służąca rozpoznaniu czy wykonana
+ * została średnia ocen po wszystkich klasach. {@code #RuleSet } używa
+ * tych metod właśnie do tego celu.</p>
+ * @author Rekin
+ */
 public class Evaluation {
 
     protected float Precision;
@@ -118,27 +142,31 @@ public class Evaluation {
         this.done = false;
     }
 
+    /**
+     * Liczy średnią arytmetyczną statystyk.
+     * @param classes
+     */
     public void doAverage(int classes) {
         this.Precision = this.Precision / classes;
         this.Recall = this.Recall / classes;
 
-        if (Configuration.getConfiguration().isFsc()) {
-            this.Fitness = this.Fsc / classes;
-        } else {
-            this.Fitness = this.Accuracy / classes;
-        }
-
         this.Fsc = this.Fsc / classes;
         this.Accuracy = this.Accuracy / classes;
+
+        if (Configuration.getConfiguration().isFsc()) {
+            this.Fitness = this.Fsc;
+        } else {
+            this.Fitness = this.Accuracy;
+        }
         this.done = true;
     }
 
     public Evaluation() {
-        Precision = Configuration.getConfiguration().getFINTESSDEFAULT();
-        Recall = Configuration.getConfiguration().getFINTESSDEFAULT();
-        Fitness = Configuration.getConfiguration().getFINTESSDEFAULT();
-        Fsc = Configuration.getConfiguration().getFINTESSDEFAULT();
-        Accuracy = Configuration.getConfiguration().getFINTESSDEFAULT();
+        Fsc = Configuration.getConfiguration().getFITNESS_DEFAULT();
+        Recall = Configuration.getConfiguration().getFITNESS_DEFAULT();
+        Fitness = Configuration.getConfiguration().getFITNESS_DEFAULT();
+        Accuracy = Configuration.getConfiguration().getFITNESS_DEFAULT();
+        Precision = Configuration.getConfiguration().getFITNESS_DEFAULT();
         this.done = false;
     }
 
