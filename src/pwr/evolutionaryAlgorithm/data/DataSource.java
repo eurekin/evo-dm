@@ -10,7 +10,7 @@ public class DataSource {
     /**
      * INDEX. Could be cleanly abstracted as a list of DataIndex of some sort.
      */
-    private ArrayList<ArrayList<Linker>> INDEX;
+    private ArrayList<ArrayList<Linker>> index;
 
     public class Linker {
 
@@ -53,7 +53,7 @@ public class DataSource {
      */
     private int binarySearch(int attrib, float key, boolean left) {
         int low = 0;
-        final ArrayList<Linker> idx = INDEX.get(attrib);
+        final ArrayList<Linker> idx = index.get(attrib);
         int high = idx.size() - 1;
         int mid = 0;
 
@@ -125,8 +125,8 @@ public class DataSource {
     public DataSource(DataSource ds) {
         data = ds.data != null ? ds.data : new ArrayList<Record>();
 
-        if (ds.INDEX != null) {
-            INDEX = new ArrayList<ArrayList<Linker>>(ds.INDEX);
+        if (ds.index != null) {
+            index = new ArrayList<ArrayList<Linker>>(ds.index);
         }
 
         if (ds.dataExpectedByClass != null) {
@@ -161,8 +161,8 @@ public class DataSource {
             data.clear();
         }
         dataExpectedByClass = null;
-        if (INDEX != null) {
-            INDEX.clear();
+        if (index != null) {
+            index.clear();
         }
     }
 
@@ -207,26 +207,26 @@ public class DataSource {
             }
         }
 
-        INDEX = new ArrayList<ArrayList<Linker>>(DataLoader.getArgumentsNo());
+        index = new ArrayList<ArrayList<Linker>>(DataLoader.getArgumentsNo());
         for (int i = 0; i < DataLoader.getArgumentsNo(); i++) { //for each indekser...
 
-            INDEX.add(i, new ArrayList<Linker>(data.size())); //create it
+            index.add(i, new ArrayList<Linker>(data.size())); //create it
 
             for (int r = 0; r < data.size(); r++) { //add each record
 
                 rec = data.get(r);
                 if (rec instanceof Record) {
-                    INDEX.get(i).add(r, new Linker(rec.getArgumentValue(i), rec));
+                    index.get(i).add(r, new Linker(rec.getArgumentValue(i), rec));
                 } else { //add each segment
                     float value = rec.getArgumentValue(i);
                     do {
-                        INDEX.get(i).add(r, new Linker(value, rec));
+                        index.get(i).add(r, new Linker(value, rec));
                         value = ((RecordImage) (rec)).getArgumentValueNext(i);
                     } while (value != -1);
                 }
             }
             ///sorting
-            Collections.sort(INDEX.get(i), new comparator());
+            Collections.sort(index.get(i), new comparator());
         }
 
     }
@@ -247,7 +247,7 @@ public class DataSource {
         if (p2 == -1) {
             p2 = data.size() - 1;
         }
-        final ArrayList<Linker> idx = INDEX.get(attrib);
+        final ArrayList<Linker> idx = index.get(attrib);
         final Linker l1 = idx.get(p1);
         final Linker l2 = idx.get(p2);
 
@@ -311,17 +311,17 @@ public class DataSource {
      * @param classId class of classification
      * @return set of records
      */
-    public DataSet getCorrect(DataSet dSet, int classId) {
-        DataSet correctDS = new DataSet((int) dSet.size());
+    public DataSet getCorrect(DataSet ds, int classId) {
+        DataSet correctDS = new DataSet();
         int recordClass;
-        for (Record rec : dSet) {
+        for (Record rec : ds) {
             recordClass = rec.getClassName();
             do {
                 if (classId == recordClass) {
                     correctDS.addRecord(rec);
                 }
                 recordClass = rec.getClassNameNext();
-            } while (recordClass != -1); // dla obrazków...
+            } while (recordClass != -1); // Dla obrazków...
         }
         return correctDS;
     }
@@ -333,15 +333,13 @@ public class DataSource {
      */
     @Override
     public String toString() {
-        StringBuilder SB = new StringBuilder();
-
-        SB.append("\n RECORDS=" + this.data.size() + "  Records_in_class ");
-
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n RECORDS=" + data.size() + "  Records_in_class ");
         int classes = DataLoader.getClassNumber();
         for (int i = 0; i < classes; i++) {
-            SB.append(" c" + i + " [" + dataExpectedByClass[i] + "] ");
+            sb.append(" c" + i + " [" + dataExpectedByClass[i] + "] ");
         }
-        return SB.toString();
+        return sb.toString();
     }
 }
 

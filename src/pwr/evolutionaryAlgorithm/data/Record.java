@@ -44,14 +44,14 @@ public class Record {
         return class_id == className;
     }
 
-    public boolean isSatisfy(Condition C) {
-        final float atr = this.values[C.getAttrib()];
-        switch (C.getRelation()) {
+    public boolean isSatisfy(Condition c) {
+        final float atr = this.values[c.getAttrib()];
+        switch (c.getRelation()) {
             case IN:
-                return atr >= C.getValue1() && atr <= C.getValue2();
+                return atr >= c.getValue1() && atr <= c.getValue2();
 
             case NOT_IN:
-                return atr < C.getValue1() || atr > C.getValue2();
+                return atr < c.getValue1() || atr > c.getValue2();
         }
         return false;
     }
