@@ -14,20 +14,20 @@ import java.util.ArrayList;
  */
 public class DataLoader {
 
-    protected static String TrainDataFileName;
-    protected static String TestDataFileName;
-    protected static DataSource TrainData;
-    protected static DataSource TestData;
-    static private int Data_arguments;
-    static protected ArrayList<String> Data_ClassesNames;
-    static private float Data_arg_min[];
-    static private float Data_arg_max[];
+    protected static String trainDataFileName;
+    protected static String testDataFileName;
+    protected static DataSource trainData;
+    protected static DataSource testData;
+    static private int dataArguments;
+    static protected ArrayList<String> dataClassNames;
+    static private float dataArgMin[];
+    static private float dataArgMax[];
     static private int crossValidationUpdate = 0;
     static private ArrayList<ArrayList<Record>> CVstructure;
 
     /*
-     * spit randomly data into N parts
-     * before that all data is in TrainData
+     * split randomly data into N parts
+     * before that all data is in trainData
      */
     public static void doCrossvalidation() {
 
@@ -39,8 +39,8 @@ public class DataLoader {
             CVstructure.add(i, new ArrayList<Record>());
         }
 
-        //spit data
-        DataSource AllData = new DataSource(TrainData);
+        //split data
+        DataSource AllData = new DataSource(trainData);
         AllData.OrganizeData();
         int elements = AllData.size() / parts;
         for (int p = 0; p < parts; p++) {
@@ -74,51 +74,51 @@ public class DataLoader {
 
     private static void initCrossvalidationFold(int fold) {
         int parts = Configuration.getConfiguration().getCrossvalidationValue();
-        TestData.clear();
-        TrainData.clear();
+        testData.clear();
+        trainData.clear();
         for (int part = 0; part < parts; part++) {
             for (Record r : CVstructure.get(part)) {
                 if (part == fold) {
-                    TestData.addRecord(r);
+                    testData.addRecord(r);
                 } else {
-                    TrainData.addRecord(r);
+                    trainData.addRecord(r);
                 }
             }
         }
-        TestData.OrganizeData();
-        TrainData.OrganizeData();
+        testData.OrganizeData();
+        trainData.OrganizeData();
     }
 
     public static int getArgumentsNo() {
-        return Data_arguments;
+        return dataArguments;
     }
 
     public static int getClassId(String S) {
-        return Data_ClassesNames.indexOf(S);
+        return dataClassNames.indexOf(S);
     }
 
     public static DataSource getTrainData() {
-        return TrainData;
+        return trainData;
     }
 
     public static DataSource getTestData() {
-        return TestData;
+        return testData;
     }
 
     public static int getClassNumber() {
-        return Data_ClassesNames.size();
+        return dataClassNames.size();
     }
 
     public static String getClassName(int i) {
-        return Data_ClassesNames.get(i);
+        return dataClassNames.get(i);
     }
 
     static float getArgMin(int argID) {
-        return Data_arg_min[argID];
+        return dataArgMin[argID];
     }
 
     static float getArgMax(int argID) {
-        return Data_arg_max[argID];
+        return dataArgMax[argID];
     }
 
     public static DataLoader getDataLoader(Configuration config) {
@@ -146,28 +146,28 @@ public class DataLoader {
      * @param TestDataFileName_ name of file with data for tests
      */
     public DataLoader(String TrainDataFileName_, String TestDataFileName_) {
-        TestDataFileName = TestDataFileName_;
-        TrainDataFileName = TrainDataFileName_;
+        testDataFileName = TestDataFileName_;
+        trainDataFileName = TrainDataFileName_;
 
-        TestData = new DataSource();
-        TrainData = new DataSource();
+        testData = new DataSource();
+        trainData = new DataSource();
 
-        Data_ClassesNames = new ArrayList<String>();
+        dataClassNames = new ArrayList<String>();
 
-        Data_arg_max = null;
-        Data_arg_min = null;
+        dataArgMax = null;
+        dataArgMin = null;
 
-        TrainData = this.LoadCSVFile(TrainDataFileName);
-        if (TestDataFileName.length() != 0) {
-            TestData = this.LoadCSVFile(TestDataFileName);
+        trainData = this.LoadCSVFile(trainDataFileName);
+        if (testDataFileName.length() != 0) {
+            testData = this.LoadCSVFile(testDataFileName);
         }
 
         Configuration.setClassesNo(getClassNumber());
 
         //@todo: CROSSVALIDATION on GRAPHical files 
         //else SplitData( Configuration.getConfiguration().getCrossvalidationValue() );
-        //TrainData.OrganizeData();
-        //TestData.OrganizeData();
+        //trainData.OrganizeData();
+        //testData.OrganizeData();
     }
 
     public DataLoader(String words,
@@ -178,26 +178,26 @@ public class DataLoader {
             String test_blob_counts,
             String test_blobs) {
 
-        TestDataFileName = "";
-        TrainDataFileName = "";
+        testDataFileName = "";
+        trainDataFileName = "";
 
-        TestData = new DataSource();
-        //TrainData = new DataSource();
+        testData = new DataSource();
+        //trainData = new DataSource();
 
-        Data_ClassesNames = new ArrayList<String>();
+        dataClassNames = new ArrayList<String>();
 
-        Data_arg_max = null;
-        Data_arg_min = null;
+        dataArgMax = null;
+        dataArgMin = null;
 
-        TrainData = LoadImages(words, document_words, blob_counts, blobs, false);
+        trainData = LoadImages(words, document_words, blob_counts, blobs, false);
 
         if (test_document_words.length() != 0) {
-            TestData = LoadImages(words, test_document_words, test_blob_counts, test_blobs, true);
+            testData = LoadImages(words, test_document_words, test_blob_counts, test_blobs, true);
         }
         //@todo: CROSSVALIDATION on GRAPHical files 
         //else SplitData( Configuration.getConfiguration().getCrossvalidationValue() );
-        //TrainData.OrganizeData();
-        //TestData.OrganizeData();
+        //trainData.OrganizeData();
+        //testData.OrganizeData();
 
         Configuration.setClassesNo(getClassNumber());
     }
@@ -210,16 +210,16 @@ public class DataLoader {
             String strLine = br.readLine();
             int from, to;
             ///////////////////// number of fields? ///////////////////////
-            Data_arguments = strLine.split("\t").length - 1;
+            dataArguments = strLine.split("\t").length - 1;
             //////////////////////////////////////////////////////////////////////////
 
             boolean MinMaxWasNull = false;
-            if (Data_arg_max == null) {
-                Data_arg_max = new float[Data_arguments];
+            if (dataArgMax == null) {
+                dataArgMax = new float[dataArguments];
                 MinMaxWasNull = true;
             }
-            if (Data_arg_min == null) {
-                Data_arg_min = new float[Data_arguments];
+            if (dataArgMin == null) {
+                dataArgMin = new float[dataArguments];
                 MinMaxWasNull = true;
             }
 
@@ -229,8 +229,8 @@ public class DataLoader {
             while (strLine != null && strLine.length() != 0) {
                 from = 0;
                 to = 0;
-                float[] tab = new float[Data_arguments];
-                for (int i = 0; i < Data_arguments; i++) {
+                float[] tab = new float[dataArguments];
+                for (int i = 0; i < dataArguments; i++) {
                     to = strLine.indexOf("\t", from);
                     tab[i] = Float.valueOf(strLine.substring(from + 1, to - 1)).floatValue();
                     from = to + 1;
@@ -240,21 +240,21 @@ public class DataLoader {
                     float tym_value = tab[i];
 
                     if (i == 0 && MinMaxWasNull == true) {
-                        Data_arg_max[i] = Data_arg_min[i] = tym_value;  //initalisation
+                        dataArgMax[i] = dataArgMin[i] = tym_value;  //initalisation
                     }
-                    if (Data_arg_max[i] < tym_value) {
-                        Data_arg_max[i] = tym_value;
+                    if (dataArgMax[i] < tym_value) {
+                        dataArgMax[i] = tym_value;
                     }
-                    if (Data_arg_min[i] > tym_value) {
-                        Data_arg_min[i] = tym_value;
+                    if (dataArgMin[i] > tym_value) {
+                        dataArgMin[i] = tym_value;
                     }
 
                     ////////////////////////////////////////////////////////////
                 }
                 //// READ class ID //////////////////////////////////////
                 String StringClassID = strLine.substring(from + 1, strLine.length() - 1);
-                if (!Data_ClassesNames.contains(StringClassID)) {
-                    Data_ClassesNames.add(StringClassID);
+                if (!dataClassNames.contains(StringClassID)) {
+                    dataClassNames.add(StringClassID);
                 }
                 int class_id_ = DataLoader.getClassId(StringClassID);
 
@@ -282,14 +282,14 @@ public class DataLoader {
 
         //////////////READING & REGISTERING WORDS.... //////////////////////////
         try {
-            Data_ClassesNames.add(null); //there is no 0 class
+            dataClassNames.add(null); //there is no 0 class
             FileInputStream fstream = new FileInputStream(words);
             DataInputStream in = new DataInputStream(fstream);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String strLine = br.readLine();
             while (strLine != null) {
-                if (!Data_ClassesNames.contains(strLine)) {
-                    Data_ClassesNames.add(strLine);
+                if (!dataClassNames.contains(strLine)) {
+                    dataClassNames.add(strLine);
                 }
                 strLine = br.readLine();
             }
@@ -316,12 +316,12 @@ public class DataLoader {
             } while (to < strLineWords.lastIndexOf(" "));
             ////////////////////////////////////////////////////////////////////
             if (test == false) {
-                Data_arguments = Configuration.getConfiguration().getNumberOfAttributes();
-                if (Data_arg_max == null) {
-                    Data_arg_max = new float[Data_arguments];
+                dataArguments = Configuration.getConfiguration().getNumberOfAttributes();
+                if (dataArgMax == null) {
+                    dataArgMax = new float[dataArguments];
                 }
-                if (Data_arg_min == null) {
-                    Data_arg_min = new float[Data_arguments];
+                if (dataArgMin == null) {
+                    dataArgMin = new float[dataArguments];
                 }
             }
 
@@ -357,16 +357,16 @@ public class DataLoader {
                 RecordImage R = new RecordImage(strLineWords, segmentsTab);
                 DS.addRecord(R);
                 ///////////////////////// for each argument.....
-                for (int a = 0; a < Data_arguments; a++) {
+                for (int a = 0; a < dataArguments; a++) {
                     if (DS.size() == 1) { ///first record
-                        Data_arg_max[a] = R.getMaxAttribValue(a);
-                        Data_arg_min[a] = R.getMinAttribValue(a);
+                        dataArgMax[a] = R.getMaxAttribValue(a);
+                        dataArgMin[a] = R.getMinAttribValue(a);
                     }
-                    if (R.getMaxAttribValue(a) > Data_arg_max[a]) {
-                        Data_arg_max[a] = R.getMaxAttribValue(a);
+                    if (R.getMaxAttribValue(a) > dataArgMax[a]) {
+                        dataArgMax[a] = R.getMaxAttribValue(a);
                     }
-                    if (R.getMinAttribValue(a) < Data_arg_min[a]) {
-                        Data_arg_min[a] = R.getMinAttribValue(a);
+                    if (R.getMinAttribValue(a) < dataArgMin[a]) {
+                        dataArgMin[a] = R.getMinAttribValue(a);
                     }
                 }
                 ///////////////////////////////////////////////////////////////
@@ -377,7 +377,7 @@ public class DataLoader {
             in2.close();
             in3.close();
 
-            Data_arguments = Configuration.getConfiguration().getNumberOfAttributes();
+            dataArguments = Configuration.getConfiguration().getNumberOfAttributes();
 
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
@@ -391,22 +391,22 @@ public class DataLoader {
     public static String FileSummary() {
         StringBuilder s = new StringBuilder("");
         s.append(" dataFile:");
-        s.append(TrainDataFileName);
+        s.append(trainDataFileName);
         s.append(" inst.:");
-        s.append(TrainData.size());
+        s.append(trainData.size());
         s.append(" atrib:");
-        s.append(Data_arguments);
+        s.append(dataArguments);
         s.append(" classes:");
-        s.append(Data_ClassesNames.size());
+        s.append(dataClassNames.size());
         s.append(" [");
-        for (int i = 0; i < Data_ClassesNames.size(); i++) {
-            s.append(" " + i + "'" + Data_ClassesNames.get(i) + "'");
+        for (int i = 0; i < dataClassNames.size(); i++) {
+            s.append(" " + i + "'" + dataClassNames.get(i) + "'");
         }
         s.append(" ]");
         s.append(" Data(train=");
-        s.append(TrainData.size());
+        s.append(trainData.size());
         s.append(", test=");
-        s.append(TestData.size());
+        s.append(testData.size());
         s.append(")");
         return s.toString();
     }

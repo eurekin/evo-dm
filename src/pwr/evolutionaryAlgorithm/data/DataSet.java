@@ -9,10 +9,10 @@ import java.util.ArrayList;
  */
 public class DataSet {
 
-    private float Precision = 0;
-    private float Recall = 0;
-    private float Accuracy = 0;
-    private float Fsc = 0;
+    private float FSc = 0f;
+    private float recall = 0f;
+    private float accuracy = 0f;
+    private float precision = 0f;
     /**
      * @todo LinkedHashSet na iteratorach!?
      */
@@ -43,15 +43,11 @@ public class DataSet {
     }
 
     public boolean empty() {
-        if (this.records.size() == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return records.isEmpty();
     }
 
     public void clear() {
-        this.records.clear();
+        records.clear();
     }
 
     public boolean contains(final Record R) {
@@ -113,26 +109,8 @@ public class DataSet {
         out = dSrc.size() - expected - generated + 2f * correct;
         acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
 
-        // return
+        // update
         setEvaluation(prc, rcl, acc, fSc);
-    }
-
-    /**
-     * returns DS1 - DS2
-     * @param DS1 DataSet1
-     * @param DS2 DataSet2
-     * @return DS1 - DS2
-     */
-    public static DataSet OperatorMinus(final DataSet DS1, final DataSet DS2) {
-        DataSet Result = new DataSet(DS1);
-
-        for (int e = 0; e < DS1.size(); e++) {
-            Record R = DS1.records.get(e);
-            if (DS2.records.contains(R) == true) {
-                Result.records.remove(R);
-            }
-        }
-        return Result;
     }
 
     @Override
@@ -145,26 +123,26 @@ public class DataSet {
     }
 
     public void setEvaluation(float prec, float rec, float acc, float fsc) {
-        this.Fsc = fsc;
-        this.Recall = rec;
-        this.Accuracy = acc;
-        this.Precision = prec;
+        this.FSc = fsc;
+        this.recall = rec;
+        this.accuracy = acc;
+        this.precision = prec;
     }
 
     public float getFsc() {
-        return this.Fsc;
+        return this.FSc;
     }
 
     public float getPrecision() {
-        return Precision;
+        return precision;
     }
 
     public float getRecall() {
-        return this.Recall;
+        return this.recall;
     }
 
     public float getAccuracy() {
-        return this.Accuracy;
+        return this.accuracy;
     }
 }
 

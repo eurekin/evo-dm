@@ -18,6 +18,7 @@ public class Population<I extends Individual> implements Iterable<I> {
     private float fitnessWorst = 0.0f;
     private float fitnessAvg = 0.0f;
     private float fitnessSum = 0.0f;
+    private final int popSize = Configuration.getConfiguration().getPopSize();
 
     /**
      * Proper OO
@@ -35,7 +36,6 @@ public class Population<I extends Individual> implements Iterable<I> {
         final Configuration configuration = Configuration.getConfiguration();
         final int selection = configuration.getSelection();
         final float crossoverValue = configuration.getCrossoverValue();
-        final int popSize = configuration.getPopSize();
         I p1, p2;
         do {
             p1 = select(selection);
@@ -43,15 +43,16 @@ public class Population<I extends Individual> implements Iterable<I> {
 
             //crossover?
             if (Rand.getRandomBooleanFlip(crossoverValue)) {
-                tmp.addInividual((I) p1.crossoverWith(p2).Mutation());
+                tmp.addInividual((I) p1.crossoverWith(p2).mutate());
                 i++;
                 //System.out.print("\n X ("+p1.Fitness+" "+p2.Fitness+") => "+o.Fitness+" ");
-            } else { //there is no crossover -> p1 and p2 into new population
-                tmp.addInividual((I) p1.Mutation());
+            } else {
+                //there is no crossover -> p1 and p2 into new population
+                tmp.addInividual((I) p1.mutate());
                 i++;
                 if (i < popSize) //there is place?
                 {
-                    tmp.addInividual((I) p2.Mutation());
+                    tmp.addInividual((I) p2.mutate());
                     i++;
                 }
             }
@@ -65,12 +66,13 @@ public class Population<I extends Individual> implements Iterable<I> {
      * @param DS dataSource needed to evaluate individuals
      */
     public void evaluate(DataSource DSc) {
-
-        int popSize = Configuration.getConfiguration().getPopSize();
-        Evaluator E = Evaluator.getEvaluator();
+        Evaluator evl = Evaluator.getEvaluator();
 
         for (int i = 0; i < popSize; i++) {
-            E.evaluate(DSc, this.individuals.get(i));
+            // Nie lepiej wywoływać metodę bezpośrednio
+            // z osobnika? Dzięki temu algorytm byłby bliżej
+            // kodu, na którym działa...
+            evl.evaluate(DSc, individuals.get(i));
         }
 
         /////// end EVALUATION
@@ -79,38 +81,35 @@ public class Population<I extends Individual> implements Iterable<I> {
         float fitness = 0.0f;
         fitnessSum = 0;
         for (int i = 0; i < popSize; i++) {
-            fitness = this.individuals.get(i).getEvaluation().getFitness();
+            fitness = individuals.get(i).getEvaluation().getFitness();
             fitnessSum = fitnessSum + fitness;
             if (i == 0) {
-                this.fitnessBest = this.fitnessWorst = fitness;
+                fitnessBest = fitnessWorst = fitness;
             }
-            if (fitness > this.fitnessBest) {
-                this.fitnessBest = fitness;
+            if (fitness > fitnessBest) {
+                fitnessBest = fitness;
             }
-            if (fitness < this.fitnessWorst) {
-                this.fitnessWorst = fitness;
+            if (fitness < fitnessWorst) {
+                fitnessWorst = fitness;
             }
         }
-        this.fitnessAvg = this.fitnessSum / Configuration.getConfiguration().getPopSize();
+        fitnessAvg = fitnessSum / popSize;
         ////////// END: STATISTICS
     }
 
     public void init() {
-        //System.out.println("X"+this.PopSize+"_"+this.Individuals.size()+"_");
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-            this.individuals.get(i).init();
+        for (int i = 0; i < popSize; i++) {
+            individuals.get(i).init();
         }
-
     }
 
     public Population() {
-        this.individuals = new ArrayList<I>(Configuration.getConfiguration().getPopSize());
+        individuals = new ArrayList<I>(popSize);
     }
 
     @SuppressWarnings("unchecked")
     public Population(Individual type) {
-        final int popSize = Configuration.getConfiguration().getPopSize();
-        this.individuals = new ArrayList<I>(popSize);
+        individuals = new ArrayList<I>(popSize);
 
         /* Extension friendly version
          * unused for performance reasons
@@ -175,8 +174,8 @@ public class Population<I extends Individual> implements Iterable<I> {
             int bestID = 0, candID = 0;
             float bestFitness = 0, candFitness = 0;
             for (int i = 0; i < selection; i++) {
-                candID = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
-                candFitness = this.individuals.get(candID).getEvaluation().getFitness();
+                candID = Rand.getRandomInt(popSize);
+                candFitness = individuals.get(candID).getEvaluation().getFitness();
                 if (i == 0 || (i != 0 & bestFitness < candFitness)) {
                     bestID = candID;
                     bestFitness = candFitness;
@@ -184,7 +183,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             }
             indv = bestID;
         } else if (selection == 1) { ////////////////////////// random selection
-            indv = Rand.getRandomInt(Configuration.getConfiguration().getPopSize());
+            indv = Rand.getRandomInt(popSize);
         } else if (selection == 0) {        //////////////////// roullette wheel
             float rToken = Rand.GetRandomFloat() * fitnessSum;
             float partSum = 0.0f;
@@ -192,18 +191,18 @@ public class Population<I extends Individual> implements Iterable<I> {
             do {
                 i++;
                 partSum = partSum + individuals.get(i).getEvaluation().getFitness();
-            } while (partSum <= rToken && i < (Configuration.getConfiguration().getPopSize() - 1));
+            } while (partSum <= rToken && i < (popSize - 1));
             indv = i;
         } else {
             throw new RuntimeException("Wrong selection: " + selection);
         }
 
         // if (Configuration.isEcho()) System.out.print(" s("+selection+")->"+indv+" \n");
-        return this.individuals.get(indv);
+        return individuals.get(indv);
     }
 
     public void addInividual(I inv) {
-        this.individuals.add(inv);
+        individuals.add(inv);
     }
 
     public float getAvgFitness() {
@@ -211,11 +210,11 @@ public class Population<I extends Individual> implements Iterable<I> {
     }
 
     public float getWorstFitness() {
-        return this.fitnessWorst;
+        return fitnessWorst;
     }
 
     public float getBestFitness() {
-        return this.fitnessBest;
+        return fitnessBest;
     }
 
     /**
@@ -223,22 +222,20 @@ public class Population<I extends Individual> implements Iterable<I> {
      * @return [bestFitness; worstFitness;avgFitness;;;;]
      */
     public String report() {
-        StringBuilder r = new StringBuilder("" + this.fitnessBest + ";" + this.fitnessAvg + ";" + this.fitnessWorst + ";;;;\n");
-        return r.toString();
+        return String.format("%.3f;%.3f;%.3f;;;;\n", fitnessBest, fitnessAvg, fitnessWorst);
     }
 
     public I getBestIndividual() {
         float f = 0;
         int fi = 0;
-        final int popSize = Configuration.getConfiguration().getPopSize();
         for (int i = 0; i < popSize; i++) {
-            final float fitness = this.individuals.get(i).getEvaluation().getFitness();
+            final float fitness = individuals.get(i).getEvaluation().getFitness();
             if (f < fitness) {
                 f = fitness;
                 fi = i;
             }
         }
-        return (this.individuals.get(fi));
+        return (individuals.get(fi));
     }
 
     public String getBest() {
@@ -246,25 +243,23 @@ public class Population<I extends Individual> implements Iterable<I> {
         float f = 0;
         int fi = 0;
 
-        final int popSize = Configuration.getConfiguration().getPopSize();
         for (int i = 0; i < popSize; i++) {
-            final float fitness = this.individuals.get(i).getEvaluation().getFitness();
+            final float fitness = individuals.get(i).getEvaluation().getFitness();
             if (f < fitness) {
                 f = fitness;
                 fi = i;
             }
         }
 
-        s.append("BEST " + this.individuals.get(fi).toString() + "\n");
+        s.append("BEST " + individuals.get(fi).toString() + "\n");
         return s.toString();
     }
 
     @Override
     public String toString() {
-        //Arrays.sort(this.Individuals.toArray(), new IndividualComparator());
         StringBuilder s = new StringBuilder("");
-        for (int i = 0; i < Configuration.getConfiguration().getPopSize(); i++) {
-            s.append(this.individuals.get(i).toString() + "\n");
+        for (int i = 0; i < popSize; i++) {
+            s.append(individuals.get(i).toString() + "\n");
         }
         return s.toString();
     }
@@ -288,10 +283,9 @@ public class Population<I extends Individual> implements Iterable<I> {
     public diversity getDiversity() {
         diversity d = new diversity();
         int tmp = 0;
-        final int popSize = Configuration.getConfiguration().getPopSize();
         for (int i = 0; i < popSize; i++) {
             for (int j = i + 1; j < popSize; j++) {
-                tmp = this.individuals.get(i).diversityMeasure(this.individuals.get(j));
+                tmp = individuals.get(i).diversityMeasure(individuals.get(j));
 
                 if (j != i) {
                     if (tmp == 0) {

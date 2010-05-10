@@ -20,7 +20,7 @@ public class Rand {
         return rnd.nextFloat();
     }
 
-    public static boolean GetRandomBoolean() {
+    public static boolean getRandomBoolean() {
         return rnd.nextBoolean();
     }
 

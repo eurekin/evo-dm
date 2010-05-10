@@ -19,7 +19,7 @@ public class SelectingIndividual extends Individual {
     }
 
     @Override
-    public Individual Mutation() {
+    public Individual mutate() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

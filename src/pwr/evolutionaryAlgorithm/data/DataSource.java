@@ -122,34 +122,33 @@ public class DataSource {
         data = new ArrayList<Record>();
     }
 
-    public DataSource(DataSource DS) {
-        data = DS.data != null ? DS.data : new ArrayList<Record>();
+    public DataSource(DataSource ds) {
+        data = ds.data != null ? ds.data : new ArrayList<Record>();
 
-        if (DS.INDEX != null) {
-            INDEX = new ArrayList<ArrayList<Linker>>(DS.INDEX);
+        if (ds.INDEX != null) {
+            INDEX = new ArrayList<ArrayList<Linker>>(ds.INDEX);
         }
 
-        if (DS.dataExpectedByClass != null) {
+        if (ds.dataExpectedByClass != null) {
             int classes = DataLoader.getClassNumber();
             dataExpectedByClass = new long[classes];
             for (int i = 0; i < classes; i++) {
-                dataExpectedByClass[i] = DS.dataExpectedByClass[i];
+                dataExpectedByClass[i] = ds.dataExpectedByClass[i];
             }
         } else {
             dataExpectedByClass = null;
         }
     }
 
-    public boolean addRecord(Record R) {
-        return (data.add(R));
+    public boolean addRecord(Record r) {
+        return (data.add(r));
     }
 
     public Record removefirstRecord() {
         if (data.size() < 1) {
             return null;
         } else {
-            Record Rd = data.remove(0);
-            return Rd;
+            return data.remove(0);
         }
     }
 
@@ -314,14 +313,15 @@ public class DataSource {
      */
     public DataSet getCorrect(DataSet s, int class_id) {
         DataSet correctDS = new DataSet();
+        int RecordClass;
         for (int i = 0; i < s.size(); i++) {
-            int RecordClass = s.getRecord(i).getClassName();
+            RecordClass = s.getRecord(i).getClassName();
             do {
                 if (class_id == RecordClass) {
                     correctDS.addRecord(s.getRecord(i));
                 }
                 RecordClass = s.getRecord(i).getClassNameNext();
-            } while (RecordClass != -1);
+            } while (RecordClass != -1); // Dla obrazków...
         }
         return correctDS;
     }

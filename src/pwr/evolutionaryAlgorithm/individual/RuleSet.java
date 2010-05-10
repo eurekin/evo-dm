@@ -1,11 +1,11 @@
 package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
-import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
 
 /**
  *
@@ -43,7 +43,6 @@ public class RuleSet extends Individual {
 
     public RuleSet() {
         rules = new ArrayList<Rule>();
-
         totalEvaluation = new Evaluation();
         evaluations = new ArrayList<Evaluation>();
         if (Configuration.getConfiguration().isOneClassActive()) {
@@ -106,12 +105,12 @@ public class RuleSet extends Individual {
     }
 
     @Override
-    public Individual Mutation() {
-        RuleSet RS = new RuleSet();
+    public Individual mutate() {
+        RuleSet rs = new RuleSet();
         for (int i = 0; i < this.rules.size(); i++) {
-            RS.rules.add(i, (Rule) this.rules.get(i).Mutation());
+            rs.rules.add(i, (Rule) this.rules.get(i).mutate());
         }
-        return RS;
+        return rs;
     }
 
     @Override
@@ -136,7 +135,7 @@ public class RuleSet extends Individual {
     /*
      *BCX: Best Class crossoverWith
      */
-    private static Individual CrossoverBCX(Individual ind1, Individual ind2) {
+    private static Individual crossoverBCX(Individual ind1, Individual ind2) {
 
         /**
          * @TODO reczna zmiana Fixed lenght
@@ -167,9 +166,9 @@ public class RuleSet extends Individual {
     public Individual crossoverWith(Individual other) {
 
         if (Configuration.getConfiguration().getCrossoverType() == CrossoverType.BCX) {
-            return CrossoverBCX(this, other);
+            return crossoverBCX(this, other);
         } else {
-            return CrossoverSimpleCut(this, other);
+            return crossoverSimpleCut(this, other);
         }
 
     }
@@ -179,22 +178,22 @@ public class RuleSet extends Individual {
      * Chromosome FIXED lenght updated 
      * 
      */
-    private static Individual CrossoverSimpleCut(Individual mother, Individual father) {
+    private static Individual crossoverSimpleCut(Individual mother, Individual father) {
 
         RuleSet rs = new RuleSet();
-        RuleSet P1 = (RuleSet) mother;
-        RuleSet P2 = (RuleSet) father;
+        RuleSet p1 = (RuleSet) mother;
+        RuleSet p2 = (RuleSet) father;
 
-        int MAX = P1.rulesNo();
+        int MAX = p1.rulesNo();
         int cut;
         boolean biggerP2 = false;
 
 
-        if (FIXED_LENGTH && P1.rulesNo() < P2.rulesNo()) {
-            cut = Rand.getRandomInt(P1.rulesNo());
+        if (FIXED_LENGTH && p1.rulesNo() < p2.rulesNo()) {
+            cut = Rand.getRandomInt(p1.rulesNo());
             biggerP2 = true;
         } else {
-            cut = Rand.getRandomInt(P2.rulesNo());
+            cut = Rand.getRandomInt(p2.rulesNo());
         }
 
         Rule d;
@@ -202,15 +201,15 @@ public class RuleSet extends Individual {
             d = null;
             if (biggerP2) {
                 if (i <= cut) {
-                    d = new Rule(P1.rules.get(i));
+                    d = new Rule(p1.rules.get(i));
                 } else {
-                    d = new Rule(P2.rules.get(i));
+                    d = new Rule(p2.rules.get(i));
                 }
             } else {
                 if (i <= cut) {
-                    d = new Rule(P2.rules.get(i));
+                    d = new Rule(p2.rules.get(i));
                 } else {
-                    d = new Rule(P1.rules.get(i));
+                    d = new Rule(p1.rules.get(i));
                 }
             }
             rs.rules.add(i, d);

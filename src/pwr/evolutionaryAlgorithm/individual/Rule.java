@@ -1,19 +1,19 @@
 package pwr.evolutionaryAlgorithm.individual;
 
-import pwr.evolutionaryAlgorithm.*;
-import pwr.evolutionaryAlgorithm.Configuration.MutationType;
-import pwr.evolutionaryAlgorithm.utils.*;
-
 import java.util.ArrayList;
 import java.util.BitSet;
+import pwr.evolutionaryAlgorithm.Configuration;
+import pwr.evolutionaryAlgorithm.Configuration.MutationType;
 import pwr.evolutionaryAlgorithm.data.Condition;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
+import pwr.evolutionaryAlgorithm.utils.BinaryCode;
+import pwr.evolutionaryAlgorithm.utils.Rand;
 
 public class Rule extends Individual {
 
-    private boolean Active; //a bit informs if rule is active
+    private boolean active; //a bit informs if rule is active
     public ArrayList<RuleGene> conditionOnAttribute;
-    protected BitSet ClassID;
+    protected BitSet classID;
 
     /**
      * main constructor
@@ -22,17 +22,17 @@ public class Rule extends Individual {
     public Rule() {
         this.evaluations = new ArrayList<Evaluation>();
         evaluations.add(new Evaluation());
-        this.Active = true;
+        this.active = true;
         this.conditionOnAttribute = new ArrayList<RuleGene>(Configuration.getConfiguration().getNumberOfAttributes());
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
             RuleGene dg = new RuleGene();
             conditionOnAttribute.add(dg);
         }
-        this.ClassID = new BitSet(Configuration.getConfiguration().getClassBits());
+        this.classID = new BitSet(Configuration.getConfiguration().getClassBits());
     }
 
     public Rule(final Rule R) {
-        this.Active = R.Active;
+        this.active = R.active;
         this.evaluations = new ArrayList<Evaluation>();
         evaluations.add(new Evaluation(R.getEvaluation()));
 
@@ -42,21 +42,21 @@ public class Rule extends Individual {
             conditionOnAttribute.add(dg);
         }
 
-        this.ClassID = new BitSet(Configuration.getConfiguration().getClassBits());
+        this.classID = new BitSet(Configuration.getConfiguration().getClassBits());
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
-            boolean b = R.ClassID.get(i);
-            this.ClassID.set(i, b);
+            boolean b = R.classID.get(i);
+            this.classID.set(i, b);
         }
     }
 
     @Override
     public void init() {
-        this.Active = Rand.GetRandomBoolean();
+        this.active = Rand.getRandomBoolean();
         for (int i = 0; i < Configuration.getConfiguration().getNumberOfAttributes(); i++) {
-            conditionOnAttribute.get(i).Initialisation();
+            conditionOnAttribute.get(i).initialization();
         }
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
-            this.ClassID.set(i, Rand.GetRandomBoolean());
+            this.classID.set(i, Rand.getRandomBoolean());
         }
 
         this.clearEvaluations();
@@ -83,7 +83,7 @@ public class Rule extends Individual {
     private String toStringBeauty() {
         StringBuilder s = new StringBuilder("");
 
-        if (!this.Active) {
+        if (!this.active) {
             s.append("---");
         } else {
             s.append("IF ");
@@ -114,7 +114,7 @@ public class Rule extends Individual {
     }
 
     @Override
-    public Individual Mutation() {
+    public Individual mutate() {
 
         if (Configuration.getConfiguration().getMutationType() == MutationType.FAM) {
             return MutationFAM();
@@ -124,7 +124,7 @@ public class Rule extends Individual {
     }
 
     /**
-     * Directed: F-score Aided [Mutation]
+     * Directed: F-score Aided [mutate]
      * Pm' := Pm + (1.0-Er)*Pm
      * @TODO Pm' := Pm + (1-Er*Eclass)*Pm
      */
@@ -141,13 +141,13 @@ public class Rule extends Individual {
         }
 
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
-            tym.ClassID.set(i, this.ClassID.get(i));
+            tym.classID.set(i, this.classID.get(i));
         }
         //end: copying
 
         //active flag
         if (Rand.getRandomBooleanFlip(Pmutation) == true) {
-            this.Active = !(this.Active);
+            this.active = !(this.active);
         }
 
         //body
@@ -159,7 +159,7 @@ public class Rule extends Individual {
         if (Configuration.getConfiguration().isMutationOfClass() == true) {
             for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
                 if (Rand.getRandomBooleanFlip(Pmutation) == true) {
-                    tym.ClassID.set(i, !tym.ClassID.get(i));
+                    tym.classID.set(i, !tym.classID.get(i));
                 }
             }
         }
@@ -179,7 +179,7 @@ public class Rule extends Individual {
         }
 
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
-            tym.ClassID.set(i, this.ClassID.get(i));
+            tym.classID.set(i, this.classID.get(i));
         }
         tym.clearEvaluations();
         //end: copying
@@ -193,7 +193,7 @@ public class Rule extends Individual {
         if (Configuration.getConfiguration().isMutationOfClass() == true) {
             for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
                 if (Rand.getRandomBooleanFlip(Pmutation) == true) {
-                    tym.ClassID.set(i, !this.ClassID.get(i));
+                    tym.classID.set(i, !this.classID.get(i));
                 }
             }
         }
@@ -208,7 +208,7 @@ public class Rule extends Individual {
     }
 
     public int getClassID() {
-        int class_id = (int) BinaryCode.getFloatFromBinary(ClassID);
+        int class_id = (int) BinaryCode.getFloatFromBinary(classID);
         /*DOMYSLNA KLASA 0*/
         if (class_id > Configuration.getClassesNo()) {
             return 0;
@@ -243,7 +243,7 @@ public class Rule extends Individual {
             tym.setGene(i, d);
         }
 
-        boolean classFromOne = Rand.GetRandomBoolean();
+        boolean classFromOne = Rand.getRandomBoolean();
         Rule R = null;
         if (classFromOne) {
             R = new Rule((Rule) Indv1);
@@ -252,7 +252,7 @@ public class Rule extends Individual {
         }
 
         for (int i = 0; i < Configuration.getConfiguration().getClassBits(); i++) {
-            tym.ClassID.set(i, R.ClassID.get(i));
+            tym.classID.set(i, R.classID.get(i));
 
         }
         return tym;
@@ -263,7 +263,7 @@ public class Rule extends Individual {
      * @return true (active) of false (no active)
      */
     public boolean isActive() {
-        return this.Active;
+        return this.active;
     }
 
     public boolean isEmpty() {

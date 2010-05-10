@@ -35,7 +35,7 @@ public abstract class Individual {
 
     public abstract void init();
 
-    public abstract Individual Mutation();
+    public abstract Individual mutate();
 
     public abstract Individual crossoverWith(final Individual Indv1);
 

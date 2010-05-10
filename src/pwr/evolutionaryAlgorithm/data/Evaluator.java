@@ -3,9 +3,10 @@ package pwr.evolutionaryAlgorithm.data;
 import java.util.ArrayList;
 import pl.eurekin.coevolution.ClassifyingIndividual;
 import pl.eurekin.coevolution.SelectingIndividual;
-
 import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.individual.*;
+import pwr.evolutionaryAlgorithm.individual.Individual;
+import pwr.evolutionaryAlgorithm.individual.Rule;
+import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
 /**
  * Dlaczego singleton, a nie klasa z metodami i polami statycznymi?
@@ -15,6 +16,7 @@ import pwr.evolutionaryAlgorithm.individual.*;
 public class Evaluator {
 
     static private Evaluator e = null;
+    private final Configuration config = Configuration.getConfiguration();
     /**
      * Używane tylko przez BB - best breed (?)
      */
@@ -44,43 +46,41 @@ public class Evaluator {
 
     /**
      * evaluates RuleSet
-     * @param DSc datasource (traint/test)
+     * @param DSrc datasource (traint/test)
      * @param RuleSet
      * @return DataSet of all covered data
      */
-    private DataSet EvaluateRuleSet(DataSource DSc, RuleSet RS) {
+    private DataSet EvaluateRuleSet(DataSource DSrc, RuleSet rSet) {
 
         DataSet DSPart = new DataSet();
         DataSet DSResult = new DataSet();
 
         ///////////////////////////////////////////
         /// only one class active!
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             DSResult.clear();
-            RS.clearEvaluations();
+            rSet.clearEvaluations();
 
             /// for each rule....
-            for (int r = 0; r < RS.rulesNo(); r++) {
+            for (int r = 0; r < rSet.rulesNo(); r++) {
                 DSPart.clear();
                 //if rule is active and returns such class
-                if (RS.getRule(r).isActive()) {
+                if (rSet.getRule(r).isActive()) {
 
                     // Co to w ogóle zwraca?
-                    DSPart = evaluateRule(DSc, RS.getRule(r));
+                    DSPart = getCoveredDataSet(DSrc, rSet.getRule(r));
                     DSResult = DataSet.operatorPlus(DSResult, DSPart);
 
                 }
             } ///// end: for each rule
+            
             /////// CLASS Summary ///////////////
-//            evaluateDataSet(DSc, DSResult, Configuration.getConfiguration().getActiveClass());
-            DSResult.evaluate(DSc, Configuration.getConfiguration().getActiveClass());
-            ///
-            Evaluation E = new Evaluation(DSResult);
-            RS.setEvaluation(E);
+            DSResult.evaluate(DSrc, config.getActiveClass());
+            rSet.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
         //for each class....
         else {
-            RS.clearEvaluations();
+            rSet.clearEvaluations();
 
             ////////////////// CLASSESS ////////////////////////////////////////
             for (int c = 0; c < DataLoader.getClassNumber(); c++) {
@@ -88,22 +88,23 @@ public class Evaluator {
                 DSResult.clear();
 
                 //////////////////RULES ////////////////////////////////////////
-                for (int r = 0; r < RS.rulesNo(); r++) {
-                    //if rule is activa and returns such class
-                    if (RS.getRule(r).isActive() && RS.getRule(r).getClassID() == c) {
-                        DSPart = evaluateRule(DSc, RS.getRule(r));
+                Rule rule;
+                for (int r = 0; r < rSet.rulesNo(); r++) {
+                    rule = rSet.getRule(r);
+                    //if rule is active and returns such class
+                    if (rule.isActive() && rule.getClassID() == c) {
+                        DSPart = getCoveredDataSet(DSrc, rule);
                         DSResult = DataSet.operatorPlus(DSResult, DSPart);
                     }
                 }
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                DSResult.evaluate(DSc, c);
-                Evaluation evl = new Evaluation(DSResult);
-                RS.setEvaluation(c, evl);
+                DSResult.evaluate(DSrc, c);
+                rSet.setEvaluation(c, new Evaluation(DSResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
-        RS.doCountTotalEvaluation(DataLoader.getClassNumber());
+        rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
         return DSResult;
     }
 
@@ -122,7 +123,7 @@ public class Evaluator {
         ci.clearEvaluations();
         ///////////////////////////////////////////
         /// only one class active!
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             DSetResult.clear();
 
             /// for each rule....
@@ -130,12 +131,12 @@ public class Evaluator {
                 DSetPart.clear();
                 //if rule is active and returns such class
                 if (rule.isActive()) {
-                    DSetPart = evaluateRule(dSrc, rule);
+                    DSetPart = getCoveredDataSet(dSrc, rule);
                     DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            final int activeClass = Configuration.getConfiguration().getActiveClass();
+            final int activeClass = config.getActiveClass();
             DSetResult.evaluate(dSrc, activeClass);
             ci.setEvaluation(new Evaluation(DSetResult));
         } // all classes are active
@@ -145,7 +146,6 @@ public class Evaluator {
             for (int c = 0; c < DataLoader.getClassNumber(); c++) {
                 DSetPart.clear();
                 DSetResult.clear();
-
 
                 // Z punktu widzenia implementacji koewolucji najważniejszy
                 // jest moment kiedy mogę odfiltrować rekordy. Zostawić tylko
@@ -158,13 +158,30 @@ public class Evaluator {
                 for (Rule rule : ci.getRules()) {
                     //if rule is active and returns such class
                     if (rule.isActive() && rule.getClassID() == c) {
+                        // niejawnie (poprzez regułę) zawarta jest
+                        // też informacja o wybranej klasie (c)
                         DSetPart = evaluateRule(dSrc, rule);
+
+                        // Powyższe wywołanie budzi we mnie pewne wątpliwości.
+                        // Mianowicie, tamta metoda jest przystosowana do
+                        // ewaluacji pojedynczej reguły. Czy uruchamiając
+                        // ją w pętli, dla każdego osobnika, oraz dla każdej
+                        // reguły w osobniku, nie wykonuje ona kilka razy
+                        // tej samej pracy?
+
+                        // Gromadzenie statystyk dla wszystkich reguł.
+                        // Khem, khem, khem. Tak naprawdę, statystyki są
+                        // tutaj pomijane...
+                        // Faktyczne statystyki wyliczane są po wyjściu z tej
+                        // pętli. Tutaj potrzebne jest jedynie gromadzenie
+                        // wybranych rekordów.
                         DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
                     }
                 }
                 ////////////////END: RULES /////////////////////////////////////
 
-                /////// CLASS Summary ///////////////
+                // Po poprzednich krokach posiadamy DataSet (DSetResult),
+                // który zawiera statystyki (oceny) zebrane dla klasy c.
                 DSetResult.evaluate(dSrc, c);
                 ci.setEvaluation(c, new Evaluation(DSetResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
@@ -178,22 +195,34 @@ public class Evaluator {
 
     /**
      *
-     * @param dSrc
-     * @param rule
+     * @param dSrc zbiór danych, jak zbiór testowy albo treningowy
+     * @param rule reguła dla której ma być to wszystko przeliczone
      * @return
      */
     private DataSet evaluateRule(DataSource dSrc, Rule rule) {
-
-        Configuration cfg = Configuration.getConfiguration();
-        final int activeClass = cfg.isOneClassActive() ? cfg.getActiveClass() : rule.getClassID();
+        /** Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
+        /* zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
+         */
+        int activeClass = config.isOneClassActive()
+                ? config.getActiveClass() : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
-        // Wybierane są tutaj te rekordy, których dotyczy reguła rule.
-        DataSet ds = getCoveredDataSet(dSrc, rule);  //get DataSet covered by rule
+        // Wybierane są te rekordy, których dotyczy reguła rule.
+        DataSet ds = getCoveredDataSet(dSrc, rule);
 
-        //
+        // Ok, czyli mamy rekordy, których dotyczy reguła rule.
+        // Teraz oceniany jest zbiór danych (tak, dokładnie: DataSet),
+        // wiedząc, że pochodzi ze źródła dSrc (co pozwala wyznaczyć
+        // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
+        // itp.).
         ds.evaluate(dSrc, activeClass);
+
+        // Po tej całej przeprawie mamy DataSet, który posiada pełne
+        // statystyki dla pojedynczej klasy. Zapisujemy te statystyki
+        // w regule:
         rule.setEvaluation(new Evaluation(ds));
+
+        // Zwróć oceniony DataSet
         return ds;
     }
 
@@ -217,7 +246,7 @@ public class Evaluator {
         Condition c = null;
         DataSet cnd = new DataSet();
         int att = 0;
-        final int numberOfAttributes = Configuration.getConfiguration().getNumberOfAttributes();
+        final int numberOfAttributes = config.getNumberOfAttributes();
         //for first review -> search for first enabled attribute
         // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
         // włączonego
@@ -270,7 +299,7 @@ public class Evaluator {
      * Best breed implementation
      */
     public void clearBB() {
-        int pop_size = Configuration.getConfiguration().getPopSize();
+        int pop_size = config.getPopSize();
         if (data == null) {
             data = new ArrayList<DataSet>(pop_size);
         }
@@ -298,8 +327,8 @@ public class Evaluator {
 
         long correct = dSrc.getCorrect(ds, r.getClassID()).size();
         long expected = 0;
-        if (Configuration.getConfiguration().isOneClassActive() == true) {
-            expected = dSrc.getExpected(Configuration.getConfiguration().getActiveClass());
+        if (config.isOneClassActive() == true) {
+            expected = dSrc.getExpected(config.getActiveClass());
         } else {
             expected = dSrc.getExpected(r.getClassID());
         }
@@ -333,7 +362,7 @@ public class Evaluator {
 
         ///////////////////////////////////////////
         /// only one class active!
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             DSResult.clear();
             rSet.clearEvaluations();
             /// for each rule....
@@ -347,7 +376,7 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            final int activeClass = Configuration.getConfiguration().getActiveClass();
+            final int activeClass = config.getActiveClass();
             DSResult.evaluate(dSrc, activeClass);
             ///
             Evaluation E = new Evaluation(DSResult);
