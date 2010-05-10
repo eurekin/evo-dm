@@ -291,10 +291,10 @@ public class DataSource {
     }
 
     public DataSet getDataSet(DataSet ds, Condition c) {
-        DataSet result = new DataSet();
-        for (int d = 0; d < ds.size(); d++) {
-            if (ds.getRecord(d).isSatisfy(c)) {
-                result.addRecord(ds.getRecord(d));
+        DataSet result = new DataSet((int) ds.size());
+        for (Record rec : ds) {
+            if (rec.isSatisfy(c)) {
+                result.addRecord(rec);
             }
         }
         return result;
@@ -307,21 +307,21 @@ public class DataSource {
     /**
      * Returns set of records classified correctly in a dataset
      * 
-     * @param s set of dataset
-     * @param class_id class of classification
+     * @param dSet set of dataset
+     * @param classId class of classification
      * @return set of records
      */
-    public DataSet getCorrect(DataSet s, int class_id) {
-        DataSet correctDS = new DataSet();
-        int RecordClass;
-        for (int i = 0; i < s.size(); i++) {
-            RecordClass = s.getRecord(i).getClassName();
+    public DataSet getCorrect(DataSet dSet, int classId) {
+        DataSet correctDS = new DataSet((int) dSet.size());
+        int recordClass;
+        for (Record rec : dSet) {
+            recordClass = rec.getClassName();
             do {
-                if (class_id == RecordClass) {
-                    correctDS.addRecord(s.getRecord(i));
+                if (classId == recordClass) {
+                    correctDS.addRecord(rec);
                 }
-                RecordClass = s.getRecord(i).getClassNameNext();
-            } while (RecordClass != -1); // Dla obrazków...
+                recordClass = rec.getClassNameNext();
+            } while (recordClass != -1); // dla obrazków...
         }
         return correctDS;
     }

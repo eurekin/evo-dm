@@ -1,13 +1,14 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Trzyma listę rekordów oraz informacje o precyzji, dokładności itp.
  * 
  * @author pawelm
  */
-public class DataSet {
+public class DataSet implements Iterable<Record> {
 
     private float FSc = 0f;
     private float recall = 0f;
@@ -22,12 +23,16 @@ public class DataSet {
         return this.records.get(i);
     }
 
+    public DataSet(int capacity) {
+        this.records = new ArrayList<Record>(capacity);
+    }
+
     public DataSet() {
         this.records = new ArrayList<Record>();
     }
 
-    public DataSet(DataSet D) {
-        this.records = new ArrayList<Record>(D.records);
+    public DataSet(DataSet dSet) {
+        this.records = new ArrayList<Record>(dSet.records);
     }
 
     public void removeRecord(final Record R) {
@@ -143,6 +148,11 @@ public class DataSet {
 
     public float getAccuracy() {
         return this.accuracy;
+    }
+
+    @Override
+    public Iterator<Record> iterator() {
+        return records.iterator();
     }
 }
 
