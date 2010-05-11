@@ -12,7 +12,7 @@ public class DataSource {
      */
     private ArrayList<ArrayList<Linker>> index;
 
-    public class Linker {
+    private class Linker {
 
         public Linker(float v_, Record R_) {
             v = v_;
@@ -31,7 +31,7 @@ public class DataSource {
         public Record R;
     }
 
-    class comparator implements Comparator<Linker> {
+    private class comparator implements Comparator<Linker> {
 
         @Override
         public int compare(Linker o1, Linker o2) {
@@ -115,8 +115,6 @@ public class DataSource {
 
     /**
      * main constructor of DataSource class
-     * @param TrainDataFileName name of file with data for training
-     * @param TestDataFileName name of file with data for tests
      */
     public DataSource() {
         data = new ArrayList<Record>();
@@ -132,9 +130,7 @@ public class DataSource {
         if (ds.dataExpectedByClass != null) {
             int classes = DataLoader.getClassNumber();
             dataExpectedByClass = new long[classes];
-            for (int i = 0; i < classes; i++) {
-                dataExpectedByClass[i] = ds.dataExpectedByClass[i];
-            }
+            System.arraycopy(ds.dataExpectedByClass, 0, dataExpectedByClass, 0, classes);
         } else {
             dataExpectedByClass = null;
         }
@@ -181,7 +177,7 @@ public class DataSource {
      */
     public void OrganizeData() {
 
-        //////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
         //Expected - for each class
         dataExpectedByClass = new long[DataLoader.getClassNumber()];
         for (int i = 0; i < DataLoader.getClassNumber(); i++) {
@@ -208,12 +204,13 @@ public class DataSource {
         }
 
         index = new ArrayList<ArrayList<Linker>>(DataLoader.getArgumentsNo());
-        for (int i = 0; i < DataLoader.getArgumentsNo(); i++) { //for each indekser...
+        // for each class index
+        for (int i = 0; i < DataLoader.getArgumentsNo(); i++) {
+            //create it
+            index.add(i, new ArrayList<Linker>(data.size()));
 
-            index.add(i, new ArrayList<Linker>(data.size())); //create it
-
-            for (int r = 0; r < data.size(); r++) { //add each record
-
+            //add each record
+            for (int r = 0; r < data.size(); r++) {
                 rec = data.get(r);
                 if (rec instanceof Record) {
                     index.get(i).add(r, new Linker(rec.getArgumentValue(i), rec));
@@ -300,30 +297,15 @@ public class DataSource {
         return result;
     }
 
+    /**
+     * Liczba załadowanych rekordów (z pliku), które należą do
+     * klasy {@code classID }.
+     * 
+     * @param classID
+     * @return
+     */
     public long getExpected(int classID) {
         return dataExpectedByClass[classID];
-    }
-
-    /**
-     * Returns set of records classified correctly in a dataset
-     * 
-     * @param dSet set of dataset
-     * @param classId class of classification
-     * @return set of records
-     */
-    public DataSet getCorrect(DataSet ds, int classId) {
-        DataSet correctDS = new DataSet();
-        int recordClass;
-        for (Record rec : ds) {
-            recordClass = rec.getClassName();
-            do {
-                if (classId == recordClass) {
-                    correctDS.addRecord(rec);
-                }
-                recordClass = rec.getClassNameNext();
-            } while (recordClass != -1); // Dla obrazków...
-        }
-        return correctDS;
     }
 
     /**
@@ -334,12 +316,11 @@ public class DataSource {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n RECORDS=" + data.size() + "  Records_in_class ");
+        sb.append("\n RECORDS=").append(data.size()).append("  Records_in_class ");
         int classes = DataLoader.getClassNumber();
         for (int i = 0; i < classes; i++) {
-            sb.append(" c" + i + " [" + dataExpectedByClass[i] + "] ");
+            sb.append(" c").append(i).append(" [").append(dataExpectedByClass[i]).append("] ");
         }
         return sb.toString();
     }
 }
-

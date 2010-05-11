@@ -46,11 +46,11 @@ public class Evaluator {
 
     /**
      * evaluates RuleSet
-     * @param DSrc datasource (traint/test)
+     * @param dSrc datasource (traint/test)
      * @param RuleSet
      * @return DataSet of all covered data
      */
-    private DataSet EvaluateRuleSet(DataSource DSrc, RuleSet rSet) {
+    private DataSet EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
 
         DataSet DSPart = new DataSet();
         DataSet DSResult = new DataSet();
@@ -68,14 +68,14 @@ public class Evaluator {
                 if (rSet.getRule(r).isActive()) {
 
                     // Co to w ogóle zwraca?
-                    DSPart = getCoveredDataSet(DSrc, rSet.getRule(r));
+                    DSPart = getCoveredDataSet(dSrc, rSet.getRule(r));
                     DSResult = DataSet.operatorPlus(DSResult, DSPart);
 
                 }
             } ///// end: for each rule
-            
+
             /////// CLASS Summary ///////////////
-            DSResult.evaluate(DSrc, config.getActiveClass());
+            DSResult.evaluate(dSrc, config.getActiveClass());
             rSet.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
         //for each class....
@@ -93,104 +93,19 @@ public class Evaluator {
                     rule = rSet.getRule(r);
                     //if rule is active and returns such class
                     if (rule.isActive() && rule.getClassID() == c) {
-                        DSPart = getCoveredDataSet(DSrc, rule);
+                        DSPart = getCoveredDataSet(dSrc, rule);
                         DSResult = DataSet.operatorPlus(DSResult, DSPart);
                     }
                 }
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                DSResult.evaluate(DSrc, c);
+                DSResult.evaluate(dSrc, c);
                 rSet.setEvaluation(c, new Evaluation(DSResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
         rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
         return DSResult;
-    }
-
-    /**
-     * evaluates RuleSet using specified subset of DataSource
-     * @param dSrc datasource (train/test)
-     * @param RuleSet
-     * @return DataSet of all covered data
-     */
-    public DataSet evaluateRuleSetUsingSelector(
-            DataSource dSrc, SelectingIndividual sl, ClassifyingIndividual ci) {
-
-        DataSet DSetPart = new DataSet();
-        DataSet DSetResult = new DataSet();
-
-        ci.clearEvaluations();
-        ///////////////////////////////////////////
-        /// only one class active!
-        if (config.isOneClassActive()) {
-            DSetResult.clear();
-
-            /// for each rule....
-            for (Rule rule : ci.getRules()) {
-                DSetPart.clear();
-                //if rule is active and returns such class
-                if (rule.isActive()) {
-                    DSetPart = getCoveredDataSet(dSrc, rule);
-                    DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
-                }
-            } ///// end: for each rule
-            /////// CLASS Summary ///////////////
-            final int activeClass = config.getActiveClass();
-            DSetResult.evaluate(dSrc, activeClass);
-            ci.setEvaluation(new Evaluation(DSetResult));
-        } // all classes are active
-        //for each class....
-        else {
-            ////////////////// CLASSESS ////////////////////////////////////////
-            for (int c = 0; c < DataLoader.getClassNumber(); c++) {
-                DSetPart.clear();
-                DSetResult.clear();
-
-                // Z punktu widzenia implementacji koewolucji najważniejszy
-                // jest moment kiedy mogę odfiltrować rekordy. Zostawić tylko
-                // te, które wybrane są przez osobnika wybierającego. Problem
-                // w tym, żeby zachować poprawność oceniania populacji. Gdzieś
-                // trzeba zmodyfikować ocenę, gdyż w koewolucji osobnik klasy-
-                // fikujący widzi tylko podzbiór danych.
-
-                // Fill DSetResult with appropriate racords related to class c
-                for (Rule rule : ci.getRules()) {
-                    //if rule is active and returns such class
-                    if (rule.isActive() && rule.getClassID() == c) {
-                        // niejawnie (poprzez regułę) zawarta jest
-                        // też informacja o wybranej klasie (c)
-                        DSetPart = evaluateRule(dSrc, rule);
-
-                        // Powyższe wywołanie budzi we mnie pewne wątpliwości.
-                        // Mianowicie, tamta metoda jest przystosowana do
-                        // ewaluacji pojedynczej reguły. Czy uruchamiając
-                        // ją w pętli, dla każdego osobnika, oraz dla każdej
-                        // reguły w osobniku, nie wykonuje ona kilka razy
-                        // tej samej pracy?
-
-                        // Gromadzenie statystyk dla wszystkich reguł.
-                        // Khem, khem, khem. Tak naprawdę, statystyki są
-                        // tutaj pomijane...
-                        // Faktyczne statystyki wyliczane są po wyjściu z tej
-                        // pętli. Tutaj potrzebne jest jedynie gromadzenie
-                        // wybranych rekordów.
-                        DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
-                    }
-                }
-                ////////////////END: RULES /////////////////////////////////////
-
-                // Po poprzednich krokach posiadamy DataSet (DSetResult),
-                // który zawiera statystyki (oceny) zebrane dla klasy c.
-                DSetResult.evaluate(dSrc, c);
-                ci.setEvaluation(c, new Evaluation(DSetResult));
-            }//////////////////END:CLASSESS ////////////////////////////////////
-        }
-
-        // do average value of all classes -> without unused (or not tested) class
-        // Pozostało jedynie policzenie średniej wartości, ze wszystkich klas.
-        ci.doCountTotalEvaluation(DataLoader.getClassNumber());
-        return DSetResult;
     }
 
     /**
@@ -242,7 +157,7 @@ public class Evaluator {
      * @param r
      * @return
      */
-    protected DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
+    public DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
         Condition c = null;
         DataSet cnd = new DataSet();
         int att = 0;
@@ -282,14 +197,11 @@ public class Evaluator {
         return cnd;
     }
 
-    private DataSet getAllCorrectClassified(DataSource DSc,
-            DataSet DSgenerated, RuleSet RS) {
+    private DataSet getAllCorrectClassified(
+            DataSet dSet, RuleSet ruleSet) {
         DataSet DSpart, DScorrect = new DataSet();
-
-        int rules = RS.rulesNo();
-
-        for (int r = 0; r < rules; r++) {
-            DSpart = DSc.getCorrect(DSgenerated, RS.getRule(r).getClassID());
+        for (Rule rule : ruleSet) {
+            DSpart = dSet.getCorrectSubset(rule.getClassID());
             DScorrect = DataSet.operatorPlus(DScorrect, DSpart);
         }
         return DScorrect;
@@ -308,7 +220,7 @@ public class Evaluator {
 
     public void evaluateBB(DataSource DSc, Individual I) {
         DataSet DSgenerated = EvaluateRuleSet(DSc, (RuleSet) I);
-        DataSet DScorrect = getAllCorrectClassified(DSc, DSgenerated, (RuleSet) I);
+        DataSet DScorrect = getAllCorrectClassified(DSgenerated, (RuleSet) I);
         data.set(individualPointer++, DScorrect);
     }
 
@@ -318,31 +230,26 @@ public class Evaluator {
      * @param dSrc datasource
      * @param ds dataset of generated data
      * @param r Selected rule
+     * @return
      * @see FullClassificationReport
      */
     protected String ClassificationReport(DataSource dSrc, DataSet ds, Rule r) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
+        final int clazz = r.getClassID();
+        final long correct = ds.getCorrectCount(clazz);
+        int cl = config.isOneClassActive() ? config.getActiveClass() : clazz;
+        final long expected = dSrc.getExpected(cl);
+        final long generated = ds.size();
 
-        sb.append("\n" + r.toString());
+        sb.append("\n").append(r.toString()).append("\n");
+        sb.append(" Generated=").append(generated);
+        sb.append(" Correct=").append(correct);
+        sb.append(" Expected=").append(expected);
+        sb.append(" UnCorrect=").append(generated - correct);
 
-        long correct = dSrc.getCorrect(ds, r.getClassID()).size();
-        long expected = 0;
-        if (config.isOneClassActive() == true) {
-            expected = dSrc.getExpected(config.getActiveClass());
-        } else {
-            expected = dSrc.getExpected(r.getClassID());
-        }
-        long generated = ds.size();
-
-        sb.append("\n Generated=" + generated);
-        sb.append(" Correct=" + correct);
-        sb.append(" Expected=" + expected);
-        sb.append(" InCorrect=" + (generated - correct));
-
-        long elements = ds.size();
-        for (int iter = 0; iter < elements; iter++) {
-            if (!ds.getRecord(iter).hasClass(r.getClassID())) {
-                sb.append("\n---" + ds.getRecord(iter).toString());
+        for (Record record : ds) {
+            if (!record.hasClass(clazz)) {
+                sb.append("\n---").append(record.toString());
             }
         }
         return sb.toString();
@@ -350,12 +257,14 @@ public class Evaluator {
 
     /**
      * Return as string Report of classification of selected RuleSet
-     * @param DS dataSource (Train or Test) as dataScurce
+     * @param dSrc dataSource (Train or Test) as dataScurce
+     * @param rSet
+     * @param text
      * @return string for report
      */
     public String FullClassificationReport(DataSource dSrc, RuleSet rSet, String text) {
 
-        StringBuilder SB = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         DataSet DSPart = new DataSet();
         DataSet DSResult = new DataSet();
@@ -371,7 +280,7 @@ public class Evaluator {
                 //if rule is active and returns such class
                 if (rSet.getRule(r).isActive()) {
                     DSPart = evaluateRule(dSrc, rSet.getRule(r));
-                    SB.append(this.ClassificationReport(dSrc, DSPart, rSet.getRule(r)));
+                    sb.append(this.ClassificationReport(dSrc, DSPart, rSet.getRule(r)));
                     DSResult = DataSet.operatorPlus(DSResult, DSPart);
                 }
             } ///// end: for each rule
@@ -391,17 +300,15 @@ public class Evaluator {
                 DSResult.clear();
 
                 if (dSrc.getExpected(c) == 0) {
-                    SB.append("=> NO INSTANCES");
+                    sb.append("=> NO INSTANCES");
                 }
 
                 //////////////////RULES ////////////////////////////////////////
-                for (int r = 0; r < rSet.rulesNo(); r++) {
-                    //if rule is activa and returns such class
-                    if (rSet.getRule(r).isActive() && rSet.getRule(r).getClassID() == c) {
-                        DSPart = evaluateRule(dSrc, rSet.getRule(r));
-
-                        SB.append(this.ClassificationReport(dSrc, DSPart, rSet.getRule(r)));
-
+                for (Rule rule : rSet) {
+                    //if rule is active and returns such class
+                    if (rule.isActive() && rule.getClassID() == c) {
+                        DSPart = evaluateRule(dSrc, rule);
+                        sb.append(ClassificationReport(dSrc, DSPart, rule));
                         DSResult = DataSet.operatorPlus(DSResult, DSPart);
                     }
                 }
@@ -415,11 +322,11 @@ public class Evaluator {
         }
         rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
 
-        SB.append("\n############################ " + text + "############################\n");
-        SB.append("\n" + rSet.toString());
-        SB.append("\n\n" + text + "_DATASOURCE  " + dSrc.toString());
-        SB.append("\n##################################################################\n");
+        sb.append("\n############################ ").append(text).append("############################\n");
+        sb.append("\n").append(rSet.toString());
+        sb.append("\n\n").append(text).append("_DATASOURCE  ").append(dSrc.toString());
+        sb.append("\n##################################################################\n");
 
-        return SB.toString();
+        return sb.toString();
     }
 }

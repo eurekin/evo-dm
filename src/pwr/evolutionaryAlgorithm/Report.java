@@ -1,6 +1,5 @@
 package pwr.evolutionaryAlgorithm;
 
-import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
@@ -8,12 +7,11 @@ import pwr.evolutionaryAlgorithm.data.Evaluator;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 
-public class Report implements Serializable {
+public class Report  {
 
     private String ReportContent;
     private int TestNumber;             //number of tests
@@ -37,8 +35,8 @@ public class Report implements Serializable {
         ReportContent = new String();
 
         this.TestNumber = _TestNumber;
-        this.TestFileReport = new String(_TestFileReport);
-        this.TestExFileReport = new String(_TestExFileReport);
+        this.TestFileReport = _TestFileReport;
+        this.TestExFileReport = _TestExFileReport;
 
         /////////////////////////////////////////////////////
         TestAllDone = 0;              //number of all tests
@@ -69,25 +67,24 @@ public class Report implements Serializable {
         TestTime[TestAllDone] = Time;
 
         TestAllDone++;
-        TestSumFitnessTrain = TestSumFitnessTrain + fitnessTrain;
-        TestSumFitnessTest = TestSumFitnessTest + fitnessTest;
-        TestSumAccuracyTrain = TestSumAccuracyTrain + train_acc;
-        TestSumAccuracyTest = TestSumAccuracyTest + test_acc;
-        TestSumTime = TestSumTime + Time;
-        TestSumGen = TestSumGen + generations;
-        StringBuilder SB = new StringBuilder();
-        SB.append(ReportContent);
-        SB.append("" + String.format("%.3f", fitnessTrain) + ";"
-                + String.format("%.3f", fitnessTest) + ";"
-                + String.format("%.3f", train_acc) + ";"
-                + String.format("%.3f", test_acc) + ";"
-                + generations + ";" + Time + ";;;;\n");
-        ReportContent = SB.toString();
+        TestSumFitnessTrain += fitnessTrain;
+        TestSumFitnessTest += fitnessTest;
+        TestSumAccuracyTrain += train_acc;
+        TestSumAccuracyTest += test_acc;
+        TestSumTime += Time;
+        TestSumGen += generations;
+        StringBuilder sb = new StringBuilder();
+        sb.append(ReportContent);
+        sb.append(String.format("%.3f", fitnessTrain)).append(";").append(String.format("%.3f", fitnessTest)).append(";").append(String.format("%.3f", train_acc)).append(";").append(String.format("%.3f", test_acc)).append(";").append(generations).append(";").append(Time).append(";;;;\n");
+        ReportContent = sb.toString();
     }
 
 //	------------------------------------------------------------------------------
     /**
      * returns string of test (as String) and writes it info file (if second is true)
+     * @param Header 
+     * @param writeIntoFile
+     * @throws IOException
      */
     public String getReportStatistic(String Header, boolean writeIntoFile) throws IOException {
 
@@ -153,12 +150,12 @@ public class Report implements Serializable {
             }
 
 
-            StdDevTest = StdDevTest + (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
-            StdDevTrain = StdDevTrain + (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
-            StdDevTime = StdDevTime + (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
-            StdDevGen = StdDevGen + (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
-            StdDevTestAcc = StdDevTestAcc + (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
-            StdDevTrainAcc = StdDevTrainAcc + (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
+            StdDevTest += (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
+            StdDevTrain += (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
+            StdDevTime += (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
+            StdDevGen += (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
+            StdDevTestAcc += (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
+            StdDevTrainAcc += (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
         }
         StdDevTest = Math.sqrt(StdDevTest / TestAllDone);
         StdDevTrain = Math.sqrt(StdDevTrain / TestAllDone);
@@ -171,24 +168,12 @@ public class Report implements Serializable {
 
         SB.append(Configuration.getConfiguration().toString());
 
-        SB.append("\n time avg " + AvgTime / 1000 + "s std.dev" + String.format("%.4f", StdDevTime / 1000) + "s");
-        SB.append(" gen " + AvgGen + " (std.dev" + String.format("%.4f", StdDevGen) + ")");
-        SB.append("\n [TRAIN] FSC <avg=" + String.format("%.4f", AvgTrain)
-                + " dev=" + String.format("%.4f", StdDevTrain)
-                + " min=" + String.format("%.4f", TrainMin)
-                + " max=" + String.format("%.4f", TrainMax) + ">");
-        SB.append(" ACC <avg=" + String.format("%.4f", AvgTrainAcc)
-                + " dev=" + String.format("%.4f", StdDevTrainAcc)
-                + " min=" + String.format("%.4f", TrainAccMin)
-                + " max=" + String.format("%.4f", TrainAccMax) + ">");
-        SB.append("\n [TEST] FSC <avg=" + String.format("%.4f", AvgTest)
-                + " dev=" + String.format("%.4f", StdDevTest)
-                + " min=" + String.format("%.4f", TestMin)
-                + " max=" + String.format("%.4f", TestMax) + ">");
-        SB.append(" ACC <avg=" + String.format("%.4f", AvgTestAcc)
-                + " dev=" + String.format("%.4f", StdDevTestAcc)
-                + " min=" + String.format("%.4f", TestAccMin)
-                + " max=" + String.format("%.4f", TestAccMax) + ">");
+        SB.append("\n time avg ").append(AvgTime / 1000).append("s std.dev").append(String.format("%.4f", StdDevTime / 1000)).append("s");
+        SB.append(" gen ").append(AvgGen).append(" (std.dev").append(String.format("%.4f", StdDevGen)).append(")");
+        SB.append("\n [TRAIN] FSC <avg=").append(String.format("%.4f", AvgTrain)).append(" dev=").append(String.format("%.4f", StdDevTrain)).append(" min=").append(String.format("%.4f", TrainMin)).append(" max=").append(String.format("%.4f", TrainMax)).append(">");
+        SB.append(" ACC <avg=").append(String.format("%.4f", AvgTrainAcc)).append(" dev=").append(String.format("%.4f", StdDevTrainAcc)).append(" min=").append(String.format("%.4f", TrainAccMin)).append(" max=").append(String.format("%.4f", TrainAccMax)).append(">");
+        SB.append("\n [TEST] FSC <avg=").append(String.format("%.4f", AvgTest)).append(" dev=").append(String.format("%.4f", StdDevTest)).append(" min=").append(String.format("%.4f", TestMin)).append(" max=").append(String.format("%.4f", TestMax)).append(">");
+        StringBuilder append = SB.append(" ACC <avg=").append(String.format("%.4f", AvgTestAcc)).append(" dev=").append(String.format("%.4f", StdDevTestAcc)).append(" min=").append(String.format("%.4f", TestAccMin)).append(" max=").append(String.format("%.4f", TestAccMax)).append(">");
         SB.append("\n===============================================================\n");
 
         return SB.toString();
@@ -342,8 +327,8 @@ public class Report implements Serializable {
             // XXX turned off bigfile generation
             try {
                 reportExText(config.toString()
-                        + eval.FullClassificationReport(DataLoader.getTrainData(), (RuleSet) theBestInd, "TRAIN")
-                        + eval.FullClassificationReport(DataLoader.getTestData(), (RuleSet) theBestInd, "TEST"));
+                        + eval.FullClassificationReport(DataLoader.getTrainData(), theBestInd, "TRAIN")
+                        + eval.FullClassificationReport(DataLoader.getTestData(), theBestInd, "TEST"));
             } catch (IOException ex) {
                 Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -407,8 +392,14 @@ public class Report implements Serializable {
         addStatistics(generationNo, train, test, train_acc, test_acc, getTotalTime);
     }
 
+    /**
+     *
+     * @param theBestIndividual
+     * @param mRulePopulation
+     * @param generationNo
+     */
     public void reportAfterOneGeneration(Individual theBestIndividual,
-            Population mRulePopulation, long generationNo) {
+            Population<? extends Individual> mRulePopulation, long generationNo) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
         sb.append(generationNo);

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pl.eurekin.coevolution;
 
 import pwr.evolutionaryAlgorithm.individual.Individual;
@@ -23,14 +18,13 @@ public class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-
     @Override
     public int diversityMeasure(Individual I) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    protected int getGenesInIndividual()  {
+    protected int getGenesInIndividual() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -40,12 +34,11 @@ public class SelectingIndividual extends Individual {
     }
 
     @Override
-    public Individual crossoverWith(Individual ind)  {
+    public Individual crossoverWith(Individual ind) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     void evaluateUsingClassifier(ClassifyingIndividual c) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }

@@ -13,7 +13,9 @@ public class EvoAlgorithm {
     private Clock totalTimeClock;
     private Individual theBestInd;
     private DataLoader dataLoader;
-    private Population rulePopulation;
+    private Population<RuleSet> rulePopulation;
+
+
 
     /**
      * Evolutionary Algorithm - core implementation
@@ -33,7 +35,7 @@ public class EvoAlgorithm {
             rulePopulation.evaluate(DataLoader.getTrainData());
             //the best individual
             if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
-                theBestInd = new RuleSet((RuleSet) (rulePopulation.getBestIndividual()));
+                theBestInd = new RuleSet(rulePopulation.getBestIndividual());
             }
             if (config.getStopEval() <= rulePopulation.getBestFitness()) {
                 stopEval = true;
@@ -64,7 +66,7 @@ public class EvoAlgorithm {
         theBestInd = new RuleSet();
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
-        rulePopulation = new Population(new RuleSet());
+        rulePopulation = new Population<RuleSet>(new RuleSet());
         rulePopulation.init();
     }
 
@@ -111,7 +113,7 @@ public class EvoAlgorithm {
                 totalTimeClock.Start();
 
                 // tworzenie nowej populacji
-                rulePopulation = new Population(new RuleSet());
+                rulePopulation = new Population<RuleSet>(new RuleSet());
                 rulePopulation.init();
                 theBestInd = null;
 

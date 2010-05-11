@@ -1,6 +1,7 @@
 package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
@@ -11,12 +12,12 @@ import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
  *
  * @author pawelm
  */
-public class RuleSet extends Individual {
+public class RuleSet extends Individual implements Iterable<Rule> {
 
     /*
      * TODO: remove this const form here!
      */
-    private static boolean FIXED_LENGTH = false;
+    private static boolean fixedLength = false;
     ArrayList<Rule> rules;
     private Evaluation totalEvaluation;
 
@@ -60,7 +61,7 @@ public class RuleSet extends Individual {
 
         int RULES = Rand.getRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
 
-        if (!FIXED_LENGTH) {
+        if (!fixedLength) {
             RULES = Configuration.getConfiguration().getNumberOfRules();
         }
 
@@ -83,7 +84,10 @@ public class RuleSet extends Individual {
     }
 
     /**
+     * Mogę użyć do koewolucji bez zmian.
+     *
      * do average value of all classes -> without unused (or not tested) class
+     * @param classess number of classes
      */
     public void doCountTotalEvaluation(int classess) {
         totalEvaluation.clear();
@@ -140,7 +144,7 @@ public class RuleSet extends Individual {
         /**
          * @TODO reczna zmiana Fixed lenght
          */
-        FIXED_LENGTH = true;
+        fixedLength = true;
 
         RuleSet p1 = (RuleSet) ind1, p2 = (RuleSet) ind2;
         RuleSet fittest = null, Offspring = new RuleSet();
@@ -189,7 +193,7 @@ public class RuleSet extends Individual {
         boolean biggerP2 = false;
 
 
-        if (FIXED_LENGTH && p1.rulesNo() < p2.rulesNo()) {
+        if (fixedLength && p1.rulesNo() < p2.rulesNo()) {
             cut = Rand.getRandomInt(p1.rulesNo());
             biggerP2 = true;
         } else {
@@ -230,20 +234,20 @@ public class RuleSet extends Individual {
         StringBuilder SB = new StringBuilder();
 
         SB.append("\n RULESET_EVAL");
-        SB.append("\n TOTAL " + totalEvaluation.toString());
+        SB.append("\n TOTAL ").append(totalEvaluation.toString());
         ///classes evaluations...
         if (Configuration.getConfiguration().isOneClassActive()) {
             SB.append(evaluations.get(0).toString());
         } else {
             SB.append("\n classes ");
             for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
-                SB.append("\n cl_" + cl + " [" + evaluations.get(cl).toString() + "]");
+                SB.append("\n cl_").append(cl).append(" [").append(evaluations.get(cl).toString()).append("]");
             }
         }
 
         SB.append("\n\n RULES");
         for (int i = 0; i < this.rules.size(); i++) {
-            SB.append("\n " + this.rules.get(i).toString());
+            SB.append("\n ").append(this.rules.get(i).toString());
         }
 
         return SB.toString();
@@ -264,5 +268,10 @@ public class RuleSet extends Individual {
             throw new RuntimeException("Illegal Object is given!");
         }
         return diff;
+    }
+
+    @Override
+    public Iterator<Rule> iterator() {
+        return rules.iterator();
     }
 }

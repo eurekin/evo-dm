@@ -19,8 +19,8 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // XXX CSV report HEADER: comment;file_comment;system;pop_size;stop_gen;rule_no;cross_value;measure;mutation_val;mutation_type;crossover_value;crossover_type;selection;configuration;time_avg;time_dev;gen_avg;gen_dev;tr_fsc_avg;tr_fsc_dev;tr_fsc_min;tr_fsc_max;tr_acc_avg;tr_acc_dev;tr_acc_min;tr_acc_max;tst_fsc_avg;tst_fsc_dev;tst_fsc_min;tst_fsc_max;tst_acc_avg;tst_acc_dev;tst_acc_min;tst_acc_max;time
-        // XXX CSV detail HEADER:comment;file_comment;system;pop_size;stop_gen;rule_no;cross_value;measure;mutation_val;mutation_type;crossover_value;crossover_type;selection;configuration;generations;train_fsc;train_acc;test_fsc;test_acc;time
+        // CSV report HEADER: comment;file_comment;system;pop_size;stop_gen;rule_no;cross_value;measure;mutation_val;mutation_type;crossover_value;crossover_type;selection;configuration;time_avg;time_dev;gen_avg;gen_dev;tr_fsc_avg;tr_fsc_dev;tr_fsc_min;tr_fsc_max;tr_acc_avg;tr_acc_dev;tr_acc_min;tr_acc_max;tst_fsc_avg;tst_fsc_dev;tst_fsc_min;tst_fsc_max;tst_acc_avg;tst_acc_dev;tst_acc_min;tst_acc_max;time
+        // CSV detail HEADER:comment;file_comment;system;pop_size;stop_gen;rule_no;cross_value;measure;mutation_val;mutation_type;crossover_value;crossover_type;selection;configuration;generations;train_fsc;train_acc;test_fsc;test_acc;time
 
 
         // Struktury
@@ -31,7 +31,6 @@ public class Main {
         // Dane
         float testedParameterMinRange = 0.0f;
         float testedParameterMaxRange = 1.0f;
-        String startTimeStr = (new Date()).toString();
 
         // test range
         double MAX = 1.0d;

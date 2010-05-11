@@ -87,6 +87,8 @@ public class DataSet implements Iterable<Record> {
      * As a side effect {@code DataSet ds}'s evaluation is updated to
      * reflect computated values. Thus it's best candidate for a method
      * of DataSet class.
+     * @param dSrc
+     * @param classId 
      */
     public void evaluate(DataSource dSrc, int classId) {
         final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
@@ -96,7 +98,7 @@ public class DataSet implements Iterable<Record> {
         alpha = 0.5f;
         generated = size();
         expected = dSrc.getExpected(classId);
-        correct = dSrc.getCorrect(this, classId).size();
+        correct = getCorrectCount(classId);
 
         // recall & precision - corrected to handle division by zero
         rcl = expected == 0f ? 0f : correct / expected;
@@ -122,7 +124,7 @@ public class DataSet implements Iterable<Record> {
     public String toString() {
         StringBuilder SB = new StringBuilder();
         for (int r = 0; r < records.size(); r++) {
-            SB.append(records.get(r).toString() + ";;;\n");
+            SB.append(records.get(r).toString()).append(";;;\n");
         }
         return SB.toString();
     }
@@ -154,5 +156,45 @@ public class DataSet implements Iterable<Record> {
     public Iterator<Record> iterator() {
         return records.iterator();
     }
-}
 
+    /**
+     * Returns set of records classified correctly in a dataset
+     *
+     * @param classId class of classification
+     * @return set of records
+     */
+    public int getCorrectCount(int classId) {
+        int recordClass, correct = 0;
+        for (Record rec : records) {
+            recordClass = rec.getClassName();
+            do {
+                if (classId == recordClass) {
+                    correct++;
+                }
+                recordClass = rec.getClassNameNext();
+            } while (recordClass != -1); // Dla obrazków...
+        }
+        return correct;
+    }
+
+    /**
+     * Returns set of records classified correctly in a dataset
+     *
+     * @param classId class of classification
+     * @return set of records
+     */
+    public DataSet getCorrectSubset(int classId) {
+        DataSet correctDS = new DataSet();
+        int recordClass;
+        for (Record rec : records) {
+            recordClass = rec.getClassName();
+            do {
+                if (classId == recordClass) {
+                    correctDS.addRecord(rec);
+                }
+                recordClass = rec.getClassNameNext();
+            } while (recordClass != -1); // Dla obrazków...
+        }
+        return correctDS;
+    }
+}

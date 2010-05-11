@@ -8,6 +8,7 @@ import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 import pwr.evolutionaryAlgorithm.data.Evaluator;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 
@@ -287,17 +288,18 @@ public class Coevolution {
                 classifyingPopulation.iterator();
         SelectingIndividual s;
         ClassifyingIndividual c;
+        DataSource trainData = DataLoader.getTrainData();
         while (si.hasNext() && ci.hasNext()) {
             s = si.next();
             c = ci.next();
 
             // evaluation
-            c.evaluateUsingSubset(s);
+            c.evaluateUsingSubset(s, trainData);
             s.evaluateUsingClassifier(c);
         }
 
         // health & safety
         assert !si.hasNext() && !ci.hasNext() :
-                "Co-evolving populations differ in size";
+            "Co-evolving populations differ in size";
     }
 }
