@@ -80,46 +80,6 @@ public class DataSet implements Iterable<Record> {
         return result;
     }
 
-    /**
-     * Method that looks for DataSource ang gives information about DataSet
-     * (acc, prec, rec and Fsc) in given class.
-     *
-     * As a side effect {@code DataSet ds}'s evaluation is updated to
-     * reflect computated values. Thus it's best candidate for a method
-     * of DataSet class.
-     * @param dSrc
-     * @param classId 
-     */
-    public void evaluate(DataSource dSrc, int classId) {
-        final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
-        final float alpha, expected, correct, generated;
-
-        // get input data
-        alpha = 0.5f;
-        generated = size();
-        expected = dSrc.getExpected(classId);
-        correct = getCorrectCount(classId);
-
-        // recall & precision - corrected to handle division by zero
-        rcl = expected == 0f ? 0f : correct / expected;
-        prc = generated == 0f ? 0f : correct / generated;
-
-        // E score
-        pPt = prc == 0f ? 0f : alpha / prc;
-        rPt = rcl == 0f ? 0f : (1f - alpha) / rcl;
-        eSc = pPt + rPt == 0f ? 1f : 1f - (1f / (pPt + rPt));
-
-        // F Score
-        fSc = 1f - eSc;
-
-        // Accuracy
-        out = dSrc.size() - expected - generated + 2f * correct;
-        acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
-
-        // update
-        setEvaluation(prc, rcl, acc, fSc);
-    }
-
     @Override
     public String toString() {
         StringBuilder SB = new StringBuilder();
@@ -164,11 +124,25 @@ public class DataSet implements Iterable<Record> {
      * @return set of records
      */
     public int getCorrectCount(int classId) {
-        int recordClass, correct = 0;
+        int recordClass, correct = 0, incorrect = 0;
         for (Record rec : records) {
             recordClass = rec.getClassName();
             do {
                 if (classId == recordClass) {
+                    correct++;
+                }
+                recordClass = rec.getClassNameNext();
+            } while (recordClass != -1); // Dla obrazków...
+        }
+        return correct;
+    }
+
+    public int getIncorrectCount(int classId) {
+        int recordClass, correct = 0, incorrect = 0;
+        for (Record rec : records) {
+            recordClass = rec.getClassName();
+            do {
+                if (classId != recordClass) {
                     correct++;
                 }
                 recordClass = rec.getClassNameNext();
@@ -196,5 +170,51 @@ public class DataSet implements Iterable<Record> {
             } while (recordClass != -1); // Dla obrazków...
         }
         return correctDS;
+    }
+
+    /**
+     * Method that looks for DataSource ang gives information about DataSet
+     * (acc, prec, rec and Fsc) in given class.
+     *
+     * As a side effect {@code DataSet ds}'s evaluation is updated to
+     * reflect computated values. Thus it's best candidate for a method
+     * of DataSet class.
+     * @param dSrc
+     * @param classId
+     */
+    public void evaluate(DataSource dSrc, int classId) {
+        final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
+        final float alpha, expected, correct, generated;
+
+        // get input data
+        alpha = 0.5f;
+        generated = size();
+        expected = dSrc.getExpected(classId);
+
+        correct = getCorrectCount(classId);
+        int incorrect = getIncorrectCount(classId);
+
+        System.out.println("oops... expected=" + expected + ", generated=" + generated + ", correct=" + correct + ", incorrect=" + incorrect);
+        assert incorrect == generated - correct : "Incorrect + Correct != generated => WTF?";
+
+
+        // recall & precision - corrected to handle division by zero
+        rcl = expected == 0f ? 0f : correct / expected;
+        prc = generated == 0f ? 0f : correct / generated;
+
+        // E score
+        pPt = prc == 0f ? 0f : alpha / prc;
+        rPt = rcl == 0f ? 0f : (1f - alpha) / rcl;
+        eSc = pPt + rPt == 0f ? 1f : 1f - (1f / (pPt + rPt));
+
+        // F Score
+        fSc = 1f - eSc;
+
+        // Accuracy
+        out = dSrc.size() - expected - generated + 2f * correct;
+        acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
+
+        // update
+        setEvaluation(prc, rcl, acc, fSc);
     }
 }

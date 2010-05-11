@@ -1,8 +1,6 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
-import pl.eurekin.coevolution.ClassifyingIndividual;
-import pl.eurekin.coevolution.SelectingIndividual;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
@@ -76,6 +74,7 @@ public class Evaluator {
 
             /////// CLASS Summary ///////////////
             DSResult.evaluate(dSrc, config.getActiveClass());
+//            evaluate(dSrc, DSResult, config.getActiveClass());
             rSet.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
         //for each class....
@@ -101,6 +100,7 @@ public class Evaluator {
 
                 /////// CLASS Summary ///////////////
                 DSResult.evaluate(dSrc, c);
+//                evaluate(dSrc, DSResult, c);
                 rSet.setEvaluation(c, new Evaluation(DSResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
@@ -131,6 +131,7 @@ public class Evaluator {
         // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
         // itp.).
         ds.evaluate(dSrc, activeClass);
+//        evaluate(dSrc, ds, activeClass);
 
         // Po tej całej przeprawie mamy DataSet, który posiada pełne
         // statystyki dla pojedynczej klasy. Zapisujemy te statystyki
@@ -287,6 +288,7 @@ public class Evaluator {
             /////// CLASS Summary ///////////////
             final int activeClass = config.getActiveClass();
             DSResult.evaluate(dSrc, activeClass);
+//            evaluate(dSrc, DSResult, activeClass);
             ///
             Evaluation E = new Evaluation(DSResult);
             rSet.setEvaluation(E);
@@ -316,6 +318,7 @@ public class Evaluator {
 
                 /////// CLASS Summary ///////////////
                 DSResult.evaluate(dSrc, c);
+//                evaluate(dSrc, DSResult, c);
                 Evaluation E = new Evaluation(DSResult);
                 rSet.setEvaluation(c, E);
             }//////////////////END:CLASSESS ////////////////////////////////////
@@ -329,4 +332,44 @@ public class Evaluator {
 
         return sb.toString();
     }
+    /**
+     * Method that looks for DataSource ang gives information about DataSet
+     * (acc, prec, rec and Fsc) in given class.
+     *
+     * As a side effect {@code DataSet ds}'s evaluation is updated to
+     * reflect computated values. Thus it's best candidate for a method
+     * of DataSet class.
+     * @param dSrc
+     * @param ds 
+     * @param classId
+    public static void evaluate(DataSource dSrc, DataSet ds, int classId) {
+    final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
+    final float alpha, expected, correct, generated;
+
+    // get input data
+    alpha = 0.5f;
+    generated = ds.size();
+    expected = dSrc.getExpected(classId);
+    correct = ds.getCorrectCount(classId);
+
+    // recall & precision - corrected to handle division by zero
+    rcl = expected == 0f ? 0f : correct / expected;
+    prc = generated == 0f ? 0f : correct / generated;
+
+    // E score
+    pPt = prc == 0f ? 0f : alpha / prc;
+    rPt = rcl == 0f ? 0f : (1f - alpha) / rcl;
+    eSc = pPt + rPt == 0f ? 1f : 1f - (1f / (pPt + rPt));
+
+    // F Score
+    fSc = 1f - eSc;
+
+    // Accuracy
+    out = dSrc.size() - expected - generated + 2f * correct;
+    acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
+
+    // update
+    ds.setEvaluation(prc, rcl, acc, fSc);
+    }
+     */
 }

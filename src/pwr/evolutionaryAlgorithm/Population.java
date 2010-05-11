@@ -24,9 +24,6 @@ public class Population<I extends Individual> implements Iterable<I> {
      * Proper OO
      *
      * Krzyżowanie i mutacja
-     * @param selection selection method 0-roullete, 1-random, 1+tournament (0..N)
-     * @param Px probability of crossover (>=0)
-     * @param Pm probability of mutation(>=0)
      * @return new population (new object)
      */
     @SuppressWarnings("unchecked")
@@ -63,7 +60,7 @@ public class Population<I extends Individual> implements Iterable<I> {
     /**
      * Evalutation of population
      * @version Rule evaluation, scaling
-     * @param DS dataSource needed to evaluate individuals
+     * @param DSc dataSource needed to evaluate individuals
      */
     public void evaluate(DataSource DSc) {
         Evaluator evl = Evaluator.getEvaluator();
@@ -82,7 +79,7 @@ public class Population<I extends Individual> implements Iterable<I> {
         fitnessSum = 0;
         for (int i = 0; i < popSize; i++) {
             fitness = individuals.get(i).getEvaluation().getFitness();
-            fitnessSum = fitnessSum + fitness;
+            fitnessSum += fitness;
             if (i == 0) {
                 fitnessBest = fitnessWorst = fitness;
             }
@@ -190,7 +187,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             int i = -1;
             do {
                 i++;
-                partSum = partSum + individuals.get(i).getEvaluation().getFitness();
+                partSum += individuals.get(i).getEvaluation().getFitness();
             } while (partSum <= rToken && i < (popSize - 1));
             indv = i;
         } else {
@@ -251,7 +248,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             }
         }
 
-        s.append("BEST " + individuals.get(fi).toString() + "\n");
+        s.append("BEST ").append(individuals.get(fi).toString()).append("\n");
         return s.toString();
     }
 
@@ -259,7 +256,7 @@ public class Population<I extends Individual> implements Iterable<I> {
     public String toString() {
         StringBuilder s = new StringBuilder("");
         for (int i = 0; i < popSize; i++) {
-            s.append(individuals.get(i).toString() + "\n");
+            s.append(individuals.get(i).toString()).append("\n");
         }
         return s.toString();
     }
@@ -291,7 +288,7 @@ public class Population<I extends Individual> implements Iterable<I> {
                     if (tmp == 0) {
                         d.clones++;
                     }
-                    d.diff = d.diff + tmp;
+                    d.diff += tmp;
                 }
             }
         }

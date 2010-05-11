@@ -1,0 +1,163 @@
+run:
+Testowane parametry: [0.4]
+
+[MAIN] przebieg g³ówny: 1 z 1 (100.0%)
+[MAIN] krzyzowanie           : 0.4
+
+ [CAREX2.4] initalising...done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]  1[75] 
+
+ CROSSVALIDATION 0
+
+ [0]. train (Fsc=0,964 acc=0,973)  test (Fsc=0,944 acc=0,964) time=2,175s
+ [1]. train (Fsc=0,957 acc=0,969)  test (Fsc=0,962 acc=0,978) time=1,089s <THE_BEST 0,978
+ [2]. train (Fsc=0,959 acc=0,969)  test (Fsc=0,941 acc=0,960) time=1,131s
+ [3]. train (Fsc=0,964 acc=0,973)  test (Fsc=0,934 acc=0,960) time=1,357s
+ [4]. train (Fsc=0,961 acc=0,973)  test (Fsc=0,948 acc=0,969) time=1,145s
+ [5]. train (Fsc=0,963 acc=0,973)  test (Fsc=0,955 acc=0,973) time=1,181s
+ [6]. train (Fsc=0,953 acc=0,964)  test (Fsc=0,945 acc=0,964) time=1,139s
+ [7]. train (Fsc=0,963 acc=0,973)  test (Fsc=0,950 acc=0,969) time=1,229s
+ [8]. train (Fsc=0,958 acc=0,969)  test (Fsc=0,952 acc=0,969) time=1,333s
+ [9]. train (Fsc=0,959 acc=0,969)  test (Fsc=0,958 acc=0,973) time=1,148s
+
+ CROSSVALIDATION 1
+
+ [10]. train (Fsc=0,979 acc=0,987)  test (Fsc=0,939 acc=0,956) time=1,235s
+ [11]. train (Fsc=1,000 acc=1,000)  test (Fsc=0,950 acc=0,964) time=0,891s
+ [12]. train (Fsc=0,977 acc=0,987)  test (Fsc=0,904 acc=0,933) time=1,178s
+ [13]. train (Fsc=0,979 acc=0,987)  test (Fsc=0,926 acc=0,947) time=1,047s
+ [14]. train (Fsc=0,971 acc=0,982)  test (Fsc=0,946 acc=0,960) time=1,224s
+ [15]. train (Fsc=0,985 acc=0,991)  test (Fsc=0,915 acc=0,942) time=1,056s
+ [16]. train (Fsc=0,987 acc=0,991)  test (Fsc=0,935 acc=0,956) time=1,227s
+ [17]. train (Fsc=0,980 acc=0,987)  test (Fsc=0,906 acc=0,933) time=1,297s
+ [18]. train (Fsc=0,993 acc=0,996)  test (Fsc=0,929 acc=0,951) time=1,445s
+ [19]. train (Fsc=0,979 acc=0,987)  test (Fsc=0,916 acc=0,942) time=1,142s
+[MAIN][SUB] przebieg podrzêdny: 0, czas : 0:0:24.794
+
+ [CAREX2.4] initalising...done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]  1[75] 
+
+ CROSSVALIDATION 0
+
+ [0]. train (Fsc=0,964 acc=0,978)  test (Fsc=0,941 acc=0,960) time=1,210s
+ [1]. train (Fsc=0,945 acc=0,964)  test (Fsc=0,890 acc=0,916) time=1,219s
+ [2]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,963 acc=0,973) time=1,695s <THE_BEST 0,973
+ [3]. train (Fsc=0,951 acc=0,969)  test (Fsc=0,934 acc=0,956) time=1,310s
+ [4]. train (Fsc=0,959 acc=0,973)  test (Fsc=0,923 acc=0,942) time=1,255s
+ [5]. train (Fsc=0,964 acc=0,978)  test (Fsc=0,950 acc=0,964) time=1,188s
+ [6]. train (Fsc=0,955 acc=0,973)  test (Fsc=0,955 acc=0,969) time=1,119s
+ [7]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,957 acc=0,969) time=1,318s
+ [8]. train (Fsc=0,971 acc=0,982)  test (Fsc=0,938 acc=0,960) time=1,285s
+ [9]. train (Fsc=0,958 acc=0,973)  test (Fsc=0,943 acc=0,960) time=1,345s
+
+ CROSSVALIDATION 1
+
+ [10]. train (Fsc=0,969 acc=0,978)  test (Fsc=0,938 acc=0,960) time=1,281s
+ [11]. train (Fsc=0,962 acc=0,973)  test (Fsc=0,957 acc=0,973) time=1,150s
+ [12]. train (Fsc=0,968 acc=0,978)  test (Fsc=0,944 acc=0,964) time=1,229s
+ [13]. train (Fsc=0,968 acc=0,978)  test (Fsc=0,946 acc=0,964) time=1,290s
+ [14]. train (Fsc=0,968 acc=0,978)  test (Fsc=0,965 acc=0,978) time=1,372s <THE_BEST 0,978
+ [15]. train (Fsc=0,962 acc=0,973)  test (Fsc=0,947 acc=0,964) time=1,315s
+ [16]. train (Fsc=0,957 acc=0,969)  test (Fsc=0,966 acc=0,978) time=1,171s
+ [17]. train (Fsc=0,968 acc=0,978)  test (Fsc=0,945 acc=0,964) time=1,262s
+ [18]. train (Fsc=0,957 acc=0,969)  test (Fsc=0,965 acc=0,978) time=1,297s
+ [19]. train (Fsc=0,962 acc=0,973)  test (Fsc=0,952 acc=0,969) time=1,292s
+[MAIN][SUB] przebieg podrzêdny: 1, czas : 0:0:25.744
+
+ [CAREX2.4] initalising...done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]  1[75] 
+
+ CROSSVALIDATION 0
+
+ [0]. train (Fsc=0,973 acc=0,982)  test (Fsc=0,931 acc=0,956) time=1,353s
+ [1]. train (Fsc=0,987 acc=0,991)  test (Fsc=0,913 acc=0,942) time=1,299s
+ [2]. train (Fsc=0,966 acc=0,978)  test (Fsc=0,924 acc=0,951) time=1,235s
+ [3]. train (Fsc=1,000 acc=1,000)  test (Fsc=0,901 acc=0,933) time=0,850s
+ [4]. train (Fsc=0,987 acc=0,991)  test (Fsc=0,913 acc=0,942) time=1,172s
+ [5]. train (Fsc=1,000 acc=1,000)  test (Fsc=0,894 acc=0,929) time=0,366s
+ [6]. train (Fsc=0,993 acc=0,996)  test (Fsc=0,925 acc=0,951) time=1,227s
+ [7]. train (Fsc=0,966 acc=0,978)  test (Fsc=0,937 acc=0,960) time=1,268s <THE_BEST 0,960
+ [8]. train (Fsc=0,994 acc=0,996)  test (Fsc=0,916 acc=0,942) time=1,303s
+ [9]. train (Fsc=0,973 acc=0,982)  test (Fsc=0,917 acc=0,947) time=1,234s
+
+ CROSSVALIDATION 1
+
+ [10]. train (Fsc=0,956 acc=0,973)  test (Fsc=0,952 acc=0,969) time=1,303s <THE_BEST 0,969
+ [11]. train (Fsc=0,950 acc=0,969)  test (Fsc=0,959 acc=0,973) time=1,248s <THE_BEST 0,973
+ [12]. train (Fsc=0,958 acc=0,973)  test (Fsc=0,973 acc=0,982) time=1,163s <THE_BEST 0,982
+ [13]. train (Fsc=0,958 acc=0,973)  test (Fsc=0,966 acc=0,978) time=1,226s
+ [14]. train (Fsc=0,917 acc=0,947)  test (Fsc=0,905 acc=0,942) time=1,057s
+ [15]. train (Fsc=0,951 acc=0,964)  test (Fsc=0,954 acc=0,969) time=1,217s
+ [16]. train (Fsc=0,952 acc=0,969)  test (Fsc=0,973 acc=0,982) time=1,298s
+ [17]. train (Fsc=0,944 acc=0,964)  test (Fsc=0,939 acc=0,964) time=1,240s
+ [18]. train (Fsc=0,960 acc=0,973)  test (Fsc=0,965 acc=0,978) time=1,279s
+ [19]. train (Fsc=0,958 acc=0,973)  test (Fsc=0,959 acc=0,973) time=1,312s
+[MAIN][SUB] przebieg podrzêdny: 2, czas : 0:0:23.735
+
+ [CAREX2.4] initalising...done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]  1[75] 
+
+ CROSSVALIDATION 0
+
+ [0]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,877 acc=0,916) time=1,249s
+ [1]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,887 acc=0,924) time=1,511s <THE_BEST 0,924
+ [2]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,962 acc=0,973) time=1,302s <THE_BEST 0,973
+ [3]. train (Fsc=0,980 acc=0,987)  test (Fsc=0,922 acc=0,947) time=1,397s
+ [4]. train (Fsc=0,985 acc=0,991)  test (Fsc=0,907 acc=0,938) time=1,267s
+ [5]. train (Fsc=0,979 acc=0,987)  test (Fsc=0,914 acc=0,942) time=1,235s
+ [6]. train (Fsc=0,974 acc=0,982)  test (Fsc=0,961 acc=0,973) time=1,208s
+ [7]. train (Fsc=0,986 acc=0,991)  test (Fsc=0,877 acc=0,916) time=1,234s
+ [8]. train (Fsc=0,946 acc=0,973)  test (Fsc=0,897 acc=0,933) time=1,268s
+ [9]. train (Fsc=0,991 acc=0,996)  test (Fsc=0,921 acc=0,947) time=1,251s
+
+ CROSSVALIDATION 1
+
+ [10]. train (Fsc=0,981 acc=0,987)  test (Fsc=0,935 acc=0,960) time=1,186s
+ [11]. train (Fsc=0,980 acc=0,987)  test (Fsc=0,926 acc=0,951) time=1,310s
+ [12]. train (Fsc=0,973 acc=0,982)  test (Fsc=0,925 acc=0,956) time=1,290s
+ [13]. train (Fsc=0,969 acc=0,978)  test (Fsc=0,934 acc=0,956) time=1,212s
+ [14]. train (Fsc=0,965 acc=0,978)  test (Fsc=0,941 acc=0,964) time=1,276s
+ [15]. train (Fsc=0,965 acc=0,978)  test (Fsc=0,908 acc=0,942) time=1,466s
+ [16]. train (Fsc=0,963 acc=0,973)  test (Fsc=0,928 acc=0,951) time=1,212s
+ [17]. train (Fsc=0,974 acc=0,982)  test (Fsc=0,935 acc=0,960) time=1,270s
+ [18]. train (Fsc=0,969 acc=0,978)  test (Fsc=0,944 acc=0,964) time=1,240s
+ [19]. train (Fsc=0,981 acc=0,987)  test (Fsc=0,947 acc=0,969) time=1,283s
+[MAIN][SUB] przebieg podrzêdny: 3, czas : 0:0:25.752
+
+ [CAREX2.4] initalising...done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]  1[75] 
+
+ CROSSVALIDATION 0
+
+ [0]. train (Fsc=0,993 acc=0,996)  test (Fsc=0,956 acc=0,969) time=1,345s
+ [1]. train (Fsc=0,978 acc=0,987)  test (Fsc=0,934 acc=0,956) time=1,325s
+ [2]. train (Fsc=0,979 acc=0,987)  test (Fsc=0,922 acc=0,947) time=1,279s
+ [3]. train (Fsc=0,972 acc=0,982)  test (Fsc=0,926 acc=0,947) time=1,283s
+ [4]. train (Fsc=0,971 acc=0,982)  test (Fsc=0,900 acc=0,933) time=1,351s
+ [5]. train (Fsc=0,964 acc=0,978)  test (Fsc=0,945 acc=0,960) time=1,363s
+ [6]. train (Fsc=0,965 acc=0,978)  test (Fsc=0,921 acc=0,947) time=1,322s
+ [7]. train (Fsc=0,972 acc=0,982)  test (Fsc=0,944 acc=0,960) time=1,298s
+ [8]. train (Fsc=0,978 acc=0,987)  test (Fsc=0,926 acc=0,951) time=1,228s
+ [9]. train (Fsc=0,972 acc=0,982)  test (Fsc=0,931 acc=0,951) time=1,229s
+
+ CROSSVALIDATION 1
+
+ [10]. train (Fsc=0,956 acc=0,969)  test (Fsc=0,933 acc=0,956) time=1,314s
+ [11]. train (Fsc=0,970 acc=0,978)  test (Fsc=0,959 acc=0,973) time=1,366s <THE_BEST 0,973
+ [12]. train (Fsc=0,976 acc=0,982)  test (Fsc=0,914 acc=0,942) time=1,365s
+ [13]. train (Fsc=0,962 acc=0,973)  test (Fsc=0,913 acc=0,942) time=1,241s
+ [14]. train (Fsc=0,955 acc=0,969)  test (Fsc=0,933 acc=0,956) time=1,231s
+ [15]. train (Fsc=0,956 acc=0,969)  test (Fsc=0,908 acc=0,938) time=1,353s
+ [16]. train (Fsc=0,961 acc=0,973)  test (Fsc=0,935 acc=0,960) time=1,204s
+ [17]. train (Fsc=0,987 acc=0,991)  test (Fsc=0,933 acc=0,956) time=1,440s
+ [18]. train (Fsc=0,970 acc=0,978)  test (Fsc=0,908 acc=0,938) time=1,394s
+ [19]. train (Fsc=0,970 acc=0,978)  test (Fsc=0,900 acc=0,929) time=1,451s
+[MAIN][SUB] przebieg podrzêdny: 4, czas : 0:0:26.495
+
+[MAIN] czas przebiegu g³ównego: 0:2:6.526
+BUILD SUCCESSFUL (total time: 2 minutes 6 seconds)

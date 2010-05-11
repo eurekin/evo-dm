@@ -154,7 +154,7 @@ public class ClassifyingIndividual extends RuleSet {
     private DataSet filterUsingSelectingIndividual(SelectingIndividual si,
             DataSet set) {
         DataSet result = new DataSet((int) set.size());
-        
+
         // TODO selecting implementation placeholder
         result = new DataSet(set);
         //
