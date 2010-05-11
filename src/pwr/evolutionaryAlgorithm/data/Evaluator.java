@@ -263,7 +263,8 @@ public class Evaluator {
      * @param text
      * @return string for report
      */
-    public String FullClassificationReport(DataSource dSrc, RuleSet rSet, String text) {
+    public String FullClassificationReport(DataSource dSrc,
+            RuleSet rSet, String text) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -276,12 +277,12 @@ public class Evaluator {
             DSResult.clear();
             rSet.clearEvaluations();
             /// for each rule....
-            for (int r = 0; r < rSet.rulesNo(); r++) {
+            for (Rule rule : rSet) {
                 DSPart.clear();
                 //if rule is active and returns such class
-                if (rSet.getRule(r).isActive()) {
-                    DSPart = evaluateRule(dSrc, rSet.getRule(r));
-                    sb.append(this.ClassificationReport(dSrc, DSPart, rSet.getRule(r)));
+                if (rule.isActive()) {
+                    DSPart = evaluateRule(dSrc, rule);
+                    sb.append(ClassificationReport(dSrc, DSPart, rule));
                     DSResult = DataSet.operatorPlus(DSResult, DSPart);
                 }
             } ///// end: for each rule
@@ -325,10 +326,13 @@ public class Evaluator {
         }
         rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
 
-        sb.append("\n############################ ").append(text).append("############################\n");
+        sb.append("\n############################ ");
+        sb.append(text).append("############################\n");
         sb.append("\n").append(rSet.toString());
-        sb.append("\n\n").append(text).append("_DATASOURCE  ").append(dSrc.toString());
-        sb.append("\n##################################################################\n");
+        sb.append("\n\n").append(text).append("_DATASOURCE  ");
+        sb.append(dSrc.toString());
+        sb.append("\n##############################");
+        sb.append("####################################\n");
 
         return sb.toString();
     }
