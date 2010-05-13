@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import java.io.Serializable;
 
-/*
+
+/**
+ *
  * Singleton class
  */
 public class Configuration implements Serializable {
@@ -152,12 +154,9 @@ public class Configuration implements Serializable {
         Config.setResearchComment(ResearchComment);
     }
 
-    static public Configuration getConfiguration() {// throws Exception{
-        if (Config != null) {
-            return Config;
-        } else {
-            return null;//throw new Exception("Configuration not Initialised!");
-        }
+    static public Configuration getConfiguration() {
+        return Config;
+
     }
 
     public Report getReport() {
@@ -699,4 +698,3 @@ public class Configuration implements Serializable {
         Configuration.PROMPT = PROMPT;
     }
 }
-

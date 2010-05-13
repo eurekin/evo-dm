@@ -15,7 +15,7 @@ public class DataSet implements Iterable<Record> {
     private float recall = 0f;
     private float accuracy = 0f;
     private float precision = 0f;
-    private ArrayList<Record> records;
+    private final ArrayList<Record> records;
 
     public DataSet(int capacity) {
         records = new ArrayList<Record>(capacity);
@@ -54,7 +54,7 @@ public class DataSet implements Iterable<Record> {
     }
 
     /**
-     * @todo prosty kod! poprawic na linkedshaset (?)
+     * 
      * @param ds1
      * @param ds2
      * @return
@@ -62,11 +62,8 @@ public class DataSet implements Iterable<Record> {
     public static DataSet operatorPlus(final DataSet ds1, final DataSet ds2) {
         DataSet result = new DataSet(ds1);
         Collection<Record> resRec = result.records;
-
-        //adding form DS2 if not already in DS1
+        // using list as a set
         for (Record r : ds2.records) {
-            // ... To ewidentnie sugeruje konieczność użycia zbioru
-            // zamiast listy
             if (!resRec.contains(r)) {
                 resRec.add(r);
             }
@@ -204,6 +201,7 @@ public class DataSet implements Iterable<Record> {
                 result.add(rec);
             }
         }
-        records = result;
+        records.clear();
+        records.addAll(result);
     }
 }

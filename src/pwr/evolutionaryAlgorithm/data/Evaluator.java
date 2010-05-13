@@ -121,8 +121,7 @@ public class Evaluator {
         /** Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
         /* zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
          */
-        int active = oneClassActive
-                ? activeClass : rule.getClassID();
+        int active = oneClassActive ? activeClass : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
         // Wybierane są te rekordy, których dotyczy reguła rule.
@@ -134,7 +133,6 @@ public class Evaluator {
         // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
         // itp.).
         ds.evaluate(dSrc, active);
-//        evaluate(dSrc, ds, activeClass);
 
         // Po tej całej przeprawie mamy DataSet, który posiada pełne
         // statystyki dla pojedynczej klasy. Zapisujemy te statystyki
@@ -162,41 +160,38 @@ public class Evaluator {
      * @return
      */
     public DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
-        Condition c = null;
-        DataSet cnd = new DataSet();
+        DataSet dSet = new DataSet();
         int att = 0;
         //for first review -> search for first enabled attribute
         // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
         // włączonego
         for (att = 0; att < numberOfAttributes; att++) {
             if (r.isCondition(att)) {
-                c = r.getCondition(att);
-
                 // Tutaj dzieje się magia rodem z opowieści o bazach danych.
                 // Ta metoda zwraca DataSet spełniający warunek c używając
                 // do tego przeszukiwania binarnego.
-                cnd = dSrc.getDataSet(c);
+                dSet = dSrc.getDataSet(r.getCondition(att));
                 break;
             }
         }
 
-        if (att != numberOfAttributes && cnd != null) {
+        if (att != numberOfAttributes && dSet != null) {
             // Znaleziono pierwszy aktywny Condition o numerze att.
             // Warunek jest spełniony dla rekordów zawartych w cnd.
             // Pozostaje uwzględnić resztę warunków z reguły r.
             do {
                 if (r.isCondition(att)) {
-                    cnd.filter(r.getCondition(att));
+                    dSet.filter(r.getCondition(att));
                 }
                 att++;
-            } while (att < numberOfAttributes && !cnd.empty());
+            } while (att < numberOfAttributes && !dSet.empty());
         }
 
         // A co gdy pierwszy włączony warunek zwraca pusty zbiór?
         // Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
         // a w związku z tym, że reguła jest _koniunkcją_ warunków, to
         // dalsze sprawdzenia są niepotrzebne.
-        return cnd;
+        return dSet;
     }
 
     private DataSet getAllCorrectClassified(
@@ -335,44 +330,4 @@ public class Evaluator {
 
         return sb.toString();
     }
-    /**
-     * Method that looks for DataSource ang gives information about DataSet
-     * (acc, prec, rec and Fsc) in given class.
-     *
-     * As a side effect {@code DataSet ds}'s evaluation is updated to
-     * reflect computated values. Thus it's best candidate for a method
-     * of DataSet class.
-     * @param dSrc
-     * @param ds 
-     * @param classId
-    public static void evaluate(DataSource dSrc, DataSet ds, int classId) {
-    final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
-    final float alpha, expected, correct, generated;
-
-    // get input data
-    alpha = 0.5f;
-    generated = ds.size();
-    expected = dSrc.getExpected(classId);
-    correct = ds.getCorrectCount(classId);
-
-    // recall & precision - corrected to handle division by zero
-    rcl = expected == 0f ? 0f : correct / expected;
-    prc = generated == 0f ? 0f : correct / generated;
-
-    // E score
-    pPt = prc == 0f ? 0f : alpha / prc;
-    rPt = rcl == 0f ? 0f : (1f - alpha) / rcl;
-    eSc = pPt + rPt == 0f ? 1f : 1f - (1f / (pPt + rPt));
-
-    // F Score
-    fSc = 1f - eSc;
-
-    // Accuracy
-    out = dSrc.size() - expected - generated + 2f * correct;
-    acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
-
-    // update
-    ds.setEvaluation(prc, rcl, acc, fSc);
-    }
-     */
 }

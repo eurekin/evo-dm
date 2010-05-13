@@ -69,7 +69,7 @@ public class Record {
         StringBuilder SB = new StringBuilder();
 
         for (float v : values) {
-            SB.append(v + ";");
+            SB.append(v).append(";");
         }
         return SB.toString().replace(".", ",");
     }

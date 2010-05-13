@@ -11,32 +11,44 @@ import java.util.*;
  */
 public class RuleGene {
 
-    private BitSet genes;
-    static private boolean normalized = true;
+    private final Configuration configuration = Configuration.getConfiguration();
+    private final int ruleGeneValueBits = configuration.getRuleGeneValueBits();
+    private final int bitsForOperator = configuration.getBitsForOperator();
+    private final float mutationValue = configuration.getMutationValue();
+    private final int numberOfValues = configuration.getNumberOfValues();
+    private final int ruleGeneNoBits = configuration.getRuleGeneNoBits();
+    private final int maxValue = configuration.getMaxValue();
+    /////// Binary
+    private final boolean normalized = true;
     private Condition Cond = null;
+    private BitSet genes;
+    /////// Precomputed for optimization
+    final int off1 = 1 + bitsForOperator;
+    final int off2 = off1 + ruleGeneValueBits;
+    final int off3 = off1 + ruleGeneValueBits * numberOfValues;
 
     public RuleGene() {
-        this.genes = new BitSet(Configuration.getConfiguration().getRuleGeneNoBits());
-        for (int i = 0; i < Configuration.getConfiguration().getRuleGeneNoBits(); i++) {
+        genes = new BitSet(ruleGeneNoBits);
+        for (int i = 0; i < ruleGeneNoBits; i++) {
             boolean v = Rand.getRandomBoolean();
-            this.genes.set(i, v);
+            genes.set(i, v);
         }
         Cond = null;
     }
 
     public RuleGene(final RuleGene g) {
-        this.genes = new BitSet(Configuration.getConfiguration().getRuleGeneNoBits());
-        for (int i = 0; i < Configuration.getConfiguration().getRuleGeneNoBits(); i++) {
+        genes = new BitSet(ruleGeneNoBits);
+        for (int i = 0; i < ruleGeneNoBits; i++) {
             boolean v = g.genes.get(i);
-            this.genes.set(i, v);
+            genes.set(i, v);
         }
         Cond = null;
     }
 
     public void Mutation() {
-        for (int i = 0; i < Configuration.getConfiguration().getRuleGeneNoBits(); i++) {
-            if (Rand.getRandomBooleanFlip(Configuration.getConfiguration().getMutationValue())) {
-                this.genes.flip(i);
+        for (int i = 0; i < ruleGeneNoBits; i++) {
+            if (Rand.getRandomBooleanFlip(mutationValue)) {
+                genes.flip(i);
             }
             Cond = null;
         }
@@ -46,14 +58,14 @@ public class RuleGene {
      * random initalisation
      */
     public void initialization() {
-        for (int i = 0; i < this.genes.length(); i++) {
-            this.genes.set(i, Rand.getRandomBooleanFlip(0.5f));
+        for (int i = 0; i < genes.length(); i++) {
+            genes.set(i, Rand.getRandomBooleanFlip(0.5f));
         }
         Cond = null;
     }
 
     public boolean isOff() {
-        return (this.genes.get(0));
+        return (genes.get(0));
     }
 
     /**
@@ -61,7 +73,7 @@ public class RuleGene {
      * @return type of relation
      */
     private Condition.RelationType getRelation() {
-        if (this.genes.get(1) == true) {
+        if (genes.get(1)) {
             return Condition.RelationType.IN;
         } else {
             return Condition.RelationType.NOT_IN;
@@ -74,22 +86,17 @@ public class RuleGene {
      * @return Condition object as interpretation of given atribute
      */
     public Condition getCondition(int attribID) {
-        //laezy build
+        //lazy build
         if (Cond != null) {
             return Cond;
         }
 
-        /////// Binary
-        int offset = 1 + Configuration.getConfiguration().getBitsForOperator();
-        //float value1 = BinaryCode.getFloatFromBinary( this.Genes.get( offset, offset+Configuration.getRuleGeneValueBits() ) );
-        //float value2 = BinaryCode.getFloatFromBinary( this.Genes.get(offset+Configuration.getRuleGeneValueBits(), offset+Configuration.getRuleGeneValueBits()*Configuration.getNumberOfValues()) );
-
-        float value1 = BinaryCode.GrayToFloat(this.genes.get(offset, offset + Configuration.getConfiguration().getRuleGeneValueBits()));
-        float value2 = BinaryCode.GrayToFloat(this.genes.get(offset + Configuration.getConfiguration().getRuleGeneValueBits(), offset + Configuration.getConfiguration().getRuleGeneValueBits() * Configuration.getConfiguration().getNumberOfValues()));
+        float value1 = BinaryCode.GrayToFloat(genes.get(off1, off2));
+        float value2 = BinaryCode.GrayToFloat(genes.get(off2, off3));
 
         if (normalized) {
-            value1 = value1 / Configuration.getConfiguration().getMaxValue();
-            value2 = value2 / Configuration.getConfiguration().getMaxValue();
+            value1 /= maxValue;
+            value2 /= maxValue;
         }
 
         if (value1 > value2) {
@@ -97,12 +104,8 @@ public class RuleGene {
             value1 = value2;
             value2 = tym;
         }
-        Condition.RelationType r = this.getRelation();
-        try {
-            Cond = new Condition(attribID, r, value1, value2);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        Cond = new Condition(attribID, getRelation(), value1, value2);
+
         return Cond;
     }
 
@@ -116,15 +119,13 @@ public class RuleGene {
         return s.toString();
     }
 
-    //------------------------------------------------------------------------------
     public int Diverse(final RuleGene g) {
         int diff = 0;
-        for (int i = 0; i < Configuration.getConfiguration().getRuleGeneNoBits(); i++) {
+        for (int i = 0; i < ruleGeneNoBits; i++) {
             if (genes.get(i) != g.genes.get(i)) {
                 diff++;
             }
         }
         return diff;
     }
-    //------------------------------------------------------------------------------
 }

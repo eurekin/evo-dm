@@ -1,16 +1,14 @@
 package pwr.evolutionaryAlgorithm.data;
 
-import pwr.evolutionaryAlgorithm.Configuration;
-
 /**
  *
  * @author pawelm
  */
 public class Condition {
 
-    private float value1 = 0.0f;
-    private float value2 = 0.0f;
-    private int atribID = 0;
+    private final float value1;
+    private final float value2;
+    private final int atribID;
 
     /**
      * @todo code in simple form -> only for Relation in {IN, NOT_IN}
@@ -29,7 +27,7 @@ public class Condition {
     private RelationType relation;
 
     public int getAttrib() {
-        return this.atribID;
+        return atribID;
     }
 
     public RelationType getRelation() {
@@ -51,29 +49,34 @@ public class Condition {
      * @param value1 float value <0.0 , 1.0 >
      * @param value2 float value <0.0 , 1.0 >
      */
-    public Condition(int atribID, RelationType r, float value1, float value2) throws Exception {
+    public Condition(int atribID, RelationType r, float value1, float value2)  {
 
+        /*
         if (atribID < 0 || atribID > Configuration.getConfiguration().getNumberOfAttributes()) {
-            throw new Exception("Illegal attributes number! " + Integer.toString(atribID) + " ?");
+            throw new RuntimeException("Illegal attributes number! " + Integer.toString(atribID) + " ?");
         }
+        if (value1 < 0.0f || value1 > 1.0f || value2 < 0.0f || value2 > 1.0f) {
+            throw new RuntimeException("Illegal types! ?" + Float.toString(value1) + " ?" + Float.toString(value1));
+        }*/
+
         this.atribID = atribID;
         this.relation = r;
-        if (value1 < 0.0f || value1 > 1.0f || value2 < 0.0f || value2 > 1.0f) {
-            throw new Exception("Illegal types! ?" + Float.toString(value1) + " ?" + Float.toString(value1));
-        }
+
+        final float argMax = DataLoader.getArgMax(atribID);
+        final float argMin = DataLoader.getArgMin(atribID);
 
         //rescale from <0.0 , 1.0> to <min, max>
-        this.value1 = value1 * (DataLoader.getArgMax(atribID) - DataLoader.getArgMin(atribID)) + DataLoader.getArgMin(atribID);
-        this.value2 = value2 * (DataLoader.getArgMax(atribID) - DataLoader.getArgMin(atribID)) + DataLoader.getArgMin(atribID);
+        this.value1 = value1 * (argMax - argMin) + argMin;
+        this.value2 = value2 * (argMax - argMin) + argMin;
     }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder("");
         if (this.atribID == -1) {
-            s.append(relation + "<" + String.format("%.3f", value1) + ";" + String.format("%.3f", value2) + ">");
+            s.append(relation).append("<").append(String.format("%.3f", value1)).append(";").append(String.format("%.3f", value2)).append(">");
         } else {
-            s.append("" + Integer.toString(this.atribID) + " " + relation + "<" + String.format("%.3f", value1) + ";" + String.format("%.3f", value2) + ">");
+            s.append("").append(Integer.toString(this.atribID)).append(" ").append(relation).append("<").append(String.format("%.3f", value1)).append(";").append(String.format("%.3f", value2)).append(">");
         }
         return s.toString();
     }

@@ -45,6 +45,9 @@ public class Main {
 //            double l = Math.pow(10, -v);
 //            testValues.add(l);
 //        }
+
+
+        //testValues.add(0d);
         testValues.add(0.4d);
 
 
