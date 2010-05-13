@@ -153,9 +153,6 @@ public class DataSet implements Iterable<Record> {
      * Method that looks for DataSource ang gives information about DataSet
      * (acc, prec, rec and Fsc) in given class.
      *
-     * As a side effect {@code DataSet ds}'s evaluation is updated to
-     * reflect computated values. Thus it's best candidate for a method
-     * of DataSet class.
      * @param dSrc
      * @param classId
      */
@@ -167,12 +164,7 @@ public class DataSet implements Iterable<Record> {
         alpha = 0.5f;
         generated = size();
         expected = dSrc.getExpected(classId);
-
         correct = getCorrectCount(classId);
-
-//        System.out.println("oops... expected=" + expected + ", generated=" + generated + ", correct=" + correct + ", incorrect=" + incorrect);
-//        assert incorrect == generated - correct : "Incorrect + Correct != generated => WTF?";
-
 
         // recall & precision - corrected to handle division by zero
         rcl = expected == 0f ? 0f : correct / expected;

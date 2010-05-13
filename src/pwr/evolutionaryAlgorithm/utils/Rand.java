@@ -8,7 +8,7 @@ import pl.eurekin.util.MersenneTwisterFast;
  */
 public class Rand {
 
-    // private static final Random rnd = new Random();
+//    private static final Random rnd = new Random();
     private static final MersenneTwisterFast rnd = new MersenneTwisterFast(1234);
 
     public static int getRandomInt(int maxVal) {

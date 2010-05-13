@@ -12,6 +12,7 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  * Singleton class
  */
 public class Evaluator {
+    private final int classNo = DataLoader.getClassNumber();
 
     /**
      * Używane tylko przez BB - best breed (?)
@@ -54,61 +55,37 @@ public class Evaluator {
      */
     private DataSet EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
 
-        DataSet DSPart = new DataSet();
-        DataSet DSResult = new DataSet();
+        DataSet part = new DataSet();
+        DataSet result = new DataSet();
 
-        ///////////////////////////////////////////
-        /// only one class active!
+        rSet.clearEvaluations();
         if (oneClassActive) {
-            DSResult.clear();
-            rSet.clearEvaluations();
-
-            /// for each rule....
-            for (int r = 0; r < rSet.rulesNo(); r++) {
-                DSPart.clear();
-                //if rule is active and returns such class
-                if (rSet.getRule(r).isActive()) {
-
-                    // Co to w ogóle zwraca?
-                    DSPart = getCoveredDataSet(dSrc, rSet.getRule(r));
-                    DSResult = DataSet.operatorPlus(DSResult, DSPart);
-
+            /// only one class active!
+            for (Rule rule : rSet) {
+                if (rule.isActive()) {
+                    part = getCoveredDataSet(dSrc, rule);
+                    result = DataSet.operatorPlus(result, part);
                 }
-            } ///// end: for each rule
-
-            /////// CLASS Summary ///////////////
-            DSResult.evaluate(dSrc, activeClass);
-//            evaluate(dSrc, DSResult, config.getActiveClass());
-            rSet.setEvaluation(new Evaluation(DSResult));
-        } // all classes are active
-        //for each class....
-        else {
-            rSet.clearEvaluations();
-
-            ////////////////// CLASSESS ////////////////////////////////////////
-            for (int c = 0; c < DataLoader.getClassNumber(); c++) {
-                DSPart.clear();
-                DSResult.clear();
-
-                //////////////////RULES ////////////////////////////////////////
-                Rule rule;
-                for (int r = 0; r < rSet.rulesNo(); r++) {
-                    rule = rSet.getRule(r);
+            }
+            result.evaluate(dSrc, activeClass);
+            rSet.setEvaluation(new Evaluation(result));
+        } else {
+            // for each class
+            for (int c = 0; c < classNo; c++) {
+                result.clear();
+                for (Rule rule : rSet) {
                     //if rule is active and returns such class
                     if (rule.isActive() && rule.getClassID() == c) {
-                        DSPart = getCoveredDataSet(dSrc, rule);
-                        DSResult = DataSet.operatorPlus(DSResult, DSPart);
+                        part = getCoveredDataSet(dSrc, rule);
+                        result = DataSet.operatorPlus(result, part);
                     }
                 }
-                ////////////////END: RULES /////////////////////////////////////
-
-                /////// CLASS Summary ///////////////
-                DSResult.evaluate(dSrc, c);
-                rSet.setEvaluation(c, new Evaluation(DSResult));
-            }//////////////////END:CLASSESS ////////////////////////////////////
+                result.evaluate(dSrc, c);
+                rSet.setEvaluation(c, new Evaluation(result));
+            }
         }
-        rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
-        return DSResult;
+        rSet.doCountTotalEvaluation(classNo);
+        return result;
     }
 
     /**
@@ -292,7 +269,7 @@ public class Evaluator {
         else {
             rSet.clearEvaluations();
             ////////////////// CLASSESS ////////////////////////////////////////
-            for (int c = 0; c < DataLoader.getClassNumber(); c++) {
+            for (int c = 0; c < classNo; c++) {
                 DSPart.clear();
                 DSResult.clear();
 
@@ -318,7 +295,7 @@ public class Evaluator {
                 rSet.setEvaluation(c, E);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
-        rSet.doCountTotalEvaluation(DataLoader.getClassNumber());
+        rSet.doCountTotalEvaluation(classNo);
 
         sb.append("\n############################ ");
         sb.append(text).append("############################\n");

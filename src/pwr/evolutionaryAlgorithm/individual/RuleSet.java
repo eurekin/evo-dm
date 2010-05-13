@@ -18,7 +18,9 @@ public class RuleSet extends Individual implements Iterable<Rule> {
      * TODO: remove this const form here!
      */
     private static boolean fixedLength = false;
-    ArrayList<Rule> rules;
+    private ArrayList<Rule> rules;
+    private final Configuration config = Configuration.getConfiguration();
+    private final CrossoverType crossoverType = config.getCrossoverType();
     private Evaluation totalEvaluation;
 
     public ArrayList<Rule> getRules() {
@@ -33,7 +35,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
 
         totalEvaluation = new Evaluation(RS.totalEvaluation);
         evaluations = new ArrayList<Evaluation>();
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             evaluations.add(new Evaluation(RS.getEvaluation()));
         } else {
             for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
@@ -46,7 +48,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         rules = new ArrayList<Rule>();
         totalEvaluation = new Evaluation();
         evaluations = new ArrayList<Evaluation>();
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             evaluations.add(new Evaluation());
         } else {
             for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
@@ -59,10 +61,10 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     public void init() {
         this.rules.clear();
 
-        int RULES = Rand.getRandomInt(Configuration.getConfiguration().getNumberOfRules()) + 1;
+        int RULES = Rand.getRandomInt(config.getNumberOfRules()) + 1;
 
         if (!fixedLength) {
-            RULES = Configuration.getConfiguration().getNumberOfRules();
+            RULES = config.getNumberOfRules();
         }
 
         for (int i = 0; i < RULES; i++) {
@@ -169,7 +171,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     @Override
     public Individual crossoverWith(Individual other) {
 
-        if (Configuration.getConfiguration().getCrossoverType() == CrossoverType.BCX) {
+        if (crossoverType == CrossoverType.BCX) {
             return crossoverBCX(this, other);
         } else {
             return crossoverSimpleCut(this, other);
@@ -236,7 +238,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         SB.append("\n RULESET_EVAL");
         SB.append("\n TOTAL ").append(totalEvaluation.toString());
         ///classes evaluations...
-        if (Configuration.getConfiguration().isOneClassActive()) {
+        if (config.isOneClassActive()) {
             SB.append(evaluations.get(0).toString());
         } else {
             SB.append("\n classes ");
@@ -255,6 +257,8 @@ public class RuleSet extends Individual implements Iterable<Rule> {
 
     /**
      * returns a positive number of contained rules comparision
+     * @param ind
+     * @return
      */
     @Override
     public int diversityMeasure(final Individual ind) {
@@ -262,7 +266,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         if (ind instanceof RuleSet) {
             RuleSet RS = (RuleSet) ind;
             for (int i = 0; i < this.rulesNo(); i++) {
-                diff = diff + this.rules.get(i).diversityMeasure(RS.rules.get(i));
+                diff += this.rules.get(i).diversityMeasure(RS.rules.get(i));
             }
         } else {
             throw new RuntimeException("Illegal Object is given!");

@@ -300,6 +300,6 @@ public class Coevolution {
 
         // health & safety
         assert !si.hasNext() && !ci.hasNext() :
-            "Co-evolving populations differ in size";
+                "Co-evolving populations differ in size";
     }
 }

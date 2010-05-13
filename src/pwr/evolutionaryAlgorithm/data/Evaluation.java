@@ -28,12 +28,13 @@ import pwr.evolutionaryAlgorithm.Configuration;
  */
 public class Evaluation {
 
-    protected float precision;
-    protected float recall;
-    protected float fitness;
-    protected float Fsc;
-    protected float accuracy;
-    protected boolean done;
+    private final Configuration config = Configuration.getConfiguration();
+    private float precision;
+    private float recall;
+    private float fitness;
+    private float Fsc;
+    private float accuracy;
+    private boolean done;
 
     public float getFsc() {
         return this.Fsc;
@@ -76,11 +77,11 @@ public class Evaluation {
     }
 
     public void clear() {
-        setPrecision(0);
+        Fsc = 0;
         recall = 0;
         fitness = 0;
-        Fsc = 0;
         accuracy = 0;
+        precision = 0;
         this.done = false;
     }
 
@@ -98,47 +99,29 @@ public class Evaluation {
     }
 
     public Evaluation(float P, float R, float Fsc, float Acc) {
+        this.fitness = config.isFsc() ? Fsc : Acc;
+        this.accuracy = Acc;
         this.precision = P;
         this.recall = R;
-
-        if (Configuration.getConfiguration().isFsc()) {
-            this.fitness = Fsc;
-        } else {
-            this.fitness = Acc;
-        }
-
         this.Fsc = Fsc;
-        this.accuracy = Acc;
         this.done = true;
     }
 
     public void set(float P, float R, float Fsc, float Acc) {
-        this.setPrecision(P);
-        this.recall = R;
-
-        if (Configuration.getConfiguration().isFsc()) {
-            this.fitness = Fsc;
-        } else {
-            this.fitness = Acc;
-        }
-
-        this.Fsc = Fsc;
+        this.fitness = config.isFsc() ? Fsc : Acc;
         this.accuracy = Acc;
+        this.precision = P;
+        this.recall = R;
+        this.Fsc = Fsc;
         this.done = true;
     }
 
     public void update(final Evaluation E) {
-        setPrecision(getPrecision() + E.getPrecision());
-        recall += E.recall;
-
-        if (Configuration.getConfiguration().isFsc()) {
-            fitness += E.Fsc;
-        } else {
-            fitness += E.accuracy;
-        }
-
-        Fsc += E.Fsc;
+        this.fitness += config.isFsc() ? E.Fsc : E.accuracy;
+        precision += E.precision;
         accuracy += E.accuracy;
+        recall += E.recall;
+        Fsc += E.Fsc;
         done = false;
     }
 
@@ -151,21 +134,13 @@ public class Evaluation {
         recall /= classes;
         Fsc /= classes;
         accuracy /= classes;
-
-        if (Configuration.getConfiguration().isFsc()) {
-            fitness = Fsc;
-        } else {
-            fitness = accuracy;
-        }
+        fitness = config.isFsc() ? Fsc : accuracy;
         done = true;
     }
 
     public Evaluation() {
-        Fsc = Configuration.getConfiguration().getFITNESS_DEFAULT();
-        recall = Configuration.getConfiguration().getFITNESS_DEFAULT();
-        fitness = Configuration.getConfiguration().getFITNESS_DEFAULT();
-        accuracy = Configuration.getConfiguration().getFITNESS_DEFAULT();
-        precision = Configuration.getConfiguration().getFITNESS_DEFAULT();
+        final float fitDef = config.getFITNESS_DEFAULT();
+        Fsc = recall = fitness = accuracy = precision = fitDef;
         this.done = false;
     }
 
@@ -175,20 +150,15 @@ public class Evaluation {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (this.done) {
-            sb.append(" Rec=");
-            final String format = "%.3f";
-            sb.append(String.format(format, recall));
-            sb.append(" Prec=");
-            sb.append(String.format(format, getPrecision()));
-            sb.append(" Acc=");
-            sb.append(String.format(format, accuracy));
-            sb.append(" Fsc=");
-            sb.append(String.format(format, Fsc));
-        } else {
-            sb.append(" --- not used ---");
+        if (!done) {
+            return " --- not used ---";
         }
+        StringBuilder sb = new StringBuilder();
+        final String format = "%.3f";
+        sb.append(" Rec=").append(String.format(format, recall));
+        sb.append(" Prec=").append(String.format(format, precision));
+        sb.append(" Acc=").append(String.format(format, accuracy));
+        sb.append(" Fsc=").append(String.format(format, Fsc));
         return sb.toString();
     }
 }

@@ -66,8 +66,7 @@ public class ClassifyingIndividual extends RuleSet {
             SelectingIndividual si,
             ClassifyingIndividual ci) {
 
-        DataSet DSetPart = new DataSet();
-        DataSet DSetResult = new DataSet();
+        DataSet DSetResult = new DataSet(), DSetPart;
         Configuration config = Configuration.getConfiguration();
         Evaluator evl = Evaluator.getEvaluator();
 
@@ -79,7 +78,6 @@ public class ClassifyingIndividual extends RuleSet {
 
             /// for each rule....
             for (Rule rule : ci.getRules()) {
-                DSetPart.clear();
                 //if rule is active and returns such class
                 if (rule.isActive()) {
                     DSetPart = evl.getCoveredDataSet(dSrc, rule);
@@ -90,12 +88,11 @@ public class ClassifyingIndividual extends RuleSet {
             final int activeClass = config.getActiveClass();
             DSetResult.evaluate(dSrc, activeClass);
             ci.setEvaluation(new Evaluation(DSetResult));
-        } // all classes are active
-        //for each class....
-        else {
+        } else {
+            // all classes are active
+            //for each class....
             ////////////////// CLASSESS ////////////////////////////////////////
             for (int c = 0; c < DataLoader.getClassNumber(); c++) {
-                DSetPart.clear();
                 DSetResult.clear();
 
                 // Z punktu widzenia implementacji koewolucji najważniejszy
@@ -112,21 +109,6 @@ public class ClassifyingIndividual extends RuleSet {
                         // niejawnie (poprzez regułę) zawarta jest
                         // też informacja o wybranej klasie (c)
                         DSetPart = evl.getCoveredDataSet(dSrc, rule);
-
-                        // DSetPart = evaluateRule(dSrc, rule);
-                        // Powyższe wywołanie budzi we mnie pewne wątpliwości.
-                        // Mianowicie, tamta metoda jest przystosowana do
-                        // ewaluacji pojedynczej reguły. Czy uruchamiając
-                        // ją w pętli, dla każdego osobnika, oraz dla każdej
-                        // reguły w osobniku, nie wykonuje ona kilka razy
-                        // tej samej pracy?
-
-                        // Gromadzenie statystyk dla wszystkich reguł.
-                        // Khem, khem, khem. Tak naprawdę, statystyki są
-                        // tutaj pomijane...
-                        // Faktyczne statystyki wyliczane są po wyjściu z tej
-                        // pętli. Tutaj potrzebne jest jedynie gromadzenie
-                        // wybranych rekordów.
                         DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
                     }
                 }
