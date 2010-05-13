@@ -13,13 +13,17 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  */
 public class Evaluator {
 
-    static private Evaluator e = null;
-    private final Configuration config = Configuration.getConfiguration();
     /**
      * Używane tylko przez BB - best breed (?)
      */
     private ArrayList<DataSet> data = null;
     private int individualPointer = 0;
+    private final Configuration config = Configuration.getConfiguration();
+    private final int numberOfAttributes = config.getNumberOfAttributes();
+    private final boolean oneClassActive = config.isOneClassActive();
+    private final int activeClass = config.getActiveClass();
+    private final int popSize = config.getPopSize();
+    static private Evaluator e = null;
 
     static public Evaluator getEvaluator() {
         if (e == null) {
@@ -55,7 +59,7 @@ public class Evaluator {
 
         ///////////////////////////////////////////
         /// only one class active!
-        if (config.isOneClassActive()) {
+        if (oneClassActive) {
             DSResult.clear();
             rSet.clearEvaluations();
 
@@ -73,7 +77,7 @@ public class Evaluator {
             } ///// end: for each rule
 
             /////// CLASS Summary ///////////////
-            DSResult.evaluate(dSrc, config.getActiveClass());
+            DSResult.evaluate(dSrc, activeClass);
 //            evaluate(dSrc, DSResult, config.getActiveClass());
             rSet.setEvaluation(new Evaluation(DSResult));
         } // all classes are active
@@ -100,7 +104,6 @@ public class Evaluator {
 
                 /////// CLASS Summary ///////////////
                 DSResult.evaluate(dSrc, c);
-//                evaluate(dSrc, DSResult, c);
                 rSet.setEvaluation(c, new Evaluation(DSResult));
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
@@ -118,8 +121,8 @@ public class Evaluator {
         /** Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
         /* zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
          */
-        int activeClass = config.isOneClassActive()
-                ? config.getActiveClass() : rule.getClassID();
+        int active = oneClassActive
+                ? activeClass : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
         // Wybierane są te rekordy, których dotyczy reguła rule.
@@ -130,7 +133,7 @@ public class Evaluator {
         // wiedząc, że pochodzi ze źródła dSrc (co pozwala wyznaczyć
         // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
         // itp.).
-        ds.evaluate(dSrc, activeClass);
+        ds.evaluate(dSrc, active);
 //        evaluate(dSrc, ds, activeClass);
 
         // Po tej całej przeprawie mamy DataSet, który posiada pełne
@@ -162,7 +165,6 @@ public class Evaluator {
         Condition c = null;
         DataSet cnd = new DataSet();
         int att = 0;
-        final int numberOfAttributes = config.getNumberOfAttributes();
         //for first review -> search for first enabled attribute
         // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
         // włączonego
@@ -184,8 +186,7 @@ public class Evaluator {
             // Pozostaje uwzględnić resztę warunków z reguły r.
             do {
                 if (r.isCondition(att)) {
-                    c = r.getCondition(att);
-                    cnd = dSrc.getDataSet(cnd, c);
+                    cnd.filter(r.getCondition(att));
                 }
                 att++;
             } while (att < numberOfAttributes && !cnd.empty());
@@ -212,9 +213,8 @@ public class Evaluator {
      * Best breed implementation
      */
     public void clearBB() {
-        int pop_size = config.getPopSize();
         if (data == null) {
-            data = new ArrayList<DataSet>(pop_size);
+            data = new ArrayList<DataSet>(popSize);
         }
         individualPointer = 0;
     }
@@ -238,7 +238,7 @@ public class Evaluator {
         final StringBuilder sb = new StringBuilder();
         final int clazz = r.getClassID();
         final long correct = ds.getCorrectCount(clazz);
-        int cl = config.isOneClassActive() ? config.getActiveClass() : clazz;
+        int cl = oneClassActive ? activeClass : clazz;
         final long expected = dSrc.getExpected(cl);
         final long generated = ds.size();
 
@@ -273,7 +273,7 @@ public class Evaluator {
 
         ///////////////////////////////////////////
         /// only one class active!
-        if (config.isOneClassActive()) {
+        if (oneClassActive) {
             DSResult.clear();
             rSet.clearEvaluations();
             /// for each rule....
@@ -287,7 +287,6 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            final int activeClass = config.getActiveClass();
             DSResult.evaluate(dSrc, activeClass);
 //            evaluate(dSrc, DSResult, activeClass);
             ///

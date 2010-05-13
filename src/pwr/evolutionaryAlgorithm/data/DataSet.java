@@ -1,6 +1,7 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -14,37 +15,30 @@ public class DataSet implements Iterable<Record> {
     private float recall = 0f;
     private float accuracy = 0f;
     private float precision = 0f;
-    /**
-     * @todo LinkedHashSet na iteratorach!?
-     */
     private ArrayList<Record> records;
 
-    public Record getRecord(int i) {
-        return this.records.get(i);
-    }
-
     public DataSet(int capacity) {
-        this.records = new ArrayList<Record>(capacity);
+        records = new ArrayList<Record>(capacity);
     }
 
     public DataSet() {
-        this.records = new ArrayList<Record>();
+        this(10);
     }
 
     public DataSet(DataSet dSet) {
-        this.records = new ArrayList<Record>(dSet.records);
+        records = new ArrayList<Record>(dSet.records);
     }
 
     public void removeRecord(final Record R) {
-        this.records.remove(R);
+        records.remove(R);
     }
 
     public void addRecord(final Record R) {
-        this.records.add(R);
+        records.add(R);
     }
 
     public long size() {
-        return this.records.size();
+        return records.size();
     }
 
     public boolean empty() {
@@ -56,7 +50,7 @@ public class DataSet implements Iterable<Record> {
     }
 
     public boolean contains(final Record R) {
-        return this.records.contains(R);
+        return records.contains(R);
     }
 
     /**
@@ -67,7 +61,7 @@ public class DataSet implements Iterable<Record> {
      */
     public static DataSet operatorPlus(final DataSet ds1, final DataSet ds2) {
         DataSet result = new DataSet(ds1);
-        ArrayList<Record> resRec = result.records;
+        Collection<Record> resRec = result.records;
 
         //adding form DS2 if not already in DS1
         for (Record r : ds2.records) {
@@ -83,8 +77,8 @@ public class DataSet implements Iterable<Record> {
     @Override
     public String toString() {
         StringBuilder SB = new StringBuilder();
-        for (int r = 0; r < records.size(); r++) {
-            SB.append(records.get(r).toString()).append(";;;\n");
+        for (Record rec : records) {
+            SB.append(rec.toString()).append(";;;\n");
         }
         return SB.toString();
     }
@@ -124,25 +118,11 @@ public class DataSet implements Iterable<Record> {
      * @return set of records
      */
     public int getCorrectCount(int classId) {
-        int recordClass, correct = 0, incorrect = 0;
+        int recordClass, correct = 0;
         for (Record rec : records) {
             recordClass = rec.getClassName();
             do {
                 if (classId == recordClass) {
-                    correct++;
-                }
-                recordClass = rec.getClassNameNext();
-            } while (recordClass != -1); // Dla obrazków...
-        }
-        return correct;
-    }
-
-    public int getIncorrectCount(int classId) {
-        int recordClass, correct = 0, incorrect = 0;
-        for (Record rec : records) {
-            recordClass = rec.getClassName();
-            do {
-                if (classId != recordClass) {
                     correct++;
                 }
                 recordClass = rec.getClassNameNext();
@@ -158,7 +138,7 @@ public class DataSet implements Iterable<Record> {
      * @return set of records
      */
     public DataSet getCorrectSubset(int classId) {
-        DataSet correctDS = new DataSet();
+        DataSet correctDS = new DataSet(records.size());
         int recordClass;
         for (Record rec : records) {
             recordClass = rec.getClassName();
@@ -192,10 +172,9 @@ public class DataSet implements Iterable<Record> {
         expected = dSrc.getExpected(classId);
 
         correct = getCorrectCount(classId);
-        int incorrect = getIncorrectCount(classId);
 
-        System.out.println("oops... expected=" + expected + ", generated=" + generated + ", correct=" + correct + ", incorrect=" + incorrect);
-        assert incorrect == generated - correct : "Incorrect + Correct != generated => WTF?";
+//        System.out.println("oops... expected=" + expected + ", generated=" + generated + ", correct=" + correct + ", incorrect=" + incorrect);
+//        assert incorrect == generated - correct : "Incorrect + Correct != generated => WTF?";
 
 
         // recall & precision - corrected to handle division by zero
@@ -216,5 +195,15 @@ public class DataSet implements Iterable<Record> {
 
         // update
         setEvaluation(prc, rcl, acc, fSc);
+    }
+
+    void filter(Condition c) {
+        ArrayList<Record> result = new ArrayList<Record>(records.size());
+        for (Record rec : records) {
+            if (rec.isSatisfy(c)) {
+                result.add(rec);
+            }
+        }
+        records = result;
     }
 }

@@ -287,7 +287,7 @@ public class DataSource {
         return res;
     }
 
-    public DataSet getDataSet(DataSet ds, Condition c) {
+    public static DataSet getDataSet(DataSet ds, Condition c) {
         DataSet result = new DataSet((int) ds.size());
         for (Record rec : ds) {
             if (rec.isSatisfy(c)) {
