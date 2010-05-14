@@ -3,7 +3,6 @@ package pwr.evolutionaryAlgorithm.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import pwr.evolutionaryAlgorithm.individual.Rule;
 
 /**
  * Trzyma listę rekordów oraz informacje o precyzji, dokładności itp.
@@ -74,7 +73,7 @@ public class DataSet implements Iterable<Record> {
 
     public void addAll(final DataSet ds2) {
         // using list as a set
-        records.ensureCapacity(records.size()+ds2.size());
+        records.ensureCapacity(records.size() + ds2.size());
         for (Record r : ds2.records) {
             if (!records.contains(r)) {
                 records.add(r);
@@ -166,8 +165,9 @@ public class DataSet implements Iterable<Record> {
      *
      * @param dSrc
      * @param classId
+     * @return
      */
-    public void evaluate(DataSource dSrc, int classId) {
+    public Evaluation evaluate(DataSource dSrc, int classId) {
         final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
         final float alpha, expected, correct, generated;
 
@@ -193,8 +193,8 @@ public class DataSet implements Iterable<Record> {
         out = dSrc.size() - expected - generated + 2f * correct;
         acc = prc == 0f || rcl == 0f ? 0f : out / dSrc.size();
 
-        // update
-        setEvaluation(prc, rcl, acc, fSc);
+        // done
+        return new Evaluation(prc, rcl, fSc, acc);
     }
 
     void filter(Condition c) {

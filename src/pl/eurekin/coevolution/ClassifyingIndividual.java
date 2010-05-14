@@ -17,7 +17,9 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  * do ewaluacji.
  *
  * @author Rekin
+ * @deprecated needs to be synchronized with new Evaluation API -- fast
  */
+@Deprecated
 public class ClassifyingIndividual extends RuleSet {
 
     /**
@@ -86,8 +88,8 @@ public class ClassifyingIndividual extends RuleSet {
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
             final int activeClass = config.getActiveClass();
-            DSetResult.evaluate(dSrc, activeClass);
-            ci.setEvaluation(new Evaluation(DSetResult));
+            Evaluation evl2 = DSetResult.evaluate(dSrc, activeClass);
+            ci.setEvaluation(evl2);
         } else {
             // all classes are active
             //for each class....
@@ -121,8 +123,8 @@ public class ClassifyingIndividual extends RuleSet {
                 // wybierający.
                 DSetResult = filterUsingSelectingIndividual(si, DSetResult);
 
-                DSetResult.evaluate(dSrc, c);
-                ci.setEvaluation(c, new Evaluation(DSetResult));
+                Evaluation evl2 = DSetResult.evaluate(dSrc, c);
+                ci.setEvaluation(c, evl2);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
 
@@ -135,7 +137,7 @@ public class ClassifyingIndividual extends RuleSet {
 
     private DataSet filterUsingSelectingIndividual(SelectingIndividual si,
             DataSet set) {
-        DataSet result = new DataSet((int) set.size());
+        DataSet result = new DataSet(set.size());
 
         // TODO selecting implementation placeholder
         result = new DataSet(set);

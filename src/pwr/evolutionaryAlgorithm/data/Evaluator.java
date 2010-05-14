@@ -54,16 +54,12 @@ public class Evaluator {
      * @return DataSet of all covered data
      */
     private void EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
-
         rSet.clearEvaluations();
         if (oneClassActive) {
-            /// only one class active!
-            Iterable<Rule> rules = rSet;
-            rSet.setEvaluation(evaluate(rules, dSrc, activeClass));
+            rSet.setEvaluation(evaluate(rSet, dSrc, activeClass));
         } else {
             for (int c = 0; c < classNo; c++) {
-                Iterable<Rule> rules = rSet.forClass(c);
-                rSet.setEvaluation(c, evaluate(rules, dSrc, c));
+                rSet.setEvaluation(c, evaluate(rSet.forClass(c), dSrc, c));
             }
         }
         rSet.doCountTotalEvaluation(classNo);
@@ -74,8 +70,7 @@ public class Evaluator {
         for (Rule rule : rules) {
             gatherRuleConcernedRecords(rule, dSrc, result);
         }
-        result.evaluate(dSrc, c);
-        return new Evaluation(result);
+        return result.evaluate(dSrc, c);
     }
 
     private void gatherRuleConcernedRecords(Rule rule,
@@ -94,7 +89,7 @@ public class Evaluator {
     private DataSet evaluateRule(DataSource dSrc, Rule rule) {
         // Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
         // zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
-        int active = oneClassActive ? activeClass : rule.getClassID();
+        int activeCls = oneClassActive ? activeClass : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
         // Wybierane są te rekordy, których dotyczy reguła rule.
@@ -105,14 +100,14 @@ public class Evaluator {
         // wiedząc, że pochodzi ze źródła dSrc (co pozwala wyznaczyć
         // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
         // itp.).
-        ds.evaluate(dSrc, active);
+        Evaluation evl = ds.evaluate(dSrc, activeCls);
 
         // Po tej całej przeprawie mamy DataSet, który posiada pełne
         // statystyki dla pojedynczej klasy. Zapisujemy te statystyki
         // w regule:
-        rule.setEvaluation(new Evaluation(ds));
+        rule.setEvaluation(evl);
 
-        // Zwróć oceniony DataSet
+        // Zwróć oceniony DataSet -- tylko po co?
         return ds;
     }
 
@@ -132,7 +127,7 @@ public class Evaluator {
      * @param r
      * @return
      */
-    public  DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
+    public DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
         DataSet dSet = new DataSet();
         int att = 0;
         //for first review -> search for first enabled attribute
@@ -165,16 +160,6 @@ public class Evaluator {
         /// a w związku z tym, że reguła jest _koniunkcją_ warunków, to
         // dalsze sprawdzenia są niepotrzebne.
         return dSet;
-    }
-
-    private DataSet getAllCorrectClassified(
-            DataSet dSet, RuleSet ruleSet) {
-        DataSet DSpart, DScorrect = new DataSet();
-        for (Rule rule : ruleSet) {
-            DSpart = dSet.getCorrectSubset(rule.getClassID());
-            DScorrect = DataSet.operatorPlus(DScorrect, DSpart);
-        }
-        return DScorrect;
     }
 
     /**
@@ -255,11 +240,8 @@ public class Evaluator {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            DSResult.evaluate(dSrc, activeClass);
-//            evaluate(dSrc, DSResult, activeClass);
-            ///
-            Evaluation E = new Evaluation(DSResult);
-            rSet.setEvaluation(E);
+            Evaluation evl = DSResult.evaluate(dSrc, activeClass);
+            rSet.setEvaluation(evl);
         } // all classes are active
         //for each class....
         else {
@@ -285,10 +267,8 @@ public class Evaluator {
                 ////////////////END: RULES /////////////////////////////////////
 
                 /////// CLASS Summary ///////////////
-                DSResult.evaluate(dSrc, c);
-//                evaluate(dSrc, DSResult, c);
-                Evaluation E = new Evaluation(DSResult);
-                rSet.setEvaluation(c, E);
+                Evaluation evl = DSResult.evaluate(dSrc, c);
+                rSet.setEvaluation(c, evl);
             }//////////////////END:CLASSESS ////////////////////////////////////
         }
         rSet.doCountTotalEvaluation(classNo);

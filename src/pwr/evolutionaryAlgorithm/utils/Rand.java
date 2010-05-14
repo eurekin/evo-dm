@@ -1,6 +1,6 @@
 package pwr.evolutionaryAlgorithm.utils;
 
-import pl.eurekin.util.MersenneTwisterFast;
+import org.uncommons.maths.random.XORShiftRNG;
 
 /**
  *
@@ -9,7 +9,9 @@ import pl.eurekin.util.MersenneTwisterFast;
 public class Rand {
 
 //    private static final Random rnd = new Random();
-    private static final MersenneTwisterFast rnd = new MersenneTwisterFast(1234);
+    private static final XORShiftRNG rnd = new XORShiftRNG(new byte[]{
+                116, -47, -76, -32, -73, -118, -127, 120, 122, -4, -65, 23, -47, -58, 55, 13, 64, 120, 86, 124
+            });
 
     public static int getRandomInt(int maxVal) {
         return rnd.nextInt(maxVal);
