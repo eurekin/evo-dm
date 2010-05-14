@@ -2,6 +2,7 @@ package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import pl.eurekin.util.IterableFilter;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
@@ -277,5 +278,15 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     @Override
     public Iterator<Rule> iterator() {
         return rules.iterator();
+    }
+
+    public Iterable<Rule> forClass(final int c) {
+        return new IterableFilter<Rule>(this) {
+
+            @Override
+            public boolean passes(Rule rule) {
+                return rule.getClassID() == c;
+            }
+        };
     }
 }

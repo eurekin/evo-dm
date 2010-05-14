@@ -288,7 +288,7 @@ public class DataSource {
     }
 
     public static DataSet getDataSet(DataSet ds, Condition c) {
-        DataSet result = new DataSet((int) ds.size());
+        DataSet result = new DataSet(ds.size());
         for (Record rec : ds) {
             if (rec.isSatisfy(c)) {
                 result.addRecord(rec);

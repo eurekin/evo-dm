@@ -12,8 +12,8 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  * Singleton class
  */
 public class Evaluator {
-    private final int classNo = DataLoader.getClassNumber();
 
+    private final int classNo = DataLoader.getClassNumber();
     /**
      * Używane tylko przez BB - best breed (?)
      */
@@ -53,39 +53,36 @@ public class Evaluator {
      * @param RuleSet
      * @return DataSet of all covered data
      */
-    private DataSet EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
-
-        DataSet part = new DataSet();
-        DataSet result = new DataSet();
+    private void EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
 
         rSet.clearEvaluations();
         if (oneClassActive) {
             /// only one class active!
-            for (Rule rule : rSet) {
-                if (rule.isActive()) {
-                    part = getCoveredDataSet(dSrc, rule);
-                    result = DataSet.operatorPlus(result, part);
-                }
-            }
-            result.evaluate(dSrc, activeClass);
-            rSet.setEvaluation(new Evaluation(result));
+            Iterable<Rule> rules = rSet;
+            rSet.setEvaluation(evaluate(rules, dSrc, activeClass));
         } else {
-            // for each class
             for (int c = 0; c < classNo; c++) {
-                result.clear();
-                for (Rule rule : rSet) {
-                    //if rule is active and returns such class
-                    if (rule.isActive() && rule.getClassID() == c) {
-                        part = getCoveredDataSet(dSrc, rule);
-                        result = DataSet.operatorPlus(result, part);
-                    }
-                }
-                result.evaluate(dSrc, c);
-                rSet.setEvaluation(c, new Evaluation(result));
+                Iterable<Rule> rules = rSet.forClass(c);
+                rSet.setEvaluation(c, evaluate(rules, dSrc, c));
             }
         }
         rSet.doCountTotalEvaluation(classNo);
-        return result;
+    }
+
+    private Evaluation evaluate(Iterable<Rule> rules, DataSource dSrc, int c) {
+        DataSet result = new DataSet();
+        for (Rule rule : rules) {
+            gatherRuleConcernedRecords(rule, dSrc, result);
+        }
+        result.evaluate(dSrc, c);
+        return new Evaluation(result);
+    }
+
+    private void gatherRuleConcernedRecords(Rule rule,
+            DataSource dSrc, DataSet result) {
+        if (rule.isActive()) {
+            result.addAll(getCoveredDataSet(dSrc, rule));
+        }
     }
 
     /**
@@ -95,9 +92,8 @@ public class Evaluator {
      * @return
      */
     private DataSet evaluateRule(DataSource dSrc, Rule rule) {
-        /** Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
-        /* zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
-         */
+        // Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
+        // zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
         int active = oneClassActive ? activeClass : rule.getClassID();
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
@@ -136,7 +132,7 @@ public class Evaluator {
      * @param r
      * @return
      */
-    public DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
+    public  DataSet getCoveredDataSet(DataSource dSrc, Rule r) {
         DataSet dSet = new DataSet();
         int att = 0;
         //for first review -> search for first enabled attribute
@@ -164,9 +160,9 @@ public class Evaluator {
             } while (att < numberOfAttributes && !dSet.empty());
         }
 
-        // A co gdy pierwszy włączony warunek zwraca pusty zbiór?
-        // Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
-        // a w związku z tym, że reguła jest _koniunkcją_ warunków, to
+        //  / A co gdy pierwszy włączony warunek zwraca pusty zbiór?
+        // / Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
+        /// a w związku z tym, że reguła jest _koniunkcją_ warunków, to
         // dalsze sprawdzenia są niepotrzebne.
         return dSet;
     }
@@ -192,9 +188,9 @@ public class Evaluator {
     }
 
     public void evaluateBB(DataSource DSc, Individual I) {
-        DataSet DSgenerated = EvaluateRuleSet(DSc, (RuleSet) I);
-        DataSet DScorrect = getAllCorrectClassified(DSgenerated, (RuleSet) I);
-        data.set(individualPointer++, DScorrect);
+        // DataSet DSgenerated = EvaluateRuleSet(DSc, (RuleSet) I);
+        // DataSet DScorrect = getAllCorrectClassified(DSgenerated, (RuleSet) I);
+        // data.set(individualPointer++, DScorrect);
     }
 
     /**
