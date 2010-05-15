@@ -1,6 +1,7 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
+import pl.eurekin.util.IterableFilter;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
@@ -41,7 +42,7 @@ public class Evaluator {
 
     public void evaluate(DataSource DSc, Individual I) {
         if (I instanceof RuleSet) {
-            EvaluateRuleSet(DSc, (RuleSet) I);
+            evaluateRuleSetAllClasses(DSc, (RuleSet) I);
         } else if (I instanceof Rule) {
             evaluateRule(DSc, (Rule) I);
         }
@@ -53,31 +54,34 @@ public class Evaluator {
      * @param RuleSet
      * @return DataSet of all covered data
      */
-    private void EvaluateRuleSet(DataSource dSrc, RuleSet rSet) {
+    private void evaluateRuleSetAllClasses(DataSource dSrc, RuleSet rSet) {
         rSet.clearEvaluations();
         if (oneClassActive) {
-            rSet.setEvaluation(evaluate(rSet, dSrc, activeClass));
+            rSet.setEvaluation(evaluateSingleClass(rSet, dSrc, activeClass));
         } else {
             for (int c = 0; c < classNo; c++) {
-                rSet.setEvaluation(c, evaluate(rSet.forClass(c), dSrc, c));
+                rSet.setEvaluation(c, evaluateSingleClass(rSet.forClass(c), dSrc, c));
             }
         }
         rSet.doCountTotalEvaluation(classNo);
     }
 
-    private Evaluation evaluate(Iterable<Rule> rules, DataSource dSrc, int c) {
+    private Evaluation evaluateSingleClass(Iterable<Rule> rules, DataSource dSrc, int c) {
         DataSet result = new DataSet();
-        for (Rule rule : rules) {
-            gatherRuleConcernedRecords(rule, dSrc, result);
+        for (Rule rule : onlyActive(rules)) {
+            result.addAll(getCoveredDataSet(dSrc, rule));
         }
         return result.evaluate(dSrc, c);
     }
 
-    private void gatherRuleConcernedRecords(Rule rule,
-            DataSource dSrc, DataSet result) {
-        if (rule.isActive()) {
-            result.addAll(getCoveredDataSet(dSrc, rule));
-        }
+    private static Iterable<Rule> onlyActive(Iterable<Rule> rules) {
+        return new IterableFilter<Rule>(rules) {
+
+            @Override
+            public boolean passes(Rule object) {
+                return object.isActive();
+            }
+        };
     }
 
     /**
