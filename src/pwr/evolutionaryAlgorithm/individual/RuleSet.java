@@ -8,6 +8,8 @@ import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.Configuration.CrossoverType;
+import pwr.evolutionaryAlgorithm.data.DataSet;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 
 /**
  *
@@ -19,9 +21,13 @@ public class RuleSet extends Individual implements Iterable<Rule> {
      * TODO: remove this const form here!
      */
     private static boolean fixedLength = false;
+    private final int classesNo = Configuration.getClassesNo();
     private ArrayList<Rule> rules;
     private final Configuration config = Configuration.getConfiguration();
     private final CrossoverType crossoverType = config.getCrossoverType();
+    private final boolean oneClassActive = config.isOneClassActive();
+    private final int activeClass = config.getActiveClass();
+    private final int classNo = DataLoader.getClassNumber();
     private Evaluation totalEvaluation;
 
     public ArrayList<Rule> getRules() {
@@ -39,7 +45,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         if (config.isOneClassActive()) {
             evaluations.add(new Evaluation(RS.getEvaluation()));
         } else {
-            for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
+            for (int cl = 0; cl < classesNo; cl++) {
                 this.evaluations.add(RS.getEvaluation(cl));
             }
         }
@@ -52,7 +58,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         if (config.isOneClassActive()) {
             evaluations.add(new Evaluation());
         } else {
-            for (int cl = 0; cl < Configuration.getClassesNo(); cl++) {
+            for (int cl = 0; cl < classesNo; cl++) {
                 evaluations.add(new Evaluation());
             }
         }
@@ -286,6 +292,42 @@ public class RuleSet extends Individual implements Iterable<Rule> {
             @Override
             public boolean passes(Rule rule) {
                 return rule.getClassID() == c;
+            }
+        };
+    }
+
+    // // // //
+    @Override
+    public void evaluate(DataSource dSrc) {
+        clearEvaluations();
+        Evaluation eval;
+        if (oneClassActive) {
+            eval = evaluateSingleClass(this, dSrc, activeClass);
+            setEvaluation(eval);
+        } else {
+            for (int c = 0; c < classNo; c++) {
+                eval = evaluateSingleClass(forClass(c), dSrc, c);
+                setEvaluation(c, eval);
+            }
+        }
+        doCountTotalEvaluation(classNo);
+    }
+
+    private static Evaluation evaluateSingleClass(Iterable<Rule> rules,
+            DataSource dSrc, int c) {
+        DataSet result = new DataSet();
+        for (Rule rule : onlyActive(rules)) {
+            result.addAll(rule.getCoveredDataSet(dSrc));
+        }
+        return result.evaluate(dSrc, c);
+    }
+
+    private static Iterable<Rule> onlyActive(Iterable<Rule> rules) {
+        return new IterableFilter<Rule>(rules) {
+
+            @Override
+            public boolean passes(Rule object) {
+                return object.isActive();
             }
         };
     }

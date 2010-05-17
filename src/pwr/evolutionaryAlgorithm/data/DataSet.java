@@ -197,7 +197,7 @@ public class DataSet implements Iterable<Record> {
         return new Evaluation(prc, rcl, fSc, acc);
     }
 
-    void filter(Condition c) {
+    public void filter(Condition c) {
         ArrayList<Record> result = new ArrayList<Record>(records.size());
         for (Record rec : records) {
             if (rec.isSatisfy(c)) {

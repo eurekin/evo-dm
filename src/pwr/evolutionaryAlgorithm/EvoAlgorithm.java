@@ -11,11 +11,9 @@ public class EvoAlgorithm {
     private Clock myClock;
     private long generation;
     private Clock totalTimeClock;
-    private Individual theBestInd;
+    private Individual best;
     private DataLoader dataLoader;
     private Population<RuleSet> rulePopulation;
-
-
 
     /**
      * Evolutionary Algorithm - core implementation
@@ -25,31 +23,27 @@ public class EvoAlgorithm {
      */
     private void evolve(final Configuration config, final Report report) {
         // warunek stopu
-        boolean stopEval = false;
+        boolean stop = false;
         generation = 0;
         // MAIN Evolutionary Algorithm
-        while (stopEval == false && config.getStopGeneration() != generation) {
+        while (!stop  && config.getStopGeneration() != generation) {
             /*new generation*/
             rulePopulation = rulePopulation.recombinate();
             generation++;
             rulePopulation.evaluate(DataLoader.getTrainData());
             //the best individual
-            if (rulePopulation.getBestFitness() > theBestInd.getEvaluation().getFitness()) {
-                theBestInd = new RuleSet(rulePopulation.getBestIndividual());
+            if (rulePopulation.getBestFitness() > best.getFitness()) {
+                best = new RuleSet(rulePopulation.getBestIndividual());
             }
             if (config.getStopEval() <= rulePopulation.getBestFitness()) {
-                stopEval = true;
+                stop = true;
                 break;
             }
             if (config.isEcho()) {
-                report.reportAfterOneGeneration(theBestInd, rulePopulation, generation);
+                report.reportAfterOneGeneration(best, rulePopulation, generation);
             }
         }
         //END: EA works
-    }
-
-     private void updateTheBestIndividual(Individual I) {
-        theBestInd = new RuleSet((RuleSet) (I));
     }
 
     public DataLoader getDataLoader() {
@@ -63,7 +57,7 @@ public class EvoAlgorithm {
         generation = 0;
         myClock.Reset();
         myClock = new Clock();
-        theBestInd = new RuleSet();
+        best = new RuleSet();
         totalTimeClock = new Clock();
         dataLoader = new DataLoader(null, null);
         rulePopulation = new Population<RuleSet>(new RuleSet());
@@ -86,13 +80,14 @@ public class EvoAlgorithm {
         report.evoAlgInitStart(prompt);
         dataLoader = DataLoader.getDataLoader(config);
         myClock = new Clock();
-        theBestInd = new RuleSet();
+        best = new RuleSet();
         report.evoAlgInitStop(prompt, DataLoader.FileSummary());
     }
 
+        Individual bestOfAllFolds = null;
     public void start() {
         Evaluator eval = Evaluator.getEvaluator();
-        Individual theBestOfTheBest = null;
+        bestOfAllFolds = null;
         totalTimeClock = new Clock();
         totalTimeClock.Reset();
         final Configuration config = Configuration.getConfiguration();
@@ -115,7 +110,7 @@ public class EvoAlgorithm {
                 // tworzenie nowej populacji
                 rulePopulation = new Population<RuleSet>(new RuleSet());
                 rulePopulation.init();
-                theBestInd = null;
+                best = null;
 
                 rulePopulation.evaluate(DataLoader.getTrainData());
                 updateTheBestIndividual(rulePopulation.getBestIndividual());
@@ -127,43 +122,48 @@ public class EvoAlgorithm {
                 myClock.Pause();
                 totalTimeClock.Pause();
                 evaluateAndReport(eval, report, config);
-                theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
+                bestOfAllFolds = getNewBestOfTheBestIndividual(bestOfAllFolds, report);
             }
             DataLoader.doCrossvalidationNext();
         }
         //END: CROSSVALIDATION CV TIMES
-        report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
+        report.reportAllToFile(config, eval, bestOfAllFolds, totalTimeClock);
     }
 
     public void evaluateAndReport(Evaluator eval, Report report, Configuration config) {
-        eval.evaluate(DataLoader.getTrainData(), theBestInd);
-        float train_fsc = theBestInd.getEvaluation().getFsc();
-        float train_acc = theBestInd.getEvaluation().getAccuracy();
+        final float trainFsc, trainAcc, testFsc, testAcc;
+        best.evaluate(DataLoader.getTrainData());
+        trainFsc = best.getFsc();
+        trainAcc = best.getAccuracy();
 
-        eval.evaluate(DataLoader.getTestData(), theBestInd);
-        float test_fsc = theBestInd.getEvaluation().getFsc();
-        float test_acc = theBestInd.getEvaluation().getAccuracy();
+        best.evaluate(DataLoader.getTestData());
+        testFsc = best.getFsc();
+        testAcc = best.getAccuracy();
 
-        report.report(generation, train_fsc, train_acc, test_fsc, test_acc, myClock.GetTotalTime());
-        report.extendedReport(config, eval, (RuleSet) theBestInd);
+        report.report(generation, trainFsc, trainAcc, testFsc, testAcc, myClock.GetTotalTime());
+        report.extendedReport(config, eval, (RuleSet) best);
     }
 
-    public Individual getNewBestOfTheBestIndividual(Individual bestInd,
-            Evaluator eval, Configuration config) {
+    private void updateTheBestIndividual(Individual I) {
+        best = new RuleSet((RuleSet) (I));
+    }
+
+    public Individual getNewBestOfTheBestIndividual(
+            Individual bestInd, Report report) {
         if (bestInd == null) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
-            eval.evaluate(DataLoader.getTestData(), bestInd);
+            bestInd = new RuleSet((RuleSet) best);
+            bestInd.evaluate(DataLoader.getTestData());
         }
-        if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
-            bestInd = new RuleSet((RuleSet) (theBestInd));
-            eval.evaluate(DataLoader.getTestData(), bestInd);
-            config.getReport().reportBestInd(bestInd);
+        // Tu nie było Buga? (porównywano zawsze ACC)
+        if (bestInd.getFitness() < best.getFitness()) {
+            bestInd = new RuleSet((RuleSet) best);
+            bestInd.evaluate(DataLoader.getTestData());
+            report.reportBestInd(bestInd);
         }
         return bestInd;
     }
 
     public long getGeneration() {
-        return this.generation;
+        return generation;
     }
 }
-

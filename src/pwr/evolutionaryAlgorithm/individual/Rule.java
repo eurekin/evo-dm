@@ -5,6 +5,8 @@ import java.util.BitSet;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.Configuration.MutationType;
 import pwr.evolutionaryAlgorithm.data.Condition;
+import pwr.evolutionaryAlgorithm.data.DataSet;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
 import pwr.evolutionaryAlgorithm.utils.BinaryCode;
 import pwr.evolutionaryAlgorithm.utils.Rand;
@@ -14,11 +16,13 @@ public class Rule extends Individual {
     private boolean active; //a bit informs if rule is active
     private ArrayList<RuleGene> conditionOnAttribute;
     private BitSet classID;
-    private final Configuration configuration = Configuration.getConfiguration();
-    private final int classBits = configuration.getClassBits();
-    private final MutationType mutationType = configuration.getMutationType();
-    private final float mutationValue = configuration.getMutationValue();
-    private final int numberOfAttributes = configuration.getNumberOfAttributes();
+    private final Configuration config = Configuration.getConfiguration();
+    private final int classBits = config.getClassBits();
+    private final MutationType mutationType = config.getMutationType();
+    private final float mutationValue = config.getMutationValue();
+    private final int numberOfAttributes = config.getNumberOfAttributes();
+    private final boolean oneClassActive = config.isOneClassActive();
+    private final int activeClass = config.getActiveClass();
 
     /**
      * main constructor
@@ -135,23 +139,23 @@ public class Rule extends Individual {
     private Individual MutationFAM() {
 
         float Pm = mutationValue;
-        float Fsc = this.getEvaluation(0).getFsc();
+        float Fsc = getEvaluation(0).getFsc();
         float Pmutation = (float) (Pm + (1.0 - Fsc) * Pm);
 
         Rule tym = new Rule();
         //copying -> new
         for (int i = 0; i < numberOfAttributes; i++) {
-            tym.setGene(i, new RuleGene(this.getGene(i)));
+            tym.setGene(i, new RuleGene(getGene(i)));
         }
 
         for (int i = 0; i < classBits; i++) {
-            tym.classID.set(i, this.classID.get(i));
+            tym.classID.set(i, classID.get(i));
         }
         //end: copying
 
         //active flag
         if (Rand.getRandomBooleanFlip(Pmutation) == true) {
-            this.active = !(this.active);
+            active = !(active);
         }
 
         //body
@@ -160,7 +164,7 @@ public class Rule extends Individual {
         }
 
         //class
-        if (configuration.isMutationOfClass() == true) {
+        if (config.isMutationOfClass() == true) {
             for (int i = 0; i < classBits; i++) {
                 if (Rand.getRandomBooleanFlip(Pmutation) == true) {
                     tym.classID.set(i, !tym.classID.get(i));
@@ -194,7 +198,7 @@ public class Rule extends Individual {
         }
 
         //class
-        if (configuration.isMutationOfClass() == true) {
+        if (config.isMutationOfClass() == true) {
             for (int i = 0; i < classBits; i++) {
                 if (Rand.getRandomBooleanFlip(Pmutation) == true) {
                     tym.classID.set(i, !this.classID.get(i));
@@ -292,5 +296,89 @@ public class Rule extends Individual {
             throw new RuntimeException("Illegal Object!");
         }
         return diff;
+    }
+    ///////////////
+
+    /**
+     * <p>Mamy regułę
+     * <pre>
+     * długość IN <1,2> and szerokość IN<2,3>
+     * </pre>
+     *
+     * <p>Dla niej ta metoda zwróci {@code DataSet }zawierający wszystkie
+     * {@code Record }, które mogą zostać rozpatrywane przez tą regułę.
+     *
+     * <p>Dla podanego przykładu zwróci te rekordy które mają odpowiednią
+     * długość i szerokość (jednocześnie).
+     *
+     * @param dSrc
+     * @return
+     */
+    public DataSet getCoveredDataSet(DataSource dSrc) {
+        DataSet dSet = new DataSet();
+        int att = 0;
+        //for first review -> search for first enabled attribute
+        // Reguła może mieć wyłączone warunki, więc szukamy pierwszego
+        // włączonego
+        for (att = 0; att < numberOfAttributes; att++) {
+            if (isCondition(att)) {
+                // Tutaj dzieje się magia rodem z opowieści o bazach danych.
+                // Ta metoda zwraca DataSet spełniający warunek c używając
+                // do tego przeszukiwania binarnego.
+                dSet = dSrc.getDataSet(getCondition(att));
+                break;
+            }
+        }
+
+        if (att != numberOfAttributes && dSet != null) {
+            // Znaleziono pierwszy aktywny Condition o numerze att.
+            // Warunek jest spełniony dla rekordów zawartych w cnd.
+            // Pozostaje uwzględnić resztę warunków z reguły r.
+            do {
+                if (isCondition(att)) {
+                    dSet.filter(getCondition(att));
+                }
+                att++;
+            } while (att < numberOfAttributes && !dSet.empty());
+        }
+
+        //  / A co gdy pierwszy włączony warunek zwraca pusty zbiór?
+        // / Wtedy wiemy, że żaden rekord nie spełnia pierwszego warunku,
+        /// a w związku z tym, że reguła jest _koniunkcją_ warunków, to
+        // dalsze sprawdzenia są niepotrzebne.
+        return dSet;
+    }
+
+    // // // //
+    /**
+     *
+     * @param dSrc zbiór danych, jak zbiór testowy albo treningowy
+     */
+    @Override
+    public void evaluate(DataSource dSrc) {
+        // Algorytm potrafi budować klasyfikator dla pojedynczej klasy,
+        // zarówno jak i dla wszystkich na raz. Tutaj jest to uwzględniane.
+        int activeCls = oneClassActive ? activeClass : getClassID();
+
+        // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
+        // Wybierane są te rekordy, których dotyczy reguła rule.
+        DataSet ds = getCoveredDataSet(dSrc);
+
+        // Ok, czyli mamy rekordy, których dotyczy reguła rule.
+        // Teraz oceniany jest zbiór danych (tak, dokładnie: DataSet),
+        // wiedząc, że pochodzi ze źródła dSrc (co pozwala wyznaczyć
+        // ile jest wszystkich rekordów, a nie tylko ze zbioru DataSet
+        // itp.).
+        Evaluation evl = ds.evaluate(dSrc, activeCls);
+
+        // Po tej całej przeprawie mamy DataSet, który posiada pełne
+        // statystyki dla pojedynczej klasy. Zapisujemy te statystyki
+        // w regule:
+        setEvaluation(evl);
+    }
+
+    @Override
+    public Evaluation getEvaluation() {
+        return evaluations.get(0);
     }
 }

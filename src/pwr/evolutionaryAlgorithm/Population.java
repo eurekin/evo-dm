@@ -63,26 +63,20 @@ public class Population<I extends Individual> implements Iterable<I> {
      * @param DSc dataSource needed to evaluate individuals
      */
     public void evaluate(DataSource DSc) {
-        Evaluator evl = Evaluator.getEvaluator();
-
-        for (int i = 0; i < popSize; i++) {
-            // Nie lepiej wywoływać metodę bezpośrednio
-            // z osobnika? Dzięki temu algorytm byłby bliżej
-            // kodu, na którym działa...
-            evl.evaluate(DSc, individuals.get(i));
+        for (Individual ind : individuals) {
+            ind.evaluate(DSc);
         }
+        updateStatistics();
+    }
 
-        /////// end EVALUATION
-
-        ////////// STATISTICS
+    private void updateStatistics() {
         float fitness = 0.0f;
         fitnessSum = 0;
-        for (int i = 0; i < popSize; i++) {
-            fitness = individuals.get(i).getEvaluation().getFitness();
+        fitnessBest = Float.NEGATIVE_INFINITY;
+        fitnessWorst = Float.POSITIVE_INFINITY;
+        for (Individual ind : individuals) {
+            fitness = ind.getEvaluation().getFitness();
             fitnessSum += fitness;
-            if (i == 0) {
-                fitnessBest = fitnessWorst = fitness;
-            }
             if (fitness > fitnessBest) {
                 fitnessBest = fitness;
             }
@@ -91,12 +85,11 @@ public class Population<I extends Individual> implements Iterable<I> {
             }
         }
         fitnessAvg = fitnessSum / popSize;
-        ////////// END: STATISTICS
     }
 
     public void init() {
-        for (int i = 0; i < popSize; i++) {
-            individuals.get(i).init();
+        for (Individual ind : individuals) {
+            ind.init();
         }
     }
 
@@ -198,12 +191,12 @@ public class Population<I extends Individual> implements Iterable<I> {
         return individuals.get(indv);
     }
 
-    public void addInividual(I inv) {
-        individuals.add(inv);
+    public void addInividual(I ind) {
+        individuals.add(ind);
     }
 
     public float getAvgFitness() {
-        return this.fitnessAvg;
+        return fitnessAvg;
     }
 
     public float getWorstFitness() {
@@ -223,16 +216,13 @@ public class Population<I extends Individual> implements Iterable<I> {
     }
 
     public I getBestIndividual() {
-        float f = 0;
-        int fi = 0;
-        for (int i = 0; i < popSize; i++) {
-            final float fitness = individuals.get(i).getEvaluation().getFitness();
-            if (f < fitness) {
-                f = fitness;
-                fi = i;
+        I best = individuals.get(0);
+        for (I ind : individuals) {
+            if (ind.getFitness() > best.getFitness()) {
+                best = ind;
             }
         }
-        return (individuals.get(fi));
+        return best;
     }
 
     public String getBest() {
@@ -295,4 +285,3 @@ public class Population<I extends Individual> implements Iterable<I> {
         return d;
     }
 }
-

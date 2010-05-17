@@ -1,6 +1,7 @@
 package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
 
 public abstract class Individual {
@@ -37,6 +38,12 @@ public abstract class Individual {
 
     public abstract Individual mutate();
 
+    /**
+     *
+     * @param dSrc
+     */
+    public abstract void evaluate(DataSource dSrc);
+
     public abstract Individual crossoverWith(final Individual Indv1);
 
     public abstract int diversityMeasure(final Individual I);
@@ -45,5 +52,25 @@ public abstract class Individual {
 
     @Override
     public abstract String toString();
-}
 
+    // Convinience delegates
+    public float getFsc() {
+        return getEvaluation().getFsc();
+    }
+
+    public float getFitness() {
+        return getEvaluation().getFitness();
+    }
+
+    public float getRecall() {
+        return getEvaluation().getRecall();
+    }
+
+    public float getAccuracy() {
+        return getEvaluation().getAccuracy();
+    }
+
+    public float getPrecision() {
+        return getEvaluation().getPrecision();
+    }
+}

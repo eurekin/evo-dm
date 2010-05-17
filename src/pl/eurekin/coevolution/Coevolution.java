@@ -63,15 +63,16 @@ public class Coevolution {
         // warunek stopu
         boolean stopEval = false;
         generation = 0;
+        final long stopGeneration = config.getStopGeneration();
         // MAIN Evolutionary Algorithm
-        while (stopEval == false && config.getStopGeneration() != generation) {
+        while (stopEval == false && stopGeneration != generation) {
             /*new generation*/
             classifyingPopulation = classifyingPopulation.recombinate();
             generation++;
             classifyingPopulation.evaluate(DataLoader.getTrainData());
             //the best individual
             if (classifyingPopulation.getBestFitness()
-                    > theBestInd.getEvaluation().getFitness()) {
+                    > theBestInd.getFitness()) {
                 theBestInd = new RuleSet((RuleSet) classifyingPopulation.getBestIndividual());
             }
             if (config.getStopEval() <= classifyingPopulation.getBestFitness()) {
@@ -196,57 +197,7 @@ public class Coevolution {
         //report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
     }
 
-    /**
-     * Implementacja musi ulec zmodyfikowaniu na potrzeby koewolucji.
-     *
-     * <p> Dodatkowe wyjaśnienie jak w:
-     * {@link #getNewBestOfTheBestIndividual(Individual, Evaluator, Configuration) }
-     * 
-     * @param eval
-     * @param report
-     * @param config
-     */
-    public void evaluateAndReport(Evaluator eval, Report report, Configuration config) {
-        eval.evaluate(DataLoader.getTrainData(), theBestInd);
-        float train_fsc = theBestInd.getEvaluation().getFsc();
-        float train_acc = theBestInd.getEvaluation().getAccuracy();
 
-        eval.evaluate(DataLoader.getTestData(), theBestInd);
-        float test_fsc = theBestInd.getEvaluation().getFsc();
-        float test_acc = theBestInd.getEvaluation().getAccuracy();
-
-        report.report(generation, train_fsc, train_acc, test_fsc, test_acc, myClock.GetTotalTime());
-        report.extendedReport(config, eval, (RuleSet) theBestInd);
-    }
-
-    /**
-     * <p>
-     *
-     * <p>Żywcem wyjęte z Evolution.java. Możnaby dziedziczyć tą metodę ze
-     * wspomnianej klasy, jednak ze względów efektywnościowych tego nie
-     * robię. Rozszerzanie klas uniemożliwia wykonanie optymalizacji typy
-     * <em>inlining</em> przez kompilator. Ostatecznie najlepiej
-     * przekształcić tą metodę na statyczną i odwoływać się do niej z
-     * obydwu klas.
-     *
-     * @param bestInd
-     * @param eval
-     * @param config
-     * @return
-     */
-    public ClassifyingIndividual getNewBestOfTheBestIndividual(
-            ClassifyingIndividual bestInd, Evaluator eval, Configuration config) {
-        if (bestInd == null) {
-            bestInd = new ClassifyingIndividual((ClassifyingIndividual) theBestInd);
-            eval.evaluate(DataLoader.getTestData(), bestInd);
-        }
-        if (bestInd.getEvaluation().getAccuracy() < theBestInd.getEvaluation().getAccuracy()) {
-            bestInd = new ClassifyingIndividual((ClassifyingIndividual) theBestInd);
-            eval.evaluate(DataLoader.getTestData(), bestInd);
-            config.getReport().reportBestInd(bestInd);
-        }
-        return bestInd;
-    }
 
     /**
      * Pewne wątpliwości budzi obecność tej metody w klasie. W jaki

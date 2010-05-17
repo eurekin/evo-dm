@@ -1,100 +1,107 @@
 package pwr.evolutionaryAlgorithm;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.Evaluator;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 
-public class Report  {
+public class Report {
 
-    private String ReportContent;
-    private int TestNumber;             //number of tests
-    private String TestFileReport;   //test file report
-    private String TestExFileReport;
-    private int TestAllDone;              //number of all tests
-    private long TestSumGen;          //total number of generations
-    private long TestSumTime;          //total number of generations
-    private double TestSumFitnessTrain; //total number of fitness
-    private double TestSumFitnessTest; //total number of fitness
-    private double TestSumAccuracyTest;
-    private double TestSumAccuracyTrain;
-    private double[] TestFitnessTest = null;
-    private double[] TestFitnessTrain = null;
-    private double[] TrainAccuracy = null;
-    private double[] TestAccuracy = null;
-    private double[] TestGen = null;
-    private double[] TestTime = null;
+    private int testNumber;               // number of tests
+    private String testFileReport;        // test file report
+    private String testExFileReport;      // extended report filename
+    private int testAllDone;              // number of all tests
+    private long testSumGen;              // total number of generations
+    private long testSumTime;             // total time
+    private double testSumFitnessTrain;   // total fitness on train data
+    private double testSumFitnessTest;    // total fitness on test data
+    private double testSumAccuracyTest;
+    private double testSumAccuracyTrain;
+    private double[] testFitnessTest = null;
+    private double[] testFitnessTrain = null;
+    private double[] trainAccuracy = null;
+    private double[] testAccuracy = null;
+    private double[] testGen = null;
+    private double[] testTime = null;
 
-    Report(int _TestNumber, int _crossvalidation, String _TestFileReport, String _TestExFileReport) {
-        ReportContent = new String();
+    Report(int testNumber, int crossvalidation, String testFileReport,
+            String testExFileReport) {
 
-        this.TestNumber = _TestNumber;
-        this.TestFileReport = _TestFileReport;
-        this.TestExFileReport = _TestExFileReport;
+        this.testNumber = testNumber;
+        this.testFileReport = testFileReport;
+        this.testExFileReport = testExFileReport;
 
-        /////////////////////////////////////////////////////
-        TestAllDone = 0;              //number of all tests
-        TestSumGen = 0;          //total number of generations
-        TestSumTime = 0;          //total number of generations
-        TestSumFitnessTrain = 0; //total number of fitness
-        TestSumFitnessTest = 0; //total number of fitness
-        TestSumAccuracyTrain = 0; //total number of fitness
-        TestSumAccuracyTest = 0; //total number of fitness
+        testAllDone = 0;              //number of all tests
+        testSumGen = 0;               //total number of generations
+        testSumTime = 0;              //total number of generations
+        testSumFitnessTrain = 0;      //total number of fitness
+        testSumFitnessTest = 0;       //total number of fitness
+        testSumAccuracyTrain = 0;     //total number of fitness
+        testSumAccuracyTest = 0;      //total number of fitness
 
-
-        /**/
-        TestFitnessTest = new double[TestNumber * _crossvalidation];
-        TestFitnessTrain = new double[TestNumber * _crossvalidation];
-        TestAccuracy = new double[TestNumber * _crossvalidation];
-        TrainAccuracy = new double[TestNumber * _crossvalidation];
-        TestGen = new double[TestNumber * _crossvalidation];
-        TestTime = new double[TestNumber * _crossvalidation];
+        testFitnessTest = new double[testNumber * crossvalidation];
+        testFitnessTrain = new double[testNumber * crossvalidation];
+        testAccuracy = new double[testNumber * crossvalidation];
+        trainAccuracy = new double[testNumber * crossvalidation];
+        testGen = new double[testNumber * crossvalidation];
+        testTime = new double[testNumber * crossvalidation];
     }
 
-//------------------------------------------------------------------------------
-    public void addStatistics(long generations, float fitnessTrain, float fitnessTest, float train_acc, float test_acc, long Time) {
-        TestFitnessTest[TestAllDone] = fitnessTest;
-        TestFitnessTrain[TestAllDone] = fitnessTrain;
-        TestAccuracy[TestAllDone] = test_acc;
-        TrainAccuracy[TestAllDone] = train_acc;
-        TestGen[TestAllDone] = generations;
-        TestTime[TestAllDone] = Time;
+    public void addStatistics(long generations,
+            float fitnessTrain,
+            float fitnessTest,
+            float train_acc,
+            float test_acc,
+            long Time) {
 
-        TestAllDone++;
-        TestSumFitnessTrain += fitnessTrain;
-        TestSumFitnessTest += fitnessTest;
-        TestSumAccuracyTrain += train_acc;
-        TestSumAccuracyTest += test_acc;
-        TestSumTime += Time;
-        TestSumGen += generations;
-        StringBuilder sb = new StringBuilder();
-        sb.append(ReportContent);
-        sb.append(String.format("%.3f", fitnessTrain)).append(";").append(String.format("%.3f", fitnessTest)).append(";").append(String.format("%.3f", train_acc)).append(";").append(String.format("%.3f", test_acc)).append(";").append(generations).append(";").append(Time).append(";;;;\n");
-        ReportContent = sb.toString();
+        testFitnessTest[testAllDone] = fitnessTest;
+        testFitnessTrain[testAllDone] = fitnessTrain;
+        testAccuracy[testAllDone] = test_acc;
+        trainAccuracy[testAllDone] = train_acc;
+        testGen[testAllDone] = generations;
+        testTime[testAllDone] = Time;
+
+        testAllDone++;
+        testSumFitnessTrain += fitnessTrain;
+        testSumFitnessTest += fitnessTest;
+        testSumAccuracyTrain += train_acc;
+        testSumAccuracyTest += test_acc;
+        testSumTime += Time;
+        testSumGen += generations;
+// UNUSED
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(ReportContent);
+//        sb.append(num3(fitnessTrain));
+//        sb.append(";").append(num3(fitnessTest));
+//        sb.append(";").append(num3(train_acc));
+//        sb.append(";").append(num3(test_acc));
+//        sb.append(";").append(generations);
+//        sb.append(";").append(Time).append(";;;;\n");
+//        ReportContent = sb.toString();
     }
 
-//	------------------------------------------------------------------------------
     /**
-     * returns string of test (as String) and writes it info file (if second is true)
+     * returns string of test (as String) 
      * @param Header 
-     * @param writeIntoFile
+     * @return 
      * @throws IOException
      */
-    public String getReportStatistic(String Header, boolean writeIntoFile) throws IOException {
+    public String getReportStatistic(String Header)
+            throws IOException {
 
         //////// SUMMARY REPORT
-        long AvgTime = TestSumTime / TestAllDone;
-        long AvgGen = TestSumGen / TestAllDone;
-        double AvgTest = TestSumFitnessTest / TestAllDone;
-        double AvgTrain = TestSumFitnessTrain / TestAllDone;
-        double AvgTrainAcc = TestSumAccuracyTrain / TestAllDone;
-        double AvgTestAcc = TestSumAccuracyTest / TestAllDone;
+        long AvgTime = testSumTime / testAllDone;
+        long AvgGen = testSumGen / testAllDone;
+        double AvgTest = testSumFitnessTest / testAllDone;
+        double AvgTrain = testSumFitnessTrain / testAllDone;
+        double AvgTrainAcc = testSumAccuracyTrain / testAllDone;
+        double AvgTestAcc = testSumAccuracyTest / testAllDone;
 
         double TestMin = 0;
         double TestMax = 0;
@@ -113,343 +120,416 @@ public class Report  {
         double StdDevTestAcc = 0;
 
         //Standard deviation
-        for (int i = 0; i < TestAllDone; i++) {
+        for (int i = 0; i < testAllDone; i++) {
             if (i == 0) {
-                TestMin = TestFitnessTest[i];
-                TestMax = TestFitnessTest[i];
-                TrainMax = TestFitnessTrain[i];
-                TrainMin = TestFitnessTrain[i];
-                TrainAccMax = TrainAccuracy[i];
-                TrainAccMin = TrainAccuracy[i];
-                TestAccMax = TestAccuracy[i];
-                TestAccMin = TestAccuracy[i];
+                TestMin = testFitnessTest[i];
+                TestMax = testFitnessTest[i];
+                TrainMax = testFitnessTrain[i];
+                TrainMin = testFitnessTrain[i];
+                TrainAccMax = trainAccuracy[i];
+                TrainAccMin = trainAccuracy[i];
+                TestAccMax = testAccuracy[i];
+                TestAccMin = testAccuracy[i];
             }
-            if (TestMin > TestFitnessTest[i]) {
-                TestMin = TestFitnessTest[i];
+            if (TestMin > testFitnessTest[i]) {
+                TestMin = testFitnessTest[i];
             }
-            if (TestMax < TestFitnessTest[i]) {
-                TestMax = TestFitnessTest[i];
+            if (TestMax < testFitnessTest[i]) {
+                TestMax = testFitnessTest[i];
             }
-            if (TrainMin > TestFitnessTrain[i]) {
-                TrainMin = TestFitnessTrain[i];
+            if (TrainMin > testFitnessTrain[i]) {
+                TrainMin = testFitnessTrain[i];
             }
-            if (TrainMax < TestFitnessTrain[i]) {
-                TrainMax = TestFitnessTrain[i];
+            if (TrainMax < testFitnessTrain[i]) {
+                TrainMax = testFitnessTrain[i];
             }
-            if (TrainAccMax < TrainAccuracy[i]) {
-                TrainAccMax = TrainAccuracy[i];
+            if (TrainAccMax < trainAccuracy[i]) {
+                TrainAccMax = trainAccuracy[i];
             }
-            if (TrainAccMin > TrainAccuracy[i]) {
-                TrainAccMin = TrainAccuracy[i];
+            if (TrainAccMin > trainAccuracy[i]) {
+                TrainAccMin = trainAccuracy[i];
             }
-            if (TestAccMax < TestAccuracy[i]) {
-                TestAccMax = TestAccuracy[i];
+            if (TestAccMax < testAccuracy[i]) {
+                TestAccMax = testAccuracy[i];
             }
-            if (TestAccMin > TestAccuracy[i]) {
-                TestAccMin = TestAccuracy[i];
+            if (TestAccMin > testAccuracy[i]) {
+                TestAccMin = testAccuracy[i];
             }
 
 
-            StdDevTest += (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
-            StdDevTrain += (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
-            StdDevTime += (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
-            StdDevGen += (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
-            StdDevTestAcc += (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
-            StdDevTrainAcc += (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
+            StdDevTest += (testFitnessTest[i] - AvgTest) * (testFitnessTest[i] - AvgTest);
+            StdDevTrain += (testFitnessTrain[i] - AvgTrain) * (testFitnessTrain[i] - AvgTrain);
+            StdDevTime += (testTime[i] - AvgTime) * (testTime[i] - AvgTime);
+            StdDevGen += (testGen[i] - AvgGen) * (testGen[i] - AvgGen);
+            StdDevTestAcc += (testAccuracy[i] - AvgTestAcc) * (testAccuracy[i] - AvgTestAcc);
+            StdDevTrainAcc += (trainAccuracy[i] - AvgTrainAcc) * (trainAccuracy[i] - AvgTrainAcc);
         }
-        StdDevTest = Math.sqrt(StdDevTest / TestAllDone);
-        StdDevTrain = Math.sqrt(StdDevTrain / TestAllDone);
-        StdDevTime = Math.sqrt(StdDevTime / TestAllDone);
-        StdDevGen = Math.sqrt(StdDevGen / TestAllDone);
-        StdDevTestAcc = Math.sqrt(StdDevTestAcc / TestAllDone);
-        StdDevTrainAcc = Math.sqrt(StdDevTrainAcc / TestAllDone);
+        StdDevTest = Math.sqrt(StdDevTest / testAllDone);
+        StdDevTrain = Math.sqrt(StdDevTrain / testAllDone);
+        StdDevTime = Math.sqrt(StdDevTime / testAllDone);
+        StdDevGen = Math.sqrt(StdDevGen / testAllDone);
+        StdDevTestAcc = Math.sqrt(StdDevTestAcc / testAllDone);
+        StdDevTrainAcc = Math.sqrt(StdDevTrainAcc / testAllDone);
         ///////////////////////
-        StringBuilder SB = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-        SB.append(Configuration.getConfiguration().toString());
+        sb.append(Configuration.getConfiguration().toString());
+        sb.append("\n time avg ").append(AvgTime / 1000);
+        sb.append("s std.dev").append(num4(StdDevTime / 1000)).append("s");
+        sb.append(" gen ").append(AvgGen);
+        sb.append(" (std.dev").append(num4(StdDevGen)).append(")");
 
-        SB.append("\n time avg ").append(AvgTime / 1000).append("s std.dev").append(String.format("%.4f", StdDevTime / 1000)).append("s");
-        SB.append(" gen ").append(AvgGen).append(" (std.dev").append(String.format("%.4f", StdDevGen)).append(")");
-        SB.append("\n [TRAIN] FSC <avg=").append(String.format("%.4f", AvgTrain)).append(" dev=").append(String.format("%.4f", StdDevTrain)).append(" min=").append(String.format("%.4f", TrainMin)).append(" max=").append(String.format("%.4f", TrainMax)).append(">");
-        SB.append(" ACC <avg=").append(String.format("%.4f", AvgTrainAcc)).append(" dev=").append(String.format("%.4f", StdDevTrainAcc)).append(" min=").append(String.format("%.4f", TrainAccMin)).append(" max=").append(String.format("%.4f", TrainAccMax)).append(">");
-        SB.append("\n [TEST] FSC <avg=").append(String.format("%.4f", AvgTest)).append(" dev=").append(String.format("%.4f", StdDevTest)).append(" min=").append(String.format("%.4f", TestMin)).append(" max=").append(String.format("%.4f", TestMax)).append(">");
-        StringBuilder append = SB.append(" ACC <avg=").append(String.format("%.4f", AvgTestAcc)).append(" dev=").append(String.format("%.4f", StdDevTestAcc)).append(" min=").append(String.format("%.4f", TestAccMin)).append(" max=").append(String.format("%.4f", TestAccMax)).append(">");
-        SB.append("\n===============================================================\n");
+        sb.append("\n [TRAIN] FSC <avg=").append(num4(AvgTrain));
+        sb.append(" dev=").append(num4(StdDevTrain));
+        sb.append(" min=").append(num4(TrainMin));
+        sb.append(" max=").append(num4(TrainMax));
+        sb.append(">");
 
-        return SB.toString();
+        sb.append(" ACC <avg=").append(num4(AvgTrainAcc));
+        sb.append(" dev=").append(num4(StdDevTrainAcc));
+        sb.append(" min=").append(num4(TrainAccMin));
+        sb.append(" max=").append(num4(TrainAccMax));
+        sb.append(">");
+
+        sb.append("\n [TEST] FSC <avg=").append(num4(AvgTest));
+        sb.append(" dev=").append(num4(StdDevTest));
+        sb.append(" min=").append(num4(TestMin));
+        sb.append(" max=").append(num4(TestMax));
+        sb.append(">");
+
+        sb.append(" ACC <avg=").append(num4(AvgTestAcc));
+        sb.append(" dev=").append(num4(StdDevTestAcc));
+        sb.append(" min=").append(num4(TestAccMin));
+        sb.append(" max=").append(num4(TestAccMax));
+        sb.append(">");
+
+        sb.append("\n===============================================================\n");
+
+        return sb.toString();
     }
 
-//---------------------------------------------------------------------------------------------------------
-    public String getCSVReportStatistic(String Header, boolean writeIntoFile) throws IOException {
+    private String num3(float train) {
+        return String.format("%.3f", train);
+    }
+
+    private String num4(double numberToFormat) {
+        return String.format("%.4f", numberToFormat);
+    }
+
+    public String getCSVReportStatistic(String Header) {
 
         //////// SUMMARY REPORT
-        long AvgTime = TestSumTime / TestAllDone;
-        long AvgGen = TestSumGen / TestAllDone;
-        double AvgTest = TestSumFitnessTest / TestAllDone;
-        double AvgTrain = TestSumFitnessTrain / TestAllDone;
-        double AvgTrainAcc = TestSumAccuracyTrain / TestAllDone;
-        double AvgTestAcc = TestSumAccuracyTest / TestAllDone;
+        long avgTime = testSumTime / testAllDone;
+        long avgGen = testSumGen / testAllDone;
+        double avgTest = testSumFitnessTest / testAllDone;
+        double avgTrain = testSumFitnessTrain / testAllDone;
+        double avgTrainAcc = testSumAccuracyTrain / testAllDone;
+        double avgTestAcc = testSumAccuracyTest / testAllDone;
 
-        double TestMin = 0;
-        double TestMax = 0;
-        double TrainMax = 0;
-        double TrainMin = 0;
-        double TrainAccMin = 0;
-        double TrainAccMax = 0;
-        double TestAccMin = 0;
-        double TestAccMax = 0;
+        double testMin = 0;
+        double testMax = 0;
+        double trainMax = 0;
+        double trainMin = 0;
+        double trainAccMin = 0;
+        double trainAccMax = 0;
+        double testAccMin = 0;
+        double testAccMax = 0;
 
-        double StdDevTime = 0;
-        double StdDevGen = 0;
-        double StdDevTest = 0;
-        double StdDevTrain = 0;
-        double StdDevTrainAcc = 0;
-        double StdDevTestAcc = 0;
+        double stdDevTime = 0;
+        double stdDevGen = 0;
+        double stdDevTest = 0;
+        double stdDevTrain = 0;
+        double stdDevTrainAcc = 0;
+        double stdDevTestAcc = 0;
 
         //Standard deviation
-        for (int i = 0; i < TestAllDone; i++) {
+        for (int i = 0; i < testAllDone; i++) {
             if (i == 0) {
-                TestMin = TestFitnessTest[i];
-                TestMax = TestFitnessTest[i];
-                TrainMax = TestFitnessTrain[i];
-                TrainMin = TestFitnessTrain[i];
-                TrainAccMax = TrainAccuracy[i];
-                TrainAccMin = TrainAccuracy[i];
-                TestAccMax = TestAccuracy[i];
-                TestAccMin = TestAccuracy[i];
+                testMin = testFitnessTest[i];
+                testMax = testFitnessTest[i];
+                trainMax = testFitnessTrain[i];
+                trainMin = testFitnessTrain[i];
+                trainAccMax = trainAccuracy[i];
+                trainAccMin = trainAccuracy[i];
+                testAccMax = testAccuracy[i];
+                testAccMin = testAccuracy[i];
             }
-            if (TestMin > TestFitnessTest[i]) {
-                TestMin = TestFitnessTest[i];
+            if (testMin > testFitnessTest[i]) {
+                testMin = testFitnessTest[i];
             }
-            if (TestMax < TestFitnessTest[i]) {
-                TestMax = TestFitnessTest[i];
+            if (testMax < testFitnessTest[i]) {
+                testMax = testFitnessTest[i];
             }
-            if (TrainMin > TestFitnessTrain[i]) {
-                TrainMin = TestFitnessTrain[i];
+            if (trainMin > testFitnessTrain[i]) {
+                trainMin = testFitnessTrain[i];
             }
-            if (TrainMax < TestFitnessTrain[i]) {
-                TrainMax = TestFitnessTrain[i];
+            if (trainMax < testFitnessTrain[i]) {
+                trainMax = testFitnessTrain[i];
             }
-            if (TrainAccMax < TrainAccuracy[i]) {
-                TrainAccMax = TrainAccuracy[i];
+            if (trainAccMax < trainAccuracy[i]) {
+                trainAccMax = trainAccuracy[i];
             }
-            if (TrainAccMin > TrainAccuracy[i]) {
-                TrainAccMin = TrainAccuracy[i];
+            if (trainAccMin > trainAccuracy[i]) {
+                trainAccMin = trainAccuracy[i];
             }
-            if (TestAccMax < TestAccuracy[i]) {
-                TestAccMax = TestAccuracy[i];
+            if (testAccMax < testAccuracy[i]) {
+                testAccMax = testAccuracy[i];
             }
-            if (TestAccMin > TestAccuracy[i]) {
-                TestAccMin = TestAccuracy[i];
+            if (testAccMin > testAccuracy[i]) {
+                testAccMin = testAccuracy[i];
             }
 
 
-            StdDevTest = StdDevTest + (TestFitnessTest[i] - AvgTest) * (TestFitnessTest[i] - AvgTest);
-            StdDevTrain = StdDevTrain + (TestFitnessTrain[i] - AvgTrain) * (TestFitnessTrain[i] - AvgTrain);
-            StdDevTime = StdDevTime + (TestTime[i] - AvgTime) * (TestTime[i] - AvgTime);
-            StdDevGen = StdDevGen + (TestGen[i] - AvgGen) * (TestGen[i] - AvgGen);
-            StdDevTestAcc = StdDevTestAcc + (TestAccuracy[i] - AvgTestAcc) * (TestAccuracy[i] - AvgTestAcc);
-            StdDevTrainAcc = StdDevTrainAcc + (TrainAccuracy[i] - AvgTrainAcc) * (TrainAccuracy[i] - AvgTrainAcc);
+            stdDevTest += (testFitnessTest[i] - avgTest) * (testFitnessTest[i] - avgTest);
+            stdDevTrain += (testFitnessTrain[i] - avgTrain) * (testFitnessTrain[i] - avgTrain);
+            stdDevTime += (testTime[i] - avgTime) * (testTime[i] - avgTime);
+            stdDevGen += (testGen[i] - avgGen) * (testGen[i] - avgGen);
+            stdDevTestAcc += (testAccuracy[i] - avgTestAcc) * (testAccuracy[i] - avgTestAcc);
+            stdDevTrainAcc += (trainAccuracy[i] - avgTrainAcc) * (trainAccuracy[i] - avgTrainAcc);
         }
-        StdDevTest = Math.sqrt(StdDevTest / TestAllDone);
-        StdDevTrain = Math.sqrt(StdDevTrain / TestAllDone);
-        StdDevTime = Math.sqrt(StdDevTime / TestAllDone);
-        StdDevGen = Math.sqrt(StdDevGen / TestAllDone);
-        StdDevTestAcc = Math.sqrt(StdDevTestAcc / TestAllDone);
-        StdDevTrainAcc = Math.sqrt(StdDevTrainAcc / TestAllDone);
+        stdDevTest = Math.sqrt(stdDevTest / testAllDone);
+        stdDevTrain = Math.sqrt(stdDevTrain / testAllDone);
+        stdDevTime = Math.sqrt(stdDevTime / testAllDone);
+        stdDevGen = Math.sqrt(stdDevGen / testAllDone);
+        stdDevTestAcc = Math.sqrt(stdDevTestAcc / testAllDone);
+        stdDevTrainAcc = Math.sqrt(stdDevTrainAcc / testAllDone);
         ///////////////////////
-        StringBuilder CSV = new StringBuilder();
+        StringBuilder csv = new StringBuilder();
 
-//        CSV.append("configuration;time_avg;time_dev;gen_avg;gen_dev;");
-//        CSV.append("tr_fsc_avg;tr_fsc_dev;tr_fsc_min;tr_fsc_max;");
-//        CSV.append("tr_acc_avg;tr_acc_dev;tr_acc_min;tr_acc_max;");
-//        CSV.append("tst_fsc_avg;tst_fsc_dev;tst_fsc_min;tst_fsc_max;");
-//        CSV.append("tst_acc_avg;tst_acc_dev;tst_acc_min;tst_acc_max;\n");
+        // Template:
+        // CSV.append("configuration;time_avg;time_dev;gen_avg;gen_dev;");
+        // CSV.append("tr_fsc_avg;tr_fsc_dev;tr_fsc_min;tr_fsc_max;");
+        // CSV.append("tr_acc_avg;tr_acc_dev;tr_acc_min;tr_acc_max;");
+        // CSV.append("tst_fsc_avg;tst_fsc_dev;tst_fsc_min;tst_fsc_max;");
+        // CSV.append("tst_acc_avg;tst_acc_dev;tst_acc_min;tst_acc_max;\n");
 
-        CSV.append(Configuration.getConfiguration().toCSVString() + ';');
-        CSV.append((AvgTime / 1000) + ";" + String.format("%.4f", StdDevTime / 1000) + ";" + AvgGen + ";" + String.format("%.4f", StdDevGen) + ";");
-        CSV.append(AvgTrain + ";" + String.format("%.4f", StdDevTrain) + ";" + String.format("%.4f", TrainMin) + ";" + String.format("%.4f", TrainMax) + ";");
-        CSV.append(String.format("%.4f", AvgTrainAcc) + ";" + String.format("%.4f", StdDevTrainAcc) + ";" + String.format("%.4f", TrainAccMin) + ";" + String.format("%.4f", TrainAccMax) + ";");
-        CSV.append(String.format("%.4f", AvgTest) + ";" + String.format("%.4f", StdDevTest) + ";" + String.format("%.4f", TestMin) + ";" + String.format("%.4f", TestMax) + ";");
-        CSV.append(String.format("%.4f", AvgTestAcc) + ";" + String.format("%.4f", StdDevTestAcc) + ";" + String.format("%.4f", TestAccMin) + ";" + String.format("%.4f", TestAccMax) + ";");
+        csv.append(Configuration.getConfiguration().toCSVString());
+        csv.append(';').append(avgTime / 1000);
+        csv.append(";").append(num4(stdDevTime / 1000));
+        csv.append(";").append(avgGen);
+        csv.append(";").append(num4(stdDevGen));
+        csv.append(";").append(avgTrain);
+        csv.append(";").append(num4(stdDevTrain));
+        csv.append(";").append(num4(trainMin));
+        csv.append(";").append(num4(trainMax));
+        csv.append(";").append(num4(avgTrainAcc));
+        csv.append(";").append(num4(stdDevTrainAcc));
+        csv.append(";").append(num4(trainAccMin));
+        csv.append(";").append(num4(trainAccMax));
+        csv.append(";").append(num4(avgTest));
+        csv.append(";").append(num4(stdDevTest));
+        csv.append(";").append(num4(testMin));
+        csv.append(";").append(num4(testMax));
+        csv.append(";").append(num4(avgTestAcc));
+        csv.append(";").append(num4(stdDevTestAcc));
+        csv.append(";").append(num4(testAccMin));
+        csv.append(";").append(num4(testAccMax));
+        csv.append(";");
 
-        return CSV.toString().replace('.', ',');
+        return csv.toString().replace('.', ',');
     }
 
-    public void AppendCSVReportLineToFile(String S) {
-        String filename = TestFileReport;
+    public void appendCSVReportLineToFile(String csvLine) {
+        String filename = testFileReport;
         filename = filename.replace(".txt", ".csv");
         if (!filename.endsWith(".csv")) {
-            filename = filename + ".csv";
+            filename += ".csv";
         }
-        AppendCSVReportLineToFile(S, filename);
+        appendTextToFile(csvLine, filename);
     }
 
-    public void AppendCSVReportLineToFile(String S, String filename) {
-        FileOutputStream f = null;
+    public void appendTextToFile(String str, String filename) {
+        FileWriter fw = null;
         try {
-            f = new FileOutputStream(filename, true);
-            f.write(S.getBytes());
-            f.write("\n".getBytes());
-            f.close();
+            fw = new FileWriter(filename, true);
+            fw.write(str);
+            fw.write("\n");
+            fw.close();
         } catch (IOException ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void ReportText(String S) throws IOException {
-        FileOutputStream f = null;
-        try {
-            f = new FileOutputStream(TestFileReport, true);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        f.write(S.getBytes());
-        f.write("\n".getBytes());
-        f.close();
-    }
-
-//---------------------------------------------------------------------------------------------------------
-    public void reportExText(String S) throws IOException {
-        FileOutputStream f = null;
-        try {
-            f = new FileOutputStream(TestExFileReport, true);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        f.write(S.getBytes());
-        f.write("\n".getBytes());
-        f.close();
-    }
-
-    public void extendedReport(Configuration config, Evaluator eval, RuleSet theBestInd) {
-        if (false) {
-            // XXX turned off bigfile generation
+            Logger.getLogger(Report.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
             try {
-                reportExText(config.toString()
-                        + eval.FullClassificationReport(DataLoader.getTrainData(), theBestInd, "TRAIN")
-                        + eval.FullClassificationReport(DataLoader.getTestData(), theBestInd, "TEST"));
+                if (fw != null) {
+                    fw.close();
+                }
             } catch (IOException ex) {
-                Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Report.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-//---------------------------------------------------------------------------------------------------------
+
+    /**
+     * Saves {@code report} string to report file.
+     * Adds new line character after the string.
+     *
+     * @param report to write
+     */
+    public void reportlnText(String report) {
+        appendTextToFile(report, testFileReport);
+    }
+
+    /**
+     * Saves {@code report} string to extended report file.
+     * Adds new line character after the string.
+     * 
+     * @param report to write
+     */
+    public void reportlnExText(String report) {
+        appendTextToFile(report, testExFileReport);
+    }
+
+    public void extendedReport(Configuration config, Evaluator eval, RuleSet best) {
+        if (false) {
+            // XXX turned off bigfile generation
+            final DataSource trainData = DataLoader.getTrainData();
+            final DataSource testData = DataLoader.getTestData();
+            reportlnExText(config.toString()
+                    + fullClassificationReport(trainData, best, "TRAIN")
+                    + fullClassificationReport(testData, best, "TEST"));
+
+        }
+    }
 
     public int getTestNumber() {
-        return TestNumber;
+        return testNumber;
     }
 
-//------------------------------------------------------------------------------
     public int getAllDone() {
-        return TestAllDone;
+        return testAllDone;
     }
 
-//------------------------------------------------------------------------------
     public void consoleReport(String S) {
         System.out.print(S);
     }
 
-    public void consoleString(float train, float train_acc, float test, float test_acc, long time) {
+    public void consoleReport(
+            float train,
+            float train_acc,
+            float test,
+            float test_acc,
+            long time) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n [");
-        sb.append(TestAllDone);
-        sb.append("]. train (Fsc=");
-        sb.append(String.format("%.3f", train));
-        sb.append(" acc=");
-        sb.append(String.format("%.3f", train_acc));
-        sb.append(")  test (Fsc=");
-        sb.append(String.format("%.3f", test));
-        sb.append(" acc=");
-        sb.append(String.format("%.3f", test_acc));
-        sb.append(") time=");
-        sb.append(String.format("%.3f", time / 1000.0));
+        sb.append(testAllDone);
+        sb.append("]. train (Fsc=").append(num3(train));
+        sb.append(" acc=").append(num3(train_acc));
+        sb.append(")  test (Fsc=").append(num3(test));
+        sb.append(" acc=").append(num3(test_acc));
+        sb.append(") time=").append(num3((float) (time / 1000.0)));
         sb.append("s");
         consoleReport(sb.toString());
     }
 
-    public void addCSVLine(long generationNo, float train, float train_acc, float test, float test_acc, long total_time) {
+    public void appendCSVLine(
+            long generationNo,
+            float train,
+            float trainAcc,
+            float test,
+            float testAcc,
+            long totalTime) {
         StringBuilder sb = new StringBuilder();
         sb.append(Configuration.getConfiguration().toCSVString());
-        sb.append(';');
-        sb.append(generationNo);
-        sb.append(";");
-        sb.append(train);
-        sb.append(";");
-        sb.append(train_acc);
-        sb.append(";");
-        sb.append(test);
-        sb.append(";");
-        sb.append(test_acc);
-        sb.append(";");
-        sb.append((((double) total_time) / 1000.0d));
-        AppendCSVReportLineToFile(sb.toString().replace('.', ','), "detailed.csv");
+        sb.append(';').append(generationNo);
+        sb.append(";").append(train);
+        sb.append(";").append(trainAcc);
+        sb.append(";").append(test);
+        sb.append(";").append(testAcc);
+        sb.append(";").append((((double) totalTime) / 1000.0d));
+        String result = sb.toString().replace('.', ',');
+        appendTextToFile(result, "detailed.csv");
     }
 
-    public void report(long generationNo, float train, float train_acc, float test, float test_acc, long getTotalTime) {
-        consoleString(train, train_acc, test, test_acc, getTotalTime);
-        addCSVLine(generationNo, train, train_acc, test, test_acc, getTotalTime);
-        addStatistics(generationNo, train, test, train_acc, test_acc, getTotalTime);
+    public void report(
+            long generationNo,
+            float train,
+            float trainAcc,
+            float test,
+            float testAcc,
+            long totalTime) {
+        consoleReport(train, trainAcc, test, testAcc, totalTime);
+        appendCSVLine(generationNo, train, trainAcc, test, testAcc, totalTime);
+        addStatistics(generationNo, train, test, trainAcc, testAcc, totalTime);
     }
 
     /**
      *
-     * @param theBestIndividual
-     * @param mRulePopulation
-     * @param generationNo
+     * @param best
+     * @param pop
+     * @param generations
      */
-    public void reportAfterOneGeneration(Individual theBestIndividual,
-            Population<? extends Individual> mRulePopulation, long generationNo) {
+    public void reportAfterOneGeneration(Individual best,
+            Population<? extends Individual> pop, long generations) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        sb.append(generationNo);
-        sb.append(";");
-        sb.append(String.format("%.3f", theBestIndividual.getEvaluation().getFitness()));
-        sb.append(";");
-        sb.append(String.format("%.3f", theBestIndividual.getEvaluation().getAccuracy()));
-        sb.append(";");
-        sb.append(String.format("%.3f", mRulePopulation.getAvgFitness()));
-        sb.append(";");
-        sb.append(String.format("%.3f", mRulePopulation.getWorstFitness()));
+        sb.append(generations).append(";");
+        sb.append(String.format("%.3f;", best.getFitness()));
+        sb.append(String.format("%.3f;", best.getAccuracy()));
+        sb.append(String.format("%.3f;", pop.getAvgFitness()));
+        sb.append(num3(pop.getWorstFitness()));
         consoleReport(sb.toString().replace(".", ","));
     }
 
     public void reportBestInd(Individual theBestOfTheBest) {
-        consoleReport(" <THE_BEST " + String.format("%.3f", theBestOfTheBest.getEvaluation().getAccuracy()));
+        consoleReport(" <THE_BEST " + num3(theBestOfTheBest.getAccuracy()));
     }
 
     public void indicateCrossvalidationFold(int no) {
         consoleReport("\n\n CROSSVALIDATION " + no + "\n");
     }
 
-    public void reportAllToFile(Configuration config, Evaluator eval, Individual theBestOfTheBest, Clock totalTimeClock) {
+    public void reportAllToFile(Configuration config, Evaluator eval,
+            Individual theBestOfTheBest, Clock totalTimeClock) {
         final Report report = config.getReport();
-        try {
-            // String R = Config.getReport().getReportStatistic(Configuration.getConfiguration().toString(), true);
-            String CSV = report.getCSVReportStatistic(Configuration.getConfiguration().toString(), true);
-            CSV = CSV + String.format("%.3f", totalTimeClock.GetTotalTime() / 1000.0d);
-            //            Config.getReport().ReportText(R);
-            //            Config.getReport().ConsoleReport(R);
-            report.AppendCSVReportLineToFile(CSV);
-        } catch (IOException ex) {
-            Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+        // String R = Config.getReport().getReportStatistic(
+        // Configuration.getConfiguration().toString(), true);
+        String CSV = report.getCSVReportStatistic(config.toString());
+        CSV += String.format("%.3f", totalTimeClock.GetTotalTime() / 1000.0d);
+        //            Config.getReport().ReportText(R);
+        //            Config.getReport().ConsoleReport(R);
+        report.appendCSVReportLineToFile(CSV);
+
         if (false && theBestOfTheBest instanceof RuleSet) {
-            try {
-                //Eval.Evaluate(DataLoader.getTestData(), TheBestOfTheBest);
-                report.reportExText(config.toString()
-                        + eval.FullClassificationReport(DataLoader.getTrainData(),
-                        (RuleSet) theBestOfTheBest, "TRAIN")
-                        + eval.FullClassificationReport(DataLoader.getTestData(),
-                        (RuleSet) theBestOfTheBest, "TEST"));
-            } catch (IOException ex) {
-                Logger.getLogger(EvoAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+            final DataSource testData = DataLoader.getTestData();
+            final DataSource trainData = DataLoader.getTrainData();
+            StringBuilder sb = new StringBuilder();
+
+            theBestOfTheBest.evaluate(testData);
+            sb.append(config.toString());
+            sb.append(fullClassificationReport(trainData, theBestOfTheBest, "TRAIN"));
+            sb.append(fullClassificationReport(testData, theBestOfTheBest, "TEST"));
+
+            report.reportlnExText(sb.toString());
         }
     }
 
+    /**
+     * Return as string Report of classification of selected RuleSet
+     * @param dSrc dataSource (Train or Test) as dataScurce
+     * @param ind
+     * @param text
+     * @return string for report
+     */
+    public static String fullClassificationReport(DataSource dSrc,
+            Individual ind, String text) {
+
+        StringBuilder sb = new StringBuilder();
+        ind.evaluate(dSrc);
+
+        sb.append("\n############################ ");
+        sb.append(text).append("############################\n");
+        sb.append("\n").append(ind.toString());
+        sb.append("\n\n").append(text).append("_DATASOURCE  ");
+        sb.append(dSrc.toString());
+        sb.append("\n##############################");
+        sb.append("####################################\n");
+
+        return sb.toString();
+    }
+
     public void evoAlgInitStart(String prompt) {
-        System.out.print(prompt + "initalising...");
+        System.out.print(prompt + "initalizing...");
     }
 
     public void evoAlgInitStop(String prompt, String fileSummary) {

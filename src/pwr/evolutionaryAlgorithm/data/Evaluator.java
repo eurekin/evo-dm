@@ -1,7 +1,6 @@
 package pwr.evolutionaryAlgorithm.data;
 
 import java.util.ArrayList;
-import pl.eurekin.util.IterableFilter;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
@@ -14,7 +13,6 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  */
 public class Evaluator {
 
-    private final int classNo = DataLoader.getClassNumber();
     /**
      * Używane tylko przez BB - best breed (?)
      */
@@ -24,6 +22,7 @@ public class Evaluator {
     private final int numberOfAttributes = config.getNumberOfAttributes();
     private final boolean oneClassActive = config.isOneClassActive();
     private final int activeClass = config.getActiveClass();
+    private final int classNo = DataLoader.getClassNumber();
     private final int popSize = config.getPopSize();
     static private Evaluator e = null;
 
@@ -42,46 +41,12 @@ public class Evaluator {
 
     public void evaluate(DataSource DSc, Individual I) {
         if (I instanceof RuleSet) {
-            evaluateRuleSetAllClasses(DSc, (RuleSet) I);
+            RuleSet ruleSet = (RuleSet) I;
+            ruleSet.evaluate(DSc);
         } else if (I instanceof Rule) {
-            evaluateRule(DSc, (Rule) I);
+            Rule rule = (Rule) I;
+            rule.evaluate(DSc);
         }
-    }
-
-    /**
-     * evaluates RuleSet
-     * @param dSrc datasource (traint/test)
-     * @param RuleSet
-     * @return DataSet of all covered data
-     */
-    private void evaluateRuleSetAllClasses(DataSource dSrc, RuleSet rSet) {
-        rSet.clearEvaluations();
-        if (oneClassActive) {
-            rSet.setEvaluation(evaluateSingleClass(rSet, dSrc, activeClass));
-        } else {
-            for (int c = 0; c < classNo; c++) {
-                rSet.setEvaluation(c, evaluateSingleClass(rSet.forClass(c), dSrc, c));
-            }
-        }
-        rSet.doCountTotalEvaluation(classNo);
-    }
-
-    private Evaluation evaluateSingleClass(Iterable<Rule> rules, DataSource dSrc, int c) {
-        DataSet result = new DataSet();
-        for (Rule rule : onlyActive(rules)) {
-            result.addAll(getCoveredDataSet(dSrc, rule));
-        }
-        return result.evaluate(dSrc, c);
-    }
-
-    private static Iterable<Rule> onlyActive(Iterable<Rule> rules) {
-        return new IterableFilter<Rule>(rules) {
-
-            @Override
-            public boolean passes(Rule object) {
-                return object.isActive();
-            }
-        };
     }
 
     /**
@@ -97,7 +62,7 @@ public class Evaluator {
 
         // Tutaj wykorzystywany jest indeks i przeszukiwanie binarne.
         // Wybierane są te rekordy, których dotyczy reguła rule.
-        DataSet ds = getCoveredDataSet(dSrc, rule);
+        DataSet ds = rule.getCoveredDataSet(dSrc);
 
         // Ok, czyli mamy rekordy, których dotyczy reguła rule.
         // Teraz oceniany jest zbiór danych (tak, dokładnie: DataSet),
@@ -210,81 +175,6 @@ public class Evaluator {
                 sb.append("\n---").append(record.toString());
             }
         }
-        return sb.toString();
-    }
-
-    /**
-     * Return as string Report of classification of selected RuleSet
-     * @param dSrc dataSource (Train or Test) as dataScurce
-     * @param rSet
-     * @param text
-     * @return string for report
-     */
-    public String FullClassificationReport(DataSource dSrc,
-            RuleSet rSet, String text) {
-
-        StringBuilder sb = new StringBuilder();
-
-        DataSet DSPart = new DataSet();
-        DataSet DSResult = new DataSet();
-
-        ///////////////////////////////////////////
-        /// only one class active!
-        if (oneClassActive) {
-            DSResult.clear();
-            rSet.clearEvaluations();
-            /// for each rule....
-            for (Rule rule : rSet) {
-                DSPart.clear();
-                //if rule is active and returns such class
-                if (rule.isActive()) {
-                    DSPart = evaluateRule(dSrc, rule);
-                    sb.append(ClassificationReport(dSrc, DSPart, rule));
-                    DSResult = DataSet.operatorPlus(DSResult, DSPart);
-                }
-            } ///// end: for each rule
-            /////// CLASS Summary ///////////////
-            Evaluation evl = DSResult.evaluate(dSrc, activeClass);
-            rSet.setEvaluation(evl);
-        } // all classes are active
-        //for each class....
-        else {
-            rSet.clearEvaluations();
-            ////////////////// CLASSESS ////////////////////////////////////////
-            for (int c = 0; c < classNo; c++) {
-                DSPart.clear();
-                DSResult.clear();
-
-                if (dSrc.getExpected(c) == 0) {
-                    sb.append("=> NO INSTANCES");
-                }
-
-                //////////////////RULES ////////////////////////////////////////
-                for (Rule rule : rSet) {
-                    //if rule is active and returns such class
-                    if (rule.isActive() && rule.getClassID() == c) {
-                        DSPart = evaluateRule(dSrc, rule);
-                        sb.append(ClassificationReport(dSrc, DSPart, rule));
-                        DSResult = DataSet.operatorPlus(DSResult, DSPart);
-                    }
-                }
-                ////////////////END: RULES /////////////////////////////////////
-
-                /////// CLASS Summary ///////////////
-                Evaluation evl = DSResult.evaluate(dSrc, c);
-                rSet.setEvaluation(c, evl);
-            }//////////////////END:CLASSESS ////////////////////////////////////
-        }
-        rSet.doCountTotalEvaluation(classNo);
-
-        sb.append("\n############################ ");
-        sb.append(text).append("############################\n");
-        sb.append("\n").append(rSet.toString());
-        sb.append("\n\n").append(text).append("_DATASOURCE  ");
-        sb.append(dSrc.toString());
-        sb.append("\n##############################");
-        sb.append("####################################\n");
-
         return sb.toString();
     }
 }
