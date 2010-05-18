@@ -160,9 +160,9 @@ public class Coevolution {
                 theBestInd = null;
 
                 // evolutionary version
-                // classifyingPopulation.evaluate(DataLoader.getTrainData());
+                // classifyingPopulation.evaluate();
                 // replaced by:
-                evaluatePopulations();
+                evaluatePopulations(DataLoader.getTrainData());
 
                 /**
                  * Unimplemented
@@ -197,8 +197,6 @@ public class Coevolution {
         //report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
     }
 
-
-
     /**
      * Pewne wątpliwości budzi obecność tej metody w klasie. W jaki
      * sposób właściwie ta informacja miałaby być pobierana? Główny
@@ -231,21 +229,18 @@ public class Coevolution {
      * klasyfikujących i dlatego należy zadbać o poprawną kolejność
      * wykonywania.
      */
-    private void evaluatePopulations() {
+    private void evaluatePopulations(DataSource dSrc) {
         // boilerplate
-        Iterator<SelectingIndividual> si =
-                selectingPopulation.iterator();
-        Iterator<ClassifyingIndividual> ci =
-                classifyingPopulation.iterator();
+        Iterator<SelectingIndividual> si = selectingPopulation.iterator();
+        Iterator<ClassifyingIndividual> ci = classifyingPopulation.iterator();
         SelectingIndividual s;
         ClassifyingIndividual c;
-        DataSource trainData = DataLoader.getTrainData();
         while (si.hasNext() && ci.hasNext()) {
             s = si.next();
             c = ci.next();
 
             // evaluation
-            c.evaluateUsingSubset(s, trainData);
+            c.evaluateUsingSubset(s, dSrc);
             s.evaluateUsingClassifier(c);
         }
 

@@ -134,18 +134,18 @@ public class RuleSet extends Individual implements Iterable<Rule> {
             this.rules.get(i).clearEvaluations();
         }
     }
-    /*
+
+    /**
      *DCC: Data Covering crossoverWith
      */
-
-    public Individual CrossoverDCC(Individual Indv1, Individual Indv2) {
+    private Individual CrossoverDCC(Individual Indv1, Individual Indv2) {
         /**
          * TODO: insert code here
          */
         return null;
     }
 
-    /*
+    /**
      *BCX: Best Class crossoverWith
      */
     private static Individual crossoverBCX(Individual ind1, Individual ind2) {
@@ -240,26 +240,27 @@ public class RuleSet extends Individual implements Iterable<Rule> {
 
     @Override
     public String toString() {
-        StringBuilder SB = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-        SB.append("\n RULESET_EVAL");
-        SB.append("\n TOTAL ").append(totalEvaluation.toString());
+        sb.append("\n RULESET_EVAL");
+        sb.append("\n TOTAL ").append(totalEvaluation.toString());
         ///classes evaluations...
         if (config.isOneClassActive()) {
-            SB.append(evaluations.get(0).toString());
+            sb.append(evaluations.get(0).toString());
         } else {
-            SB.append("\n classes ");
+            sb.append("\n classes ");
             for (int cl = 0; cl < DataLoader.getClassNumber(); cl++) {
-                SB.append("\n cl_").append(cl).append(" [").append(evaluations.get(cl).toString()).append("]");
+                sb.append("\n cl_").append(cl);
+                sb.append(" [").append(evaluations.get(cl)).append("]");
             }
         }
 
-        SB.append("\n\n RULES");
-        for (int i = 0; i < this.rules.size(); i++) {
-            SB.append("\n ").append(this.rules.get(i).toString());
+        sb.append("\n\n RULES");
+        for (Rule rule : rules) {
+            sb.append("\n ").append(rule);
         }
 
-        return SB.toString();
+        return sb.toString();
     }
 
     /**
