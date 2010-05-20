@@ -18,6 +18,8 @@ public abstract class Individual {
         setEvaluation(0, E);
     }
 
+    public abstract Individual getACopy();
+    
     public Evaluation getEvaluation() {
         return getEvaluation(0);
     }

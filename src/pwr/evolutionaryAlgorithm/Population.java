@@ -165,7 +165,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             float bestFitness = 0, candFitness = 0;
             for (int i = 0; i < selection; i++) {
                 candID = Rand.getRandomInt(popSize);
-                candFitness = individuals.get(candID).getEvaluation().getFitness();
+                candFitness = individuals.get(candID).getFitness();
                 if (i == 0 || (i != 0 & bestFitness < candFitness)) {
                     bestID = candID;
                     bestFitness = candFitness;
@@ -180,7 +180,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             int i = -1;
             do {
                 i++;
-                partSum += individuals.get(i).getEvaluation().getFitness();
+                partSum += individuals.get(i).getFitness();
             } while (partSum <= rToken && i < (popSize - 1));
             indv = i;
         } else {

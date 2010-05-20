@@ -332,4 +332,9 @@ public class RuleSet extends Individual implements Iterable<Rule> {
             }
         };
     }
+
+    @Override
+    public Individual getACopy() {
+        return new RuleSet(this);
+    }
 }

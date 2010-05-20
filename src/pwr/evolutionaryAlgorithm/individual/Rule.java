@@ -121,6 +121,10 @@ public class Rule extends Individual {
         return this.toStringBeauty();
     }
 
+
+
+
+
     @Override
     public Individual mutate() {
 
@@ -380,5 +384,10 @@ public class Rule extends Individual {
     @Override
     public Evaluation getEvaluation() {
         return evaluations.get(0);
+    }
+
+    @Override
+    public Individual getACopy() {
+        return new Rule(this);
     }
 }

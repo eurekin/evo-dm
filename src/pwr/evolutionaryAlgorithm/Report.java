@@ -74,16 +74,6 @@ public class Report {
         testSumAccuracyTest += test_acc;
         testSumTime += Time;
         testSumGen += generations;
-// UNUSED
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(ReportContent);
-//        sb.append(num3(fitnessTrain));
-//        sb.append(";").append(num3(fitnessTest));
-//        sb.append(";").append(num3(train_acc));
-//        sb.append(";").append(num3(test_acc));
-//        sb.append(";").append(generations);
-//        sb.append(";").append(Time).append(";;;;\n");
-//        ReportContent = sb.toString();
     }
 
     /**
@@ -378,7 +368,7 @@ public class Report {
         appendTextToFile(report, testExFileReport);
     }
 
-    public void extendedReport(Configuration config, Evaluator eval, RuleSet best) {
+    public void extendedReport(Configuration config, RuleSet best) {
         if (false) {
             // XXX turned off bigfile generation
             final DataSource trainData = DataLoader.getTrainData();

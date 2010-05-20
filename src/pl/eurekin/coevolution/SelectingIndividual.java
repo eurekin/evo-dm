@@ -48,5 +48,10 @@ public class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public Individual getACopy() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 
 }
