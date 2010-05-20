@@ -14,7 +14,8 @@ import static org.junit.Assert.*;
  */
 public class MainTest {
 
-    public static final String TEMPLATE_FILE = "reference.xorshiftrng.output.template2.txt";
+    public static final String TEMPLATE_FILE =
+            "reference.xorshiftrng.output.template2.txt";
 
     public MainTest() {
     }

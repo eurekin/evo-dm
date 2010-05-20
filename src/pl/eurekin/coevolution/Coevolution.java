@@ -25,6 +25,11 @@ import pwr.evolutionaryAlgorithm.individual.Individual;
  */
 public class Coevolution {
 
+    private Clock myClock;
+    private long generation;
+    private Clock totalTimeClock;
+    private Individual theBestInd;
+    private DataLoader dataLoader;
     public static final Logger LOG = Logger.getLogger(Coevolution.class);
     private Population<SelectingIndividual> selectingPopulation;
     private Population<ClassifyingIndividual> classifyingPopulation;
@@ -52,11 +57,6 @@ public class Coevolution {
 
         LOG.trace("Ending main");
     }
-    private Clock myClock;
-    private long generation;
-    private Clock totalTimeClock;
-    private Individual theBestInd;
-    private DataLoader dataLoader;
 
     private void evolve(final Configuration config, final Report report) {
         LOG.trace("Starting evolution.");
@@ -84,10 +84,6 @@ public class Coevolution {
             }
         }
         //END: EA works
-    }
-
-    private void updateTheBestIndividual(Individual I) {
-        theBestInd = new RuleSet((RuleSet) (I));
     }
 
     public DataLoader getDataLoader() {
@@ -162,8 +158,10 @@ public class Coevolution {
                 // evolutionary version
                 // classifyingPopulation.evaluate();
                 // replaced by:
-                evaluatePopulations(DataLoader.getTrainData());
-
+                /**
+                 * Unimplemented
+                 */
+//                evaluatePopulations(DataLoader.getTrainData());
                 /**
                  * Unimplemented
                  */
@@ -207,45 +205,5 @@ public class Coevolution {
      */
     public long getGeneration() {
         return generation;
-    }
-
-    /**
-     * <p>Ocenia osobniki w populacjach używając podejścia 1-1: jednemu
-     * osobnikowi klasyfikującemu przypada jeden wybierający.
-     *
-     * <p>Potrzebujemy dwóch ewaluatorów:
-     *
-     * <p>Jednego do oceniania osobników klasyfikujących. Można skorzystać
-     * z istniejącego kodu. Należy zmodyfikować ocenę tak, aby uwzględnione
-     * zostały odpowiednie przykładu -- wyselekcjonowane przez drugą
-     * populację.
-     *
-     * <p>Drugi ewaluator jest kwestią otwartą. Można zaimplemenentować
-     * ocenę osobnika wybierającego na podstawie tego, jak bardzo
-     * utrudnił osobnikowi oceniającemu. W ten sposób wyselekcjonują
-     * najcięższe przypadki - przynajmniej w zamierzeniu...
-     *
-     * <p>Ocena osobników wybierających zależy od oceny osobników
-     * klasyfikujących i dlatego należy zadbać o poprawną kolejność
-     * wykonywania.
-     */
-    private void evaluatePopulations(DataSource dSrc) {
-        // boilerplate
-        Iterator<SelectingIndividual> si = selectingPopulation.iterator();
-        Iterator<ClassifyingIndividual> ci = classifyingPopulation.iterator();
-        SelectingIndividual s;
-        ClassifyingIndividual c;
-        while (si.hasNext() && ci.hasNext()) {
-            s = si.next();
-            c = ci.next();
-
-            // evaluation
-            c.evaluateUsingSubset(s, dSrc);
-            s.evaluateUsingClassifier(c);
-        }
-
-        // health & safety
-        assert !si.hasNext() && !ci.hasNext() :
-                "Co-evolving populations differ in size";
     }
 }

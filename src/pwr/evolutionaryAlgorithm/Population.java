@@ -5,7 +5,6 @@ import java.util.Iterator;
 import pl.eurekin.coevolution.ClassifyingIndividual;
 import pl.eurekin.coevolution.SelectingIndividual;
 import pwr.evolutionaryAlgorithm.data.DataSource;
-import pwr.evolutionaryAlgorithm.data.Evaluator;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.Rule;
@@ -87,7 +86,7 @@ public class Population<I extends Individual> implements Iterable<I> {
         fitnessAvg = fitnessSum / popSize;
     }
 
-    public void init() {
+    public final void init() {
         for (Individual ind : individuals) {
             ind.init();
         }
@@ -148,6 +147,7 @@ public class Population<I extends Individual> implements Iterable<I> {
             throw new RuntimeException(
                     "Oooops... Unsupported Individual type");
         }
+        init();
     }
 
     /**

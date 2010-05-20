@@ -355,23 +355,23 @@ public class Configuration implements Serializable {
         if (this.Comment.length() > 0 || this.FileComment.length() > 0) {
             sb.append("\n----------------------------------------------------------------------");
             if (this.Comment.length() > 0) {
-                sb.append("\n  # " + this.Comment);
+                sb.append("\n  # ").append(this.Comment);
             }
             if (this.FileComment.length() > 0) {
-                sb.append("\n  # " + this.FileComment);
+                sb.append("\n  # ").append(this.FileComment);
             }
         }
         sb.append("\n----------------------------------------------------------------------\n");
-        sb.append(Configuration.getConfiguration().getPrompt() + DataLoader.FileSummary() + "  ");
-        sb.append("\n C(pop=" + config.getPopSize() + ", gen=" + config.getStopGeneration());
-        sb.append(", rules=" + config.getNumberOfRules());
-        sb.append(", crossvalidation=" + config.getCrossvalidationValue());
+        sb.append(Configuration.getConfiguration().getPrompt()).append(DataLoader.FileSummary()).append("  ");
+        sb.append("\n C(pop=").append(config.getPopSize()).append(", gen=").append(config.getStopGeneration());
+        sb.append(", rules=").append(config.getNumberOfRules());
+        sb.append(", crossvalidation=").append(config.getCrossvalidationValue());
         sb.append(isFsc() ? " Fit FSC " : " Fit ACC ");
-        sb.append(" Pm=" + Configuration.getConfiguration().getMutationValue());
-        sb.append(" " + Configuration.getConfiguration().getMutationType());
-        sb.append(" Px=" + Configuration.getConfiguration().getCrossoverValue());
-        sb.append(" " + Configuration.getConfiguration().getCrossoverType());
-        sb.append(" sel=" + Configuration.getConfiguration().getSelection() + " )");
+        sb.append(" Pm=").append(Configuration.getConfiguration().getMutationValue());
+        sb.append(" ").append(Configuration.getConfiguration().getMutationType());
+        sb.append(" Px=").append(Configuration.getConfiguration().getCrossoverValue());
+        sb.append(" ").append(Configuration.getConfiguration().getCrossoverType());
+        sb.append(" sel=").append(Configuration.getConfiguration().getSelection()).append(" )");
         return sb.toString();
     }
 
@@ -381,9 +381,9 @@ public class Configuration implements Serializable {
         // SB.append("file_comment;system;pop_size;stop_gen;rule_no;cross_value
         // ;measure;mutation_val;mutation_type;crossover_value;crossover_type;
         // selection\n");
-        sb.append(this.Comment);
+        sb.append(Comment);
         sb.append(";");
-        sb.append(this.FileComment);
+        sb.append(FileComment);
         sb.append(";");
         sb.append("[CAREX2.4]");
         sb.append(";");
@@ -395,17 +395,17 @@ public class Configuration implements Serializable {
         sb.append(";");
         sb.append(cfg.getCrossvalidationValue());
         sb.append(";");
-        sb.append((this.isFsc() ? "Fit FSC" : "Fit ACC"));
+        sb.append(isFsc() ? "Fit FSC" : "Fit ACC");
         sb.append(";");
-        sb.append(Configuration.getConfiguration().getMutationValue());
+        sb.append(cfg.getMutationValue());
         sb.append(";");
-        sb.append(Configuration.getConfiguration().getMutationType());
+        sb.append(cfg.getMutationType());
         sb.append(";");
-        sb.append(Configuration.getConfiguration().getCrossoverValue());
+        sb.append(cfg.getCrossoverValue());
         sb.append(";");
-        sb.append(Configuration.getConfiguration().getCrossoverType());
+        sb.append(cfg.getCrossoverType());
         sb.append(";");
-        sb.append(Configuration.getConfiguration().getSelection());
+        sb.append(cfg.getSelection());
         sb.append(";");
         return sb.toString();
     }

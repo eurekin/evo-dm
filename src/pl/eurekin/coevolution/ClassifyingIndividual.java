@@ -1,7 +1,6 @@
 package pl.eurekin.coevolution;
 
 import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.Population;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.DataSet;
 import pwr.evolutionaryAlgorithm.data.DataSource;
@@ -17,10 +16,23 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  * do ewaluacji.
  *
  * @author Rekin
- * @deprecated needs to be synchronized with new Evaluation API -- fast
  */
-@Deprecated
 public class ClassifyingIndividual extends RuleSet {
+
+    @Override
+    protected Evaluation evaluateDataSet(DataSet toAccept,
+            DataSource dSrc, int c) {
+        // filter out unnecessary records using this
+        // classifyingIndividual
+        DataSet accepted = toAccept;
+
+        // Finally evaluate. Special care is needed while
+        // counting "expected". We are dealing only with
+        // a subset of original DataSet, so the count must
+        // be tweaked accordingly.
+        Evaluation eval = accepted.evaluate(dSrc, c, dSrc.getExpected(c));
+        return eval;
+    }
 
     /**
      * Noop. Wymagane przez createPopulations do identyfikacji konstruowanego

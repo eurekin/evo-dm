@@ -6,7 +6,7 @@ import pwr.evolutionaryAlgorithm.utils.Rand;
 public class DataSource {
 
     private ArrayList<Record> data;
-    private long dataExpectedByClass[];
+    private int dataExpectedByClass[];
     /**
      * INDEX. Could be cleanly abstracted as a list of DataIndex of some sort.
      */
@@ -129,7 +129,7 @@ public class DataSource {
 
         if (ds.dataExpectedByClass != null) {
             int classes = DataLoader.getClassNumber();
-            dataExpectedByClass = new long[classes];
+            dataExpectedByClass = new int[classes];
             System.arraycopy(ds.dataExpectedByClass, 0, dataExpectedByClass, 0, classes);
         } else {
             dataExpectedByClass = null;
@@ -179,7 +179,7 @@ public class DataSource {
 
         ////////////////////////////////////////////////////////////////////////
         //Expected - for each class
-        dataExpectedByClass = new long[DataLoader.getClassNumber()];
+        dataExpectedByClass = new int[DataLoader.getClassNumber()];
         for (int i = 0; i < DataLoader.getClassNumber(); i++) {
             dataExpectedByClass[i] = 0;
         }
@@ -304,7 +304,7 @@ public class DataSource {
      * @param classID
      * @return
      */
-    public long getExpected(int classID) {
+    public int getExpected(int classID) {
         return dataExpectedByClass[classID];
     }
 

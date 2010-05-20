@@ -136,16 +136,6 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     }
 
     /**
-     *DCC: Data Covering crossoverWith
-     */
-    private Individual CrossoverDCC(Individual Indv1, Individual Indv2) {
-        /**
-         * TODO: insert code here
-         */
-        return null;
-    }
-
-    /**
      *BCX: Best Class crossoverWith
      */
     private static Individual crossoverBCX(Individual ind1, Individual ind2) {
@@ -314,13 +304,36 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         doCountTotalEvaluation(classNo);
     }
 
-    private static Evaluation evaluateSingleClass(Iterable<Rule> rules,
+    private Evaluation evaluateSingleClass(Iterable<Rule> rules,
             DataSource dSrc, int c) {
         DataSet result = new DataSet();
         for (Rule rule : onlyActive(rules)) {
             result.addAll(rule.getCoveredDataSet(dSrc));
         }
-        return result.evaluate(dSrc, c);
+        return evaluateDataSet(result, dSrc, c);
+    }
+
+    /**
+     * <p>The root evaluation method. The plumbing methods go over
+     * each class, every rule set and so on and uses this method
+     * in the end.
+     *
+     * <p>Override to provide specialized evaluation capabilities.
+     *
+     * @param toAccept data set
+     * @param dSrc data source
+     * @param c class
+     * @return Evaluation of the data set for class c using dSrc
+     */
+    protected Evaluation evaluateDataSet(DataSet toAccept,
+            DataSource dSrc, int c) {
+        return toAccept.evaluate(dSrc, c);
+    }
+
+    // Helpers
+    @Override
+    public Individual getACopy() {
+        return new RuleSet(this);
     }
 
     private static Iterable<Rule> onlyActive(Iterable<Rule> rules) {
@@ -331,10 +344,5 @@ public class RuleSet extends Individual implements Iterable<Rule> {
                 return object.isActive();
             }
         };
-    }
-
-    @Override
-    public Individual getACopy() {
-        return new RuleSet(this);
     }
 }

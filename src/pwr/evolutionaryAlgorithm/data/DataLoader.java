@@ -310,10 +310,10 @@ public class DataLoader {
             int WordsInImage = 0;
             int from = 0, to = 0;
             do {
-                to = strLineWords.indexOf(" ", from);
+                to = strLineWords.indexOf(' ', from);
                 WordsInImage++;
                 from = to + 1;
-            } while (to < strLineWords.lastIndexOf(" "));
+            } while (to < strLineWords.lastIndexOf(' '));
             ////////////////////////////////////////////////////////////////////
             if (test == false) {
                 dataArguments = Configuration.getConfiguration().getNumberOfAttributes();
@@ -400,7 +400,7 @@ public class DataLoader {
         s.append(dataClassNames.size());
         s.append(" [");
         for (int i = 0; i < dataClassNames.size(); i++) {
-            s.append(" " + i + "'" + dataClassNames.get(i) + "'");
+            s.append(" ").append(i).append("'").append(dataClassNames.get(i)).append("'");
         }
         s.append(" ]");
         s.append(" Data(train=");

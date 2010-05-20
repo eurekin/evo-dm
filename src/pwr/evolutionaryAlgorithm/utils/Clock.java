@@ -46,7 +46,7 @@ public class Clock {
         mils = totalTime % 1000L;
     }
 
-    public void Reset() {
+    public final void Reset() {
         totalTime = 0;
         hrs = 0;
         mins = 0;

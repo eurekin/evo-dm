@@ -467,7 +467,7 @@ public class Report {
         consoleReport("\n\n CROSSVALIDATION " + no + "\n");
     }
 
-    public void reportAllToFile(Configuration config, Evaluator eval,
+    public void reportAllToFile(Configuration config,
             Individual theBestOfTheBest, Clock totalTimeClock) {
         final Report report = config.getReport();
 

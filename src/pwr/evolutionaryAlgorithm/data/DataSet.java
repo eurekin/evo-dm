@@ -168,13 +168,16 @@ public class DataSet implements Iterable<Record> {
      * @return
      */
     public Evaluation evaluate(DataSource dSrc, int classId) {
+        return evaluate(dSrc, classId, dSrc.getExpected(classId));
+    }
+
+    public Evaluation evaluate(DataSource dSrc, int classId, int expected) {
         final float rcl, prc, pPt, rPt, eSc, fSc, out, acc;
-        final float alpha, expected, correct, generated;
+        final float alpha, correct, generated;
 
         // get input data
         alpha = 0.5f;
         generated = size();
-        expected = dSrc.getExpected(classId);
         correct = getCorrectCount(classId);
 
         // recall & precision - corrected to handle division by zero
