@@ -19,6 +19,10 @@ public class Population<I extends Individual> implements Iterable<I> {
     private float fitnessSum = 0.0f;
     private final int popSize = Configuration.getConfiguration().getPopSize();
 
+    public int size() {
+        return individuals.size();
+    }
+
     /**
      * Proper OO
      *

@@ -1,38 +1,37 @@
 package pl.eurekin.coevolution;
 
-import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.DataSet;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
-import pwr.evolutionaryAlgorithm.data.Evaluator;
-import pwr.evolutionaryAlgorithm.individual.Rule;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 
 /**
  * Potrzebuje podmienić wyłącznie ewaluację
  *
- * Najlepiej byłoby, jakby ta klasa korzystała z już dostępnego API
+ * <p>Najlepiej byłoby, jakby ta klasa korzystała z już dostępnego API
  * do ewaluacji.
+ *
+ * <p><b>UWAGA 1.</b>Trzeba dobrze rozpatrzyć ewaluację na zbiorach
+ * uczących i testowych. W przypadku nadklasy - RuleSet - ewaluacja
+ * może się odbywać po dwóch zbiorach: testowym i treningowym. Ta
+ * klasa przeznaczona jest do ewaluacji na konkretnym podzbiorze
+ * zbioru treningowego. Problem: Jak oceniać tego osobnika na zbiorze
+ * testowym? Otóż, jedyne sensowne rozwiązanie to na całym zbiorze.
+ * Podobnie, na etapie wyłącznie OCENY tego osobnika, należałoby
+ * rozróżnić wszystkie sposoby oceniania.
+ *
+ * <p>Ogólnie każdy RuleSet można oceniać na:<ol>
+ * <li>Zbiorze trenującym</li>
+ * <li>Zbiorze testowym</li>
+ * <li>Dowolnym <em>podzbiorze</em></li>
+ * </ol>
  *
  * @author Rekin
  */
 public class ClassifyingIndividual extends RuleSet {
 
-    @Override
-    protected Evaluation evaluateDataSet(DataSet toAccept,
-            DataSource dSrc, int c) {
-        // filter out unnecessary records using this
-        // classifyingIndividual
-        DataSet accepted = toAccept;
+    private SelectingIndividual selector;
 
-        // Finally evaluate. Special care is needed while
-        // counting "expected". We are dealing only with
-        // a subset of original DataSet, so the count must
-        // be tweaked accordingly.
-        Evaluation eval = accepted.evaluate(dSrc, c, dSrc.getExpected(c));
-        return eval;
-    }
 
     /**
      * Noop. Wymagane przez createPopulations do identyfikacji konstruowanego
@@ -54,107 +53,7 @@ public class ClassifyingIndividual extends RuleSet {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    /**
-     * Ewolucyjny odpowiednik:
-     * {@link Population#evaluate(DataSource) }
-     *
-     * Odpowiadająca metoda ocenia... I ROBI statystyki -- trzeba to
-     * uwzględnić w koewolucji.
-     *
-     * @param s osobnik wybierający podzbiór danych
-     * @param dSrc to przykładowo dane treningowe
-     */
-    void evaluateUsingSubset(SelectingIndividual s, DataSource dSrc) {
-        evaluateRuleSetUsingSelector(dSrc, s, this);
-    }
-
-    /**
-     * evaluates RuleSet using specified subset of DataSource
-     * @param dSrc datasource (train/test)
-     * @param sl
-     * @param ci
-     * @return DataSet of all covered data
-     */
-    private DataSet evaluateRuleSetUsingSelector(
-            DataSource dSrc,
-            SelectingIndividual si,
-            ClassifyingIndividual ci) {
-
-        DataSet DSetResult = new DataSet(), DSetPart;
-        Configuration config = Configuration.getConfiguration();
-        Evaluator evl = Evaluator.getEvaluator();
-
-        ci.clearEvaluations();
-        ///////////////////////////////////////////
-        /// only one class active!
-        if (config.isOneClassActive()) {
-            DSetResult.clear();
-
-            /// for each rule....
-            for (Rule rule : ci.getRules()) {
-                //if rule is active and returns such class
-                if (rule.isActive()) {
-                    DSetPart = evl.getCoveredDataSet(dSrc, rule);
-                    DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
-                }
-            } ///// end: for each rule
-            /////// CLASS Summary ///////////////
-            final int activeClass = config.getActiveClass();
-            Evaluation evl2 = DSetResult.evaluate(dSrc, activeClass);
-            ci.setEvaluation(evl2);
-        } else {
-            // all classes are active
-            //for each class....
-            ////////////////// CLASSESS ////////////////////////////////////////
-            for (int c = 0; c < DataLoader.getClassNumber(); c++) {
-                DSetResult.clear();
-
-                // Z punktu widzenia implementacji koewolucji najważniejszy
-                // jest moment kiedy mogę odfiltrować rekordy. Zostawić tylko
-                // te, które wybrane są przez osobnika wybierającego. Problem
-                // w tym, żeby zachować poprawność oceniania populacji. Gdzieś
-                // trzeba zmodyfikować ocenę, gdyż w koewolucji osobnik klasy-
-                // fikujący widzi tylko podzbiór danych.
-
-                // Fill DSetResult with appropriate racords related to class c
-                for (Rule rule : ci.getRules()) {
-                    //if rule is active and returns such class
-                    if (rule.isActive() && rule.getClassID() == c) {
-                        // niejawnie (poprzez regułę) zawarta jest
-                        // też informacja o wybranej klasie (c)
-                        DSetPart = evl.getCoveredDataSet(dSrc, rule);
-                        DSetResult = DataSet.operatorPlus(DSetResult, DSetPart);
-                    }
-                }
-                ////////////////END: RULES /////////////////////////////////////
-
-                // Po poprzednich krokach posiadamy DataSet (DSetResult),
-                // który zawiera rekordy zebrane dla klasy c.
-
-                // Należy odfiltrować te, których nie wybrał osobnik
-                // wybierający.
-                DSetResult = filterUsingSelectingIndividual(si, DSetResult);
-
-                Evaluation evl2 = DSetResult.evaluate(dSrc, c);
-                ci.setEvaluation(c, evl2);
-            }//////////////////END:CLASSESS ////////////////////////////////////
-        }
-
-        // do average value of all classes -> without unused (or not tested)
-        // class. Pozostało jedynie policzenie średniej wartości, ze
-        // wszystkich klas.
-        ci.doCountTotalEvaluation(DataLoader.getClassNumber());
-        return DSetResult;
-    }
-
-    private DataSet filterUsingSelectingIndividual(SelectingIndividual si,
-            DataSet set) {
-        DataSet result = new DataSet(set.size());
-
-        // TODO selecting implementation placeholder
-        result = new DataSet(set);
-        //
-
-        return result;
+    public void setSelector(SelectingIndividual selector) {
+        this.selector = selector;
     }
 }

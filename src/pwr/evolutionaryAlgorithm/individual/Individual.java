@@ -19,7 +19,7 @@ public abstract class Individual {
     }
 
     public abstract Individual getACopy();
-    
+
     public Evaluation getEvaluation() {
         return getEvaluation(0);
     }
@@ -48,7 +48,9 @@ public abstract class Individual {
 
     public abstract Individual crossoverWith(final Individual Indv1);
 
-    public abstract int diversityMeasure(final Individual I);
+    public int diversityMeasure(final Individual I) {
+        throw new UnsupportedOperationException("Phi...");
+    }
 
     protected abstract int getGenesInIndividual();
 

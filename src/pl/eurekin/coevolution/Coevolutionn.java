@@ -26,7 +26,7 @@ public class Coevolutionn {
     private Population<RuleSet> rulePopulation;
     private BestIndividualSelector<RuleSet> bestOfRun;
     private Population<SelectingIndividual> selectingPopulation;
-    private Population<ClassifyingIndividual> classifyingPopulation;
+    private Population<RuleSet> classifyingPopulation;
 
     public void initPopulation() {
         rulePopulation = new Population<RuleSet>(new RuleSet());
@@ -35,7 +35,7 @@ public class Coevolutionn {
         selectingPopulation =
                 new Population<SelectingIndividual>(new SelectingIndividual());
         classifyingPopulation =
-                new Population<ClassifyingIndividual>(new ClassifyingIndividual());
+                new Population<RuleSet>(new RuleSet());
 
         selectingPopulation.evaluate(DataLoader.getTrainData());
         classifyingPopulation.evaluate(DataLoader.getTrainData());
@@ -175,24 +175,35 @@ public class Coevolutionn {
      * <p>Ocena osobników wybierających zależy od oceny osobników
      * klasyfikujących i dlatego należy zadbać o poprawną kolejność
      * wykonywania.
+     *
+     * <p>Z implementacyjnego punktu widzenia ta metoda realizuje
+     * strategię łączenia osobników wybierających z klasyfikującymi.
+     * Łączy osobników z dwóch populacji w pary, lub ujmując bardziej
+     * symbolicznie: 1-1 (jeden do jednego).
+     *
+     * <p>Istnieje możliwość obrania innej strategii łączenia. W
+     * ramach badań możnaby wypróbować: <ol>
+     * <li> 1-1 </li>
+     * <li> 1-n </li>
+     * <li> n-n </li>
+     * </ol>
      */
     private void evaluatePopulations(DataSource dSrc) {
-        // boilerplate
+        assert selectingPopulation.size() == classifyingPopulation.size() :
+                "Co-evolving populations must be the same size";
+
         Iterator<SelectingIndividual> si = selectingPopulation.iterator();
-        Iterator<ClassifyingIndividual> ci = classifyingPopulation.iterator();
+        Iterator<RuleSet> ci = classifyingPopulation.iterator();
         SelectingIndividual s;
-        ClassifyingIndividual c;
+        RuleSet c;
         while (si.hasNext() && ci.hasNext()) {
             s = si.next();
             c = ci.next();
 
             // evaluation
-            c.evaluateUsingSubset(s, dSrc);
+            c.evaluate(dSrc, s);
             s.evaluateUsingClassifier(c);
         }
 
-        // health & safety
-        assert !si.hasNext() && !ci.hasNext() :
-                "Co-evolving populations differ in size";
     }
 }
