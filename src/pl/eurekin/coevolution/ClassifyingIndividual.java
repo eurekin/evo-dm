@@ -30,7 +30,7 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  */
 public class ClassifyingIndividual extends RuleSet {
 
-    private SelectingIndividual selector;
+    private Selector selector;
 
 
     /**
@@ -53,7 +53,7 @@ public class ClassifyingIndividual extends RuleSet {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    public void setSelector(SelectingIndividual selector) {
+    public void setSelector(Selector selector) {
         this.selector = selector;
     }
 }

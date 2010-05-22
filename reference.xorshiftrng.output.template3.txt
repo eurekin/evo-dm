@@ -1,0 +1,28 @@
+ [CAREX2.4] initalizing...
+done!
+ [CAREX2.4]  dataFile:data/iris/iris.csv inst.:150 atrib:4 classes:3 [ 0'Iris-setosa' 1'Iris-versicolor' 2'Iris-virginica' ] Data(train=150, test=0)
+ 0[75]
+ 1[75]
+ CROSSVALIDATION 0
+ [0]. train (Fsc=0,648 acc=0,769)  test (Fsc=0,629 acc=0,800) time=0,288s
+ [1]. train (Fsc=0,420 acc=0,542)  test (Fsc=0,357 acc=0,502) time=0,103s
+ [2]. train (Fsc=0,469 acc=0,796)  test (Fsc=0,455 acc=0,760) time=0,033s
+ [3]. train (Fsc=0,672 acc=0,640)  test (Fsc=0,638 acc=0,591) time=0,047s
+ [4]. train (Fsc=0,300 acc=0,538)  test (Fsc=0,224 acc=0,480) time=0,028s
+ [5]. train (Fsc=0,510 acc=0,636)  test (Fsc=0,541 acc=0,658) time=0,024s
+ [6]. train (Fsc=0,585 acc=0,707)  test (Fsc=0,627 acc=0,707) time=0,052s
+ [7]. train (Fsc=0,300 acc=0,538)  test (Fsc=0,244 acc=0,493) time=0,016s
+ [8]. train (Fsc=0,691 acc=0,871)  test (Fsc=0,605 acc=0,622) time=0,063s
+ [9]. train (Fsc=0,440 acc=0,502)  test (Fsc=0,391 acc=0,431) time=0,020s
+ CROSSVALIDATION 1
+ [10]. train (Fsc=0,467 acc=0,560)  test (Fsc=0,496 acc=0,578) time=0,014s
+ [11]. train (Fsc=0,619 acc=0,849)  test (Fsc=0,562 acc=0,596) time=0,015s
+ [12]. train (Fsc=0,568 acc=0,609)  test (Fsc=0,571 acc=0,622) time=0,019s
+ [13]. train (Fsc=0,671 acc=0,884)  test (Fsc=0,643 acc=0,653) time=0,043s
+ [14]. train (Fsc=0,591 acc=0,569)  test (Fsc=0,584 acc=0,564) time=0,033s
+ [15]. train (Fsc=0,443 acc=0,600)  test (Fsc=0,390 acc=0,387) time=0,035s
+ [16]. train (Fsc=0,742 acc=0,809)  test (Fsc=0,798 acc=0,862) time=0,040s
+<THE_BEST 0,862
+ [17]. train (Fsc=0,298 acc=0,484)  test (Fsc=0,288 acc=0,453) time=0,013s
+ [18]. train (Fsc=0,346 acc=0,702)  test (Fsc=0,346 acc=0,516) time=0,018s
+ [19]. train (Fsc=0,355 acc=0,547)  test (Fsc=0,398 acc=0,556) time=0,009s

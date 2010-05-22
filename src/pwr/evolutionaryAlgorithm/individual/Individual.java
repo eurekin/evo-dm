@@ -20,16 +20,10 @@ public abstract class Individual {
 
     public abstract Individual getACopy();
 
-    public Evaluation getEvaluation() {
-        return getEvaluation(0);
-    }
+    public abstract Evaluation getEvaluation();
 
     public Evaluation getEvaluation(int cl) {
-        if (cl < evaluations.size() && evaluations.get(cl) != null) {
-            return evaluations.get(cl);
-        } else {
-            return null;
-        }
+        return evaluations.get(cl);
     }
 
     public void setEvaluation(int cl, Evaluation evl) {
@@ -57,7 +51,7 @@ public abstract class Individual {
     @Override
     public abstract String toString();
 
-    // Convinience delegates
+    // Convenience delegates
     public float getFsc() {
         return getEvaluation().getFsc();
     }

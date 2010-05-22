@@ -4,6 +4,7 @@ import java.util.BitSet;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import pwr.evolutionaryAlgorithm.data.DataSet;
 import pwr.evolutionaryAlgorithm.data.DataSource;
+import pwr.evolutionaryAlgorithm.data.Evaluation;
 import pwr.evolutionaryAlgorithm.data.Record;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
@@ -12,21 +13,29 @@ import pwr.evolutionaryAlgorithm.individual.RuleSet;
  *
  * @author Rekin
  */
-public class SelectingIndividual extends Individual {
+public class Selector extends Individual {
 
     private final BitSet chromosome;
+    private Evaluation evaluation;
 
-    public SelectingIndividual(int length) {
-        this.chromosome = new BitSet(length);
+    public Selector(Selector sel) {
+        this.chromosome = sel.chromosome;
+        this.evaluation = sel.evaluation;
     }
 
-    public SelectingIndividual() {
+    public Selector(int length) {
+        this.chromosome = new BitSet(length);
+        this.evaluation = new Evaluation(1, 1, 1, 1);
+    }
+
+    public Selector() {
         this(DataLoader.getTrainData().size());
     }
 
     @Override
     public void init() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // it seeems the constructor is doing all
+        // the necessary work
     }
 
     @Override
@@ -34,9 +43,32 @@ public class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    // Have to override specific behavior of superclass
+    // (Wasn't the specific classes for this stuff?)
+    @Override
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
+    @Override
+    public Evaluation getEvaluation(int cl) {
+        return evaluation;
+    }
+
     @Override
     public void evaluate(DataSource dSrc) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // Evaluate on dSrc? Doesn't work this way...
+        // Selector has to be evaluated on corresponding
+        // classiffying individual - RuleSet to be exact.
+    }
+
+    public void evaluateUsingClassifier(RuleSet c) {
+        // TODO: use other strategies
+        evaluation = new Evaluation(
+                1 - c.getPrecision(),
+                1 - c.getRecall(),
+                1 - c.getFsc(),
+                1 - c.getAccuracy());
     }
 
     @Override
@@ -54,13 +86,9 @@ public class SelectingIndividual extends Individual {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    void evaluateUsingClassifier(RuleSet c) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
     @Override
     public Individual getACopy() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Selector(this);
     }
 
     /**
@@ -73,7 +101,7 @@ public class SelectingIndividual extends Individual {
         DataSet result = new DataSet(toAccept.size());
 
         // TODO selecting implementation placeholder
-        for (Record rec : result) {
+        for (Record rec : toAccept) {
             if (selected(rec)) {
                 result.addRecord(rec);
             }
@@ -83,7 +111,7 @@ public class SelectingIndividual extends Individual {
 
     private boolean selected(Record rec) {
         // watch out for the NEGATION - it's temporary test fixture
-        return !chromosome.get(rec.getId());
+        return  !chromosome.get(rec.getId());
     }
 
     /**

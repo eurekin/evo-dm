@@ -3,7 +3,7 @@ package pwr.evolutionaryAlgorithm;
 import java.util.ArrayList;
 import java.util.Iterator;
 import pl.eurekin.coevolution.ClassifyingIndividual;
-import pl.eurekin.coevolution.SelectingIndividual;
+import pl.eurekin.coevolution.Selector;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.individual.Individual;
@@ -72,7 +72,7 @@ public class Population<I extends Individual> implements Iterable<I> {
         updateStatistics();
     }
 
-    private void updateStatistics() {
+    public void updateStatistics() {
         float fitness = 0.0f;
         fitnessSum = 0;
         fitnessBest = Float.NEGATIVE_INFINITY;
@@ -132,9 +132,9 @@ public class Population<I extends Individual> implements Iterable<I> {
                 r = new ClassifyingIndividual();
                 individuals.add((I) r);
             }
-        } else if (type instanceof SelectingIndividual) {
+        } else if (type instanceof Selector) {
             for (int i = 0; i < popSize; i++) {
-                r = new SelectingIndividual();
+                r = new Selector();
                 individuals.add((I) r);
             }
         } else if (type instanceof RuleSet) {

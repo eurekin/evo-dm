@@ -23,17 +23,14 @@ public class Coevolutionn {
     private long generation;
     private final Configuration config;
     private final Report report;
-    private Population<RuleSet> rulePopulation;
-    private BestIndividualSelector<RuleSet> bestOfRun;
-    private Population<SelectingIndividual> selectingPopulation;
+    private BestIndividualSelector<RuleSet> bestClsOfRun;
+    private Population<Selector> selectingPopulation;
     private Population<RuleSet> classifyingPopulation;
+    private BestIndividualSelector<Selector> bestSelOfRun;
 
     public void initPopulation() {
-        rulePopulation = new Population<RuleSet>(new RuleSet());
-        rulePopulation.evaluate(DataLoader.getTrainData());
-
         selectingPopulation =
-                new Population<SelectingIndividual>(new SelectingIndividual());
+                new Population<Selector>(new Selector());
         classifyingPopulation =
                 new Population<RuleSet>(new RuleSet());
 
@@ -81,26 +78,30 @@ public class Coevolutionn {
         // warunek stopu
         boolean stop = false;
         generation = 0;
-        bestOfRun = new BestIndividualSelector<RuleSet>();
+        bestClsOfRun = new BestIndividualSelector<RuleSet>();
+        bestSelOfRun = new BestIndividualSelector<Selector>();
         // MAIN Evolutionary Algorithm
         while (!stop) {
             /*new generation*/
-            rulePopulation = rulePopulation.recombinate();
+            classifyingPopulation = classifyingPopulation.recombinate();
             generation++;
-            evaluatePopulations(DataLoader.getTestData());
+            evaluatePopulations(DataLoader.getTrainData());
             //the best individual
-            bestOfRun.rememberBestFrom(rulePopulation);
+            bestClsOfRun.rememberBestFrom(classifyingPopulation);
+            bestSelOfRun.rememberBestFrom(selectingPopulation);
             reportGenerationEnd();
-            stop = config.getStopEval() <= rulePopulation.getBestFitness();
+            stop = config.getStopEval() <= classifyingPopulation.getBestFitness();
             stop |= config.getStopGeneration() == generation;
         }
         //END: EA works
     }
 
     private void reportGenerationEnd() {
-        if (config.isEcho()) {
-            report.reportAfterOneGeneration(bestOfRun.getBest(),
-                    rulePopulation, generation);
+        if (config.isEcho() || true) {
+            report.reportAfterOneGeneration(bestClsOfRun.getBest(),
+                    classifyingPopulation, generation);
+            report.reportAfterOneGeneration(bestSelOfRun.getBest(),
+                    selectingPopulation, generation);
         }
     }
 
@@ -111,8 +112,16 @@ public class Coevolutionn {
         generation = 0;
         config = null;
         report = null;
-        rulePopulation = new Population<RuleSet>(new RuleSet());
-        rulePopulation.init();
+        classifyingPopulation = new Population<RuleSet>(new RuleSet());
+        classifyingPopulation.init();
+    }
+
+    public static void main(String[] args) {
+        Configuration.newConfiguration("_iris", "IRIS with CX");
+        Configuration config = Configuration.getConfiguration();
+        config.setPcrossover(0.4f);
+        Coevolutionn coev = new Coevolutionn(config);
+        coev.start();
     }
 
     public Coevolutionn(String ConfigFileName, String ResearchComment) {
@@ -128,16 +137,16 @@ public class Coevolutionn {
     public Coevolutionn(Configuration config) {
         this.config = config;
         report = config.getReport();
-        DataLoader.getDataLoader(config);
         String prompt = config.getPrompt();
         report.evoAlgInitStart(prompt);
+        DataLoader.getDataLoader(config);
         report.evoAlgInitStop(prompt, DataLoader.FileSummary());
     }
     private BestIndividualSelector<RuleSet> bestOfFold;
 
     public void evaluateAndReport(Clock clock) {
         final float trainFsc, trainAcc, testFsc, testAcc;
-        final RuleSet best = bestOfRun.getBest();
+        final RuleSet best = bestClsOfRun.getBest();
 
         best.evaluate(DataLoader.getTrainData());
         trainFsc = best.getFsc();
@@ -192,9 +201,9 @@ public class Coevolutionn {
         assert selectingPopulation.size() == classifyingPopulation.size() :
                 "Co-evolving populations must be the same size";
 
-        Iterator<SelectingIndividual> si = selectingPopulation.iterator();
+        Iterator<Selector> si = selectingPopulation.iterator();
         Iterator<RuleSet> ci = classifyingPopulation.iterator();
-        SelectingIndividual s;
+        Selector s;
         RuleSet c;
         while (si.hasNext() && ci.hasNext()) {
             s = si.next();
@@ -204,6 +213,9 @@ public class Coevolutionn {
             c.evaluate(dSrc, s);
             s.evaluateUsingClassifier(c);
         }
+
+        classifyingPopulation.updateStatistics();
+        selectingPopulation.updateStatistics();
 
     }
 }

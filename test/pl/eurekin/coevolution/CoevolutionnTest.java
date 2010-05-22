@@ -1,23 +1,28 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-import pl.eurekin.coevolution.ComparingPrintStream;
+package pl.eurekin.coevolution;
+
 import java.io.PrintStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+//import static org.junit.Assert.*;
 import pwr.evolutionaryAlgorithm.utils.FileLineReader;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Rekin
  */
-public class MainTest {
+public class CoevolutionnTest {
+
+    public CoevolutionnTest() {
+    }
 
     public static final String TEMPLATE_FILE =
-            "reference.xorshiftrng.output.template2.txt";
-
-    public MainTest() {
-    }
+            "reference.xorshiftrng.output.template3.txt";
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -31,12 +36,13 @@ public class MainTest {
      * Test of main method, of class Main.
      */
     @Test
-    public void testMain() {
-        System.out.println("main");
+    public void testCoevolutionn() {
+        System.out.println("coevolutionn");
         final PrintStream oldOut = System.out;
         final FileLineReader properOutput =
                 new FileLineReader(TEMPLATE_FILE);
         System.setOut(new ComparingPrintStream(oldOut, properOutput));
-        Main.main(null);
+        Coevolutionn.main(null);
     }
+
 }

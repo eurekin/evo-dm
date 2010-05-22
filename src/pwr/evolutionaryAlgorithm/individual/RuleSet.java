@@ -3,7 +3,7 @@ package pwr.evolutionaryAlgorithm.individual;
 import java.util.ArrayList;
 import java.util.Iterator;
 import pl.eurekin.coevolution.ClassifyingIndividual;
-import pl.eurekin.coevolution.SelectingIndividual;
+import pl.eurekin.coevolution.Selector;
 import pl.eurekin.util.IterableFilter;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
@@ -290,7 +290,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         };
     }
 
-    public void evaluate(DataSource dSrc, SelectingIndividual sel) {
+    public void evaluate(DataSource dSrc, Selector sel) {
         clearEvaluations();
         Evaluation eval;
         if (oneClassActive) {
@@ -313,7 +313,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     }
 
     private Evaluation evaluateSingleClass(Iterable<Rule> rules,
-            DataSource dSrc, int c, SelectingIndividual sel) {
+            DataSource dSrc, int c, Selector sel) {
         DataSet result = new DataSet();
         for (Rule rule : onlyActive(rules)) {
             result.addAll(rule.getCoveredDataSet(dSrc));
@@ -334,7 +334,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
      * @return Evaluation of the data set for class c using dSrc
      */
     private Evaluation evaluateDataSet(DataSet toAccept,
-            DataSource dSrc, int c, SelectingIndividual sel) {
+            DataSource dSrc, int c, Selector sel) {
         if (sel != null) {
             DataSet accepted = sel.filter(toAccept);
             return accepted.evaluate(dSrc, c, sel.count(dSrc, c));
@@ -372,7 +372,7 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     @Deprecated
     private DataSet evaluateRuleSetUsingSelector(
             DataSource dSrc,
-            SelectingIndividual si,
+            Selector si,
             ClassifyingIndividual ci) {
 
         DataSet DSetResult = new DataSet(), DSetPart;

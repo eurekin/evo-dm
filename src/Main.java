@@ -77,7 +77,9 @@ public class Main {
                         0.0f,
                         (float) MAX,
                         testedParameterMinRange,
-                        testedParameterMaxRange));
+                        testedParameterMaxRange)
+
+                        );
                 e = new EvoAlgorithm(config);
                 e.start();
                 subClock.Pause();

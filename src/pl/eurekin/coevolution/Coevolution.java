@@ -1,6 +1,5 @@
 package pl.eurekin.coevolution;
 
-import java.util.Iterator;
 import org.apache.log4j.Logger;
 import pwr.evolutionaryAlgorithm.Report;
 import pwr.evolutionaryAlgorithm.Population;
@@ -8,7 +7,6 @@ import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 import pwr.evolutionaryAlgorithm.data.Evaluator;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
-import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
 import pwr.evolutionaryAlgorithm.individual.Individual;
 
@@ -31,7 +29,7 @@ public class Coevolution {
     private Individual theBestInd;
     private DataLoader dataLoader;
     public static final Logger LOG = Logger.getLogger(Coevolution.class);
-    private Population<SelectingIndividual> selectingPopulation;
+    private Population<Selector> selectingPopulation;
     private Population<ClassifyingIndividual> classifyingPopulation;
 
     /**
@@ -39,8 +37,8 @@ public class Coevolution {
      */
     private void createPopulations() {
         selectingPopulation =
-                new Population<SelectingIndividual>(
-                new SelectingIndividual());
+                new Population<Selector>(
+                new Selector());
         classifyingPopulation =
                 new Population<ClassifyingIndividual>(
                 new ClassifyingIndividual());
