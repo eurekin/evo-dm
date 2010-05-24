@@ -449,14 +449,20 @@ public class Report {
      */
     public void reportAfterOneGeneration(Individual best,
             Population<? extends Individual> pop, long generations) {
+        String rep = "\n" + genReport(best, pop, generations);
+        consoleReport(rep);
+    }
+
+    public String genReport(Individual best,
+            Population<? extends Individual> pop, long generations) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n");
         sb.append(generations).append(";");
         sb.append(String.format("%.3f;", best.getFitness()));
         sb.append(String.format("%.3f;", best.getAccuracy()));
         sb.append(String.format("%.3f;", pop.getAvgFitness()));
         sb.append(num3(pop.getWorstFitness()));
-        consoleReport(sb.toString().replace(".", ","));
+        String rep = sb.toString().replace(".", ",");
+        return rep;
     }
 
     public void reportBestInd(Individual theBestOfTheBest) {

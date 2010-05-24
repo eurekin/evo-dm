@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
 import java.io.Serializable;
 
-
 /**
  *
  * Singleton class
@@ -65,6 +64,26 @@ public class Configuration implements Serializable {
     private String TestExFileReport;
     private boolean MUTATION_OF_CLASS = true;
     private float FITNESS_DEFAULT = -99f;
+    private boolean coevEcho;
+    private float coevSelCrossoverProb;
+    private float coevSelMutationProb;
+    private boolean coevEnabled;
+
+    public float getCoevSelMutationProb() {
+        return coevSelMutationProb;
+    }
+
+    public void setCoevSelMutationProb(float coevSelMutationProb) {
+        this.coevSelMutationProb = coevSelMutationProb;
+    }
+
+    public float getCoevSelCrossoverProb() {
+        return coevSelCrossoverProb;
+    }
+
+    public void setCoevSelCrossoverProb(float coevCrossoverProb) {
+        this.coevSelCrossoverProb = coevCrossoverProb;
+    }
 
     private Configuration(String FileName) {
         StringBuilder S = new StringBuilder();
@@ -102,10 +121,14 @@ public class Configuration implements Serializable {
         FileComment = properties.getProperty("FILE_COMMENT");
         // Booleans
         ECHO = Boolean.parseBoolean(properties.getProperty("ECHO"));
+        coevEcho = Boolean.parseBoolean(properties.getProperty("coev.echo"));
         Fsc = Boolean.parseBoolean(properties.getProperty("FSC"));
+        coevEnabled = Boolean.parseBoolean(properties.getProperty("coev.enabled"));
         // Floats
         Pcrossover = Float.parseFloat(properties.getProperty("Pcrossover"));
         Pmutation = Float.parseFloat(properties.getProperty("Pmutation"));
+        coevSelCrossoverProb = Float.parseFloat(properties.getProperty("coev.sel.crossoverProb"));
+        coevSelMutationProb = Float.parseFloat(properties.getProperty("coev.sel.mutationProb"));
         StopEval = Float.parseFloat(properties.getProperty("StopEval"));
         // Integers
         RULE_ATTRIBUTES = Integer.parseInt(properties.getProperty("RULE_ATTRIBUTES"));                  //number of attributes
@@ -137,6 +160,18 @@ public class Configuration implements Serializable {
             MUTATION = MutationType.SM; //standard random mutation -> simple mutation
         }
         ReportIT = new Report(TestNumber, CrossValidation, TestFileReport, TestExFileReport);
+    }
+
+    public boolean isCoevEnabled() {
+        return coevEnabled;
+    }
+
+    public void setCoevEnabled(boolean coevEnabled) {
+        this.coevEnabled = coevEnabled;
+    }
+
+    public boolean isCoevEcho() {
+        return coevEcho;
     }
 
     public enum MutationType {

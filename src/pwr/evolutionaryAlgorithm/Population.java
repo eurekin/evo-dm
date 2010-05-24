@@ -23,19 +23,23 @@ public class Population<I extends Individual> implements Iterable<I> {
         return individuals.size();
     }
 
+    public Population<I> recombinate() {
+        return recombinate(Configuration.getConfiguration().getCrossoverValue());
+    }
+
     /**
      * Proper OO
      *
      * Krzyżowanie i mutacja
+     * @param crossoverValue 
      * @return new population (new object)
      */
     @SuppressWarnings("unchecked")
-    public Population<I> recombinate() {
+    public Population<I> recombinate(final float crossoverValue) {
         Population<I> tmp = new Population<I>();
         int i = 0; //individuals counter
         final Configuration configuration = Configuration.getConfiguration();
         final int selection = configuration.getSelection();
-        final float crossoverValue = configuration.getCrossoverValue();
         I p1, p2;
         do {
             p1 = select(selection);

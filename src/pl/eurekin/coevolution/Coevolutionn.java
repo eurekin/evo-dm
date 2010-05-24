@@ -29,10 +29,8 @@ public class Coevolutionn {
     private BestIndividualSelector<Selector> bestSelOfRun;
 
     public void initPopulation() {
-        selectingPopulation =
-                new Population<Selector>(new Selector());
-        classifyingPopulation =
-                new Population<RuleSet>(new RuleSet());
+        selectingPopulation = new Population<Selector>(new Selector());
+        classifyingPopulation = new Population<RuleSet>(new RuleSet());
 
         selectingPopulation.evaluate(DataLoader.getTrainData());
         classifyingPopulation.evaluate(DataLoader.getTrainData());
@@ -80,10 +78,14 @@ public class Coevolutionn {
         generation = 0;
         bestClsOfRun = new BestIndividualSelector<RuleSet>();
         bestSelOfRun = new BestIndividualSelector<Selector>();
+        // ehhhh, nie chcem, ale muszem
+        final float evPCx = config.getCrossoverValue();
+        final float cvPCx = config.getCoevSelCrossoverProb();
         // MAIN Evolutionary Algorithm
         while (!stop) {
             /*new generation*/
-            classifyingPopulation = classifyingPopulation.recombinate();
+            classifyingPopulation = classifyingPopulation.recombinate(evPCx);
+            selectingPopulation = selectingPopulation.recombinate(cvPCx);
             generation++;
             evaluatePopulations(DataLoader.getTrainData());
             //the best individual
@@ -97,12 +99,18 @@ public class Coevolutionn {
     }
 
     private void reportGenerationEnd() {
-        if (config.isEcho() || true) {
-            report.reportAfterOneGeneration(bestClsOfRun.getBest(),
-                    classifyingPopulation, generation);
-            report.reportAfterOneGeneration(bestSelOfRun.getBest(),
-                    selectingPopulation, generation);
+        StringBuilder sb = new StringBuilder();
+        if (config.isEcho()) {
+            sb.append(report.genReport(bestClsOfRun.getBest(),
+                    classifyingPopulation, generation));
+            sb.append(";");
         }
+        if (config.isCoevEcho()) {
+            sb.append(report.genReport(bestSelOfRun.getBest(),
+                    selectingPopulation, generation));
+        }
+        sb.append("\n");
+        report.consoleReport(sb.toString());
     }
 
     /**

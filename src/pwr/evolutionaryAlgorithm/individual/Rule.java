@@ -17,9 +17,9 @@ public class Rule extends Individual {
     private ArrayList<RuleGene> conditionOnAttribute;
     private BitSet classID;
     private final Configuration config = Configuration.getConfiguration();
+    private final float mutationValue = config.getMutationValue();
     private final int classBits = config.getClassBits();
     private final MutationType mutationType = config.getMutationType();
-    private final float mutationValue = config.getMutationValue();
     private final int numberOfAttributes = config.getNumberOfAttributes();
     private final boolean oneClassActive = config.isOneClassActive();
     private final int activeClass = config.getActiveClass();

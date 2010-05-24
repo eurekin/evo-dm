@@ -85,6 +85,10 @@ public class DataLoader {
                 }
             }
         }
+//         Coevolution requires this identification
+        for (int i = 0; i < trainData.size(); i++) {
+            trainData.get(i).setId(i);
+        }
         testData.OrganizeData();
         trainData.OrganizeData();
     }

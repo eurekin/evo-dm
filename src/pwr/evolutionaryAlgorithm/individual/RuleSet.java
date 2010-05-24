@@ -376,7 +376,6 @@ public class RuleSet extends Individual implements Iterable<Rule> {
             ClassifyingIndividual ci) {
 
         DataSet DSetResult = new DataSet(), DSetPart;
-        Configuration config = Configuration.getConfiguration();
         Evaluator evl = Evaluator.getEvaluator();
 
         ci.clearEvaluations();
@@ -394,7 +393,6 @@ public class RuleSet extends Individual implements Iterable<Rule> {
                 }
             } ///// end: for each rule
             /////// CLASS Summary ///////////////
-            final int activeClass = config.getActiveClass();
             Evaluation evl2 = DSetResult.evaluate(dSrc, activeClass);
             ci.setEvaluation(evl2);
         } else {

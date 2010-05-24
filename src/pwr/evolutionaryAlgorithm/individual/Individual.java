@@ -46,7 +46,9 @@ public abstract class Individual {
         throw new UnsupportedOperationException("Phi...");
     }
 
-    protected abstract int getGenesInIndividual();
+    protected int getGenesInIndividual() {
+        return -1;
+    }
 
     @Override
     public abstract String toString();
