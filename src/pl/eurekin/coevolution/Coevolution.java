@@ -1,91 +1,131 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package pl.eurekin.coevolution;
 
-import org.apache.log4j.Logger;
-import pwr.evolutionaryAlgorithm.Report;
-import pwr.evolutionaryAlgorithm.Population;
+import java.util.Iterator;
+import pl.eurekin.util.BestIndividualSelector;
+import pl.eurekin.util.Configurator;
 import pwr.evolutionaryAlgorithm.Configuration;
-import pwr.evolutionaryAlgorithm.utils.Clock;
-import pwr.evolutionaryAlgorithm.data.Evaluator;
+import pwr.evolutionaryAlgorithm.Population;
+import pwr.evolutionaryAlgorithm.Report;
 import pwr.evolutionaryAlgorithm.data.DataLoader;
+import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.individual.RuleSet;
-import pwr.evolutionaryAlgorithm.individual.Individual;
+import pwr.evolutionaryAlgorithm.utils.Clock;
+import static pl.eurekin.util.Configurator.Dataset.*;
 
 /**
- *
- * <p><b>Oceny<b>Każda z populacji wymaga osobnego podejścia do funkcji
- * oceny. Osobnik klasyfikujący dodatkowo może być oceniany na dwa różne
- * sposoby: <ol>
- * <li>Na całym zbiorze</li>
- * <li>Na wybranym podzbiorze</li>
- * </ol>
  *
  * @author Rekin
  */
 public class Coevolution {
 
-    private Clock myClock;
     private long generation;
-    private Clock totalTimeClock;
-    private Individual theBestInd;
-    private DataLoader dataLoader;
-    public static final Logger LOG = Logger.getLogger(Coevolution.class);
+    private final Configuration config;
+    private final Report report;
+    private BestIndividualSelector<RuleSet> bestClsOfRun;
     private Population<Selector> selectingPopulation;
-    private Population<ClassifyingIndividual> classifyingPopulation;
+    private Population<RuleSet> classifyingPopulation;
+    private BestIndividualSelector<Selector> bestSelOfRun;
+
+    public void initPopulation() {
+        selectingPopulation = new Population<Selector>(new Selector());
+        classifyingPopulation = new Population<RuleSet>(new RuleSet());
+
+        selectingPopulation.evaluate(DataLoader.getTrainData());
+        classifyingPopulation.evaluate(DataLoader.getTrainData());
+    }
+
+    public void start() {
+        final int testNo = report.getTestNumber();
+        final int crossvalidationNo = config.getCrossvalidationValue();
+        final Clock totalTimeClock = new Clock();
+        final Clock myClock = new Clock();
+        bestOfFold = new BestIndividualSelector<RuleSet>();
+        //CROSSVALIDATION CV TIMES
+        DataLoader.doCrossvalidation();
+        for (int cv = 0; cv < crossvalidationNo; cv++) {
+            report.indicateCrossvalidationFold(cv);
+            //RUN N-times EA....
+            for (int run = 0; run < testNo; run++) {
+                // czas jednego powtórzenia kroswalidacji
+                myClock.Reset();
+                myClock.Start();
+                totalTimeClock.Start();
+                initPopulation();
+                // EA START
+                evolve();
+                // EA DONE
+                myClock.Pause();
+                totalTimeClock.Pause();
+                evaluateAndReport(myClock);
+            }
+            DataLoader.doCrossvalidationNext();
+        }
+        //END: CROSSVALIDATION CV TIMES
+        report.reportAllToFile(config, bestOfFold.getBest(), totalTimeClock);
+    }
 
     /**
-     * Creates & initializes both populations
+     * Evolutionary Algorithm - core implementation
+     *
+     * @param config supplying parameters
+     * @param report object to send messages to
      */
-    private void createPopulations() {
-        selectingPopulation =
-                new Population<Selector>(
-                new Selector());
-        classifyingPopulation =
-                new Population<ClassifyingIndividual>(
-                new ClassifyingIndividual());
-    }
-
-    public static void main(String... args) {
-        LOG.trace("Starting main");
-
-        Configuration.newConfiguration("_iris", "coTest");
-        Configuration conf = Configuration.getConfiguration();
-        Coevolution c = new Coevolution(conf);
-
-        c.start();
-
-        LOG.trace("Ending main");
-    }
-
-    private void evolve(final Configuration config, final Report report) {
-        LOG.trace("Starting evolution.");
+    private void evolve() {
         // warunek stopu
-        boolean stopEval = false;
+        boolean stop = false;
         generation = 0;
-        final long stopGeneration = config.getStopGeneration();
+        bestClsOfRun = new BestIndividualSelector<RuleSet>();
+        bestSelOfRun = new BestIndividualSelector<Selector>();
+        // ehhhh, nie chcem, ale muszem
+        final float evPCx = config.getCrossoverValue();
+        final float cvPCx = config.getCoevSelCrossoverProb();
         // MAIN Evolutionary Algorithm
-        while (stopEval == false && stopGeneration != generation) {
+        while (!stop) {
             /*new generation*/
-            classifyingPopulation = classifyingPopulation.recombinate();
+            classifyingPopulation = classifyingPopulation.recombinate(evPCx);
+            selectingPopulation = selectingPopulation.recombinate(cvPCx);
             generation++;
-            classifyingPopulation.evaluate(DataLoader.getTrainData());
+            evaluatePopulations(DataLoader.getTrainData());
             //the best individual
-            if (classifyingPopulation.getBestFitness()
-                    > theBestInd.getFitness()) {
-                theBestInd = new RuleSet((RuleSet) classifyingPopulation.getBestIndividual());
-            }
-            if (config.getStopEval() <= classifyingPopulation.getBestFitness()) {
-                stopEval = true;
-                break;
-            }
-            if (config.isEcho()) {
-                report.reportAfterOneGeneration(theBestInd, classifyingPopulation, generation);
-            }
+            bestClsOfRun.rememberBestFrom(classifyingPopulation);
+            bestSelOfRun.rememberBestFrom(selectingPopulation);
+            reportGenerationEnd();
+            stop = config.getStopEval() <= classifyingPopulation.getBestFitness();
+            // stop |= config.getStopGeneration() == generation;
         }
         //END: EA works
     }
 
-    public DataLoader getDataLoader() {
-        return dataLoader;
+    private void reportGenerationEnd() {
+        boolean rep = false;
+        StringBuilder sb = new StringBuilder();
+        if (config.isEcho()) {
+            sb.append(report.genReport(classifyingPopulation.getBestIndividual(),
+                    classifyingPopulation, generation));
+            sb.append(Report.DLM);
+            rep = true;
+        }
+        if (config.isCoevSubEcho()) {
+            sb.append(report.genReport(selectingPopulation.getBestIndividual(),
+                    selectingPopulation, generation));
+            sb.append(Report.DLM);
+            rep = true;
+        }
+        if (config.isCoevClsEcho()) {
+            classifyingPopulation.evaluate(DataLoader.getTrainData());
+            // Have to evaluate on whole dataset
+            sb.append(report.genReport(classifyingPopulation.getBestIndividual(),
+                    classifyingPopulation, generation));
+            rep = true;
+        }
+        sb.append("\n");
+        if (rep) {
+            report.consoleReport(sb.toString());
+        }
     }
 
     /**
@@ -93,13 +133,27 @@ public class Coevolution {
      */
     public Coevolution() {
         generation = 0;
-        myClock.Reset();
-        myClock = new Clock();
-        theBestInd = new RuleSet();
+        config = null;
+        report = null;
+        classifyingPopulation = new Population<RuleSet>(new RuleSet());
         classifyingPopulation.init();
-        totalTimeClock = new Clock();
-        dataLoader = new DataLoader(null, null);
-        createPopulations();
+    }
+
+    public static void main(String[] args) {
+        Configuration.setConfiguration(new Configurator() //
+                // CONFIGURATION BEGIN
+                .dataset(IRIS) //
+                .mutationSimple(0.003f) //
+                .crossoverSimple(0f) //
+                .generations(400) //
+                .populationSize(200) //
+                .tournamentSel(2) //
+                .crossvalidation(10, 1) //
+                // CONFIGURATION END
+                .build());//
+
+        Coevolution coev = new Coevolution(Configuration.getConfiguration());
+        coev.start();
     }
 
     public Coevolution(String ConfigFileName, String ResearchComment) {
@@ -113,95 +167,87 @@ public class Coevolution {
     }
 
     public Coevolution(Configuration config) {
-        Report report = config.getReport();
+        this.config = config;
+        report = config.getReport();
         String prompt = config.getPrompt();
         report.evoAlgInitStart(prompt);
-        dataLoader = DataLoader.getDataLoader(config);
-        myClock = new Clock();
-        theBestInd = new RuleSet();
+        DataLoader.getDataLoader(config);
         report.evoAlgInitStop(prompt, DataLoader.FileSummary());
     }
+    private BestIndividualSelector<RuleSet> bestOfFold;
 
-    public void start() {
-        /**
-         * Można wykorzystać ewaluator z podstawowej wersji, bo służy
-         * właśnie do oceny na bazie całego zbioru. I w ten sposób
-         * można obiektywnie porównywać osiągi koewolucji z ewolucją.
-         */
-        Evaluator eval = Evaluator.getEvaluator();
-        ClassifyingIndividual theBestOfTheBest = null;
-        totalTimeClock = new Clock();
-        totalTimeClock.Reset();
-        final Configuration config = Configuration.getConfiguration();
-        final Report report = config.getReport();
-        final int testNo = report.getTestNumber();
-        int crossvalidationNo = config.getCrossvalidationValue();
+    public void evaluateAndReport(Clock clock) {
+        final float trainFsc, trainAcc, testFsc, testAcc;
+        final RuleSet best = bestClsOfRun.getBest();
 
-        //CROSSVALIDATION CV TIMES
-        DataLoader.doCrossvalidation();
-        for (int cv = 0; cv < crossvalidationNo; cv++) {
-            report.indicateCrossvalidationFold(cv);
+        best.evaluate(DataLoader.getTrainData());
+        trainFsc = best.getFsc();
+        trainAcc = best.getAccuracy();
 
-            //RUN N-times EA....
-            for (int run = 0; run < testNo; run++) {
-                // czas jednego powtórzenia kroswalidacji
-                myClock.Reset();
-                myClock.Start();
-                totalTimeClock.Start();
+        best.evaluate(DataLoader.getTestData());
+        testFsc = best.getFsc();
+        testAcc = best.getAccuracy();
 
-                // tworzenie nowej populacji
-                createPopulations();
-                theBestInd = null;
+        report.report(generation, trainFsc, trainAcc, testFsc, testAcc, clock.GetTotalTime());
+        report.extendedReport(config, best);
 
-                // evolutionary version
-                // classifyingPopulation.evaluate();
-                // replaced by:
-                /**
-                 * Unimplemented
-                 */
-//                evaluatePopulations(DataLoader.getTrainData());
-                /**
-                 * Unimplemented
-                 */
-                //evaluatePopulations();
-                /**
-                 * Unimplemented
-                 */
-                //updateTheBestIndividual(classifyingPopulation.getBestIndividual());
-                // EA START
-                /**
-                 * Unimplemented
-                 */
-                //evolve(config, report);
-                // EA DONE
-                myClock.Pause();
-                totalTimeClock.Pause();
-                /**
-                 * Unimplemented
-                 */
-                //evaluateAndReport(eval, report, config);
-                /**
-                 * Unimplemented
-                 */
-                //theBestOfTheBest = getNewBestOfTheBestIndividual(theBestOfTheBest, eval, config);
-            }
-            DataLoader.doCrossvalidationNext();
-        }//END: CROSSVALIDATION CV TIMES
-        /**
-         * Unimplemented
-         */
-        //report.reportAllToFile(config, eval, theBestOfTheBest, totalTimeClock);
+        bestOfFold.rememberIfBest(best);
+        if (bestOfFold.isBetterThanLastOne()) {
+            report.reportBestInd(best);
+        }
     }
 
     /**
-     * Pewne wątpliwości budzi obecność tej metody w klasie. W jaki
-     * sposób właściwie ta informacja miałaby być pobierana? Główny
-     * algorytm jest blokujący, więc w grę wchodzi jedynie inny wątek.
-     * To z kolei wymagałoby użycia mechanizmu synchronizacj.
-     * 
-     * @return aktualna liczba pokoleń
+     * <p>Ocenia osobniki w populacjach używając podejścia 1-1: jednemu
+     * osobnikowi klasyfikującemu przypada jeden wybierający.
+     *
+     * <p>Potrzebujemy dwóch ewaluatorów:
+     *
+     * <p>Jednego do oceniania osobników klasyfikujących. Można skorzystać
+     * z istniejącego kodu. Należy zmodyfikować ocenę tak, aby uwzględnione
+     * zostały odpowiednie przykładu -- wyselekcjonowane przez drugą
+     * populację.
+     *
+     * <p>Drugi ewaluator jest kwestią otwartą. Można zaimplemenentować
+     * ocenę osobnika wybierającego na podstawie tego, jak bardzo
+     * utrudnił osobnikowi oceniającemu. W ten sposób wyselekcjonują
+     * najcięższe przypadki - przynajmniej w zamierzeniu...
+     *
+     * <p>Ocena osobników wybierających zależy od oceny osobników
+     * klasyfikujących i dlatego należy zadbać o poprawną kolejność
+     * wykonywania.
+     *
+     * <p>Z implementacyjnego punktu widzenia ta metoda realizuje
+     * strategię łączenia osobników wybierających z klasyfikującymi.
+     * Łączy osobników z dwóch populacji w pary, lub ujmując bardziej
+     * symbolicznie: 1-1 (jeden do jednego).
+     *
+     * <p>Istnieje możliwość obrania innej strategii łączenia. W
+     * ramach badań możnaby wypróbować: <ol>
+     * <li> 1-1 </li>
+     * <li> 1-n </li>
+     * <li> n-n </li>
+     * </ol>
      */
-    public long getGeneration() {
-        return generation;
+    private void evaluatePopulations(DataSource dSrc) {
+        assert selectingPopulation.size() == classifyingPopulation.size() :
+                "Co-evolving populations must be the same size";
+
+        Iterator<Selector> si = selectingPopulation.iterator();
+        Iterator<RuleSet> ci = classifyingPopulation.iterator();
+        Selector s;
+        RuleSet c;
+        while (si.hasNext() && ci.hasNext()) {
+            s = si.next();
+            c = ci.next();
+
+            // evaluation
+            c.evaluate(dSrc, s);
+            s.evaluateUsingClassifier(c);
+        }
+
+        classifyingPopulation.updateStatistics();
+        selectingPopulation.updateStatistics();
+
     }
 }

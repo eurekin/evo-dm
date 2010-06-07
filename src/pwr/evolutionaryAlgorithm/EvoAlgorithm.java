@@ -110,6 +110,7 @@ public class EvoAlgorithm {
         this.config = config;
         report = config.getReport();
         String prompt = config.getPrompt();
+        
         report.evoAlgInitStart(prompt);
         DataLoader.getDataLoader(config);
         report.evoAlgInitStop(prompt, DataLoader.FileSummary());

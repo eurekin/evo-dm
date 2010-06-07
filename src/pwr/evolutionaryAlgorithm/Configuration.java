@@ -64,10 +64,28 @@ public class Configuration implements Serializable {
     private String TestExFileReport;
     private boolean MUTATION_OF_CLASS = true;
     private float FITNESS_DEFAULT = -99f;
-    private boolean coevEcho;
+    private boolean coevSubEcho;
+    private boolean coevClsEcho;
     private float coevSelCrossoverProb;
     private float coevSelMutationProb;
     private boolean coevEnabled;
+
+    public boolean isCoevSubEcho() {
+        return coevSubEcho;
+    }
+
+    public void setCoevSubEcho(boolean coevSubEcho) {
+        this.coevSubEcho = coevSubEcho;
+    }
+
+    public boolean isCoevClsEcho() {
+        return coevClsEcho;
+    }
+
+    public void setCoevClsEcho(boolean coevClsEcho) {
+        this.coevClsEcho = coevClsEcho;
+    }
+
 
     public float getCoevSelMutationProb() {
         return coevSelMutationProb;
@@ -121,7 +139,8 @@ public class Configuration implements Serializable {
         FileComment = properties.getProperty("FILE_COMMENT");
         // Booleans
         ECHO = Boolean.parseBoolean(properties.getProperty("ECHO"));
-        coevEcho = Boolean.parseBoolean(properties.getProperty("coev.echo"));
+        coevClsEcho = Boolean.parseBoolean(properties.getProperty("coev.cls.echo"));
+        coevSubEcho = Boolean.parseBoolean(properties.getProperty("coev.sub.echo"));
         Fsc = Boolean.parseBoolean(properties.getProperty("FSC"));
         coevEnabled = Boolean.parseBoolean(properties.getProperty("coev.enabled"));
         // Floats
@@ -168,10 +187,6 @@ public class Configuration implements Serializable {
 
     public void setCoevEnabled(boolean coevEnabled) {
         this.coevEnabled = coevEnabled;
-    }
-
-    public boolean isCoevEcho() {
-        return coevEcho;
     }
 
     public enum MutationType {
@@ -353,6 +368,10 @@ public class Configuration implements Serializable {
         return this.TrainDataFileName;
     }
 
+    public void setTrainDataFileName(String TrainDataFileName) {
+        this.TrainDataFileName = TrainDataFileName;
+    }
+
     public void setReportFileName(String filename) {
         TestFileReport = filename;
         ReportIT = new Report(TestNumber, CrossValidation, TestFileReport, TestExFileReport);
@@ -455,6 +474,10 @@ public class Configuration implements Serializable {
 
     public void setComment(String Comment) {
         this.Comment = Comment;
+    }
+
+    public void setTestNumber(int TestNumber) {
+        this.TestNumber = TestNumber;
     }
 
     public void setCrossValidation(int CrossValidation) {

@@ -319,7 +319,11 @@ public class DataSource {
         sb.append("\n RECORDS=").append(data.size()).append("  Records_in_class ");
         int classes = DataLoader.getClassNumber();
         for (int i = 0; i < classes; i++) {
-            sb.append(" c").append(i).append(" [").append(dataExpectedByClass[i]).append("] ");
+            sb.append(" c");
+            sb.append(i);
+            sb.append(" [");
+            sb.append(dataExpectedByClass[i]);
+            sb.append("] ");
         }
         return sb.toString();
     }

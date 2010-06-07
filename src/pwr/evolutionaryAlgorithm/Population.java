@@ -2,7 +2,6 @@ package pwr.evolutionaryAlgorithm;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import pl.eurekin.coevolution.ClassifyingIndividual;
 import pl.eurekin.coevolution.Selector;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.utils.Rand;
@@ -131,12 +130,7 @@ public class Population<I extends Individual> implements Iterable<I> {
          * Subtypes goes first.
          */
         Individual r;
-        if (type instanceof ClassifyingIndividual) {
-            for (int i = 0; i < popSize; i++) {
-                r = new ClassifyingIndividual();
-                individuals.add((I) r);
-            }
-        } else if (type instanceof Selector) {
+         if (type instanceof Selector) {
             for (int i = 0; i < popSize; i++) {
                 r = new Selector();
                 individuals.add((I) r);

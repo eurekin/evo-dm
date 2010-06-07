@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import pl.eurekin.util.Configurator;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 //import java.awt.Toolkit;
 
@@ -55,6 +56,7 @@ public class Main {
 //        while (true) {
 //            for (int vala : testValues) {
 
+
         int count = 1;
         Clock clock = new Clock();
         Clock subClock = new Clock();
@@ -77,9 +79,7 @@ public class Main {
                         0.0f,
                         (float) MAX,
                         testedParameterMinRange,
-                        testedParameterMaxRange)
-
-                        );
+                        testedParameterMaxRange));
                 e = new EvoAlgorithm(config);
                 e.start();
                 subClock.Pause();
@@ -97,9 +97,11 @@ public class Main {
     }
 
     private static void testCrossvalidations() {
-        for (String configFilename : new String[]{"_glass", "_wine", "_diabetes", "_iris"})
-            for (int[] cv : new int[][]{{5, 2, 10}, {1, 5, 10}, {1, 3, 10}, {1, 10, 10}})
+        for (String configFilename : new String[]{"_glass", "_wine", "_diabetes", "_iris"}) {
+            for (int[] cv : new int[][]{{5, 2, 10}, {1, 5, 10}, {1, 3, 10}, {1, 10, 10}}) {
                 testCrossvalidation(configFilename, cv[0], cv[1], cv[2]);
+            }
+        }
     }
 
     private static void testCrossvalidation(String configFilename, int times, int Cv, int tests) {
@@ -108,7 +110,6 @@ public class Main {
         Configuration configuration = Configuration.getConfiguration();
         singleTestPointStop();
     }
-
     private static final String startTimeStr = (new Date()).toString();
     private static final Clock singleTestPointClock = new Clock();
     private static int singleTestPointNo = 0;

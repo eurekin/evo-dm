@@ -316,6 +316,9 @@ public class Report {
         csv.append(";").append(num4(testAccMax));
         csv.append(";");
 
+        System.out.println("\nbest  test acc " + num4(avgTestAcc));
+        System.out.println("best train acc " + num4(avgTrainAcc));
+
         return csv.toString().replace('.', ',');
     }
 
@@ -452,15 +455,15 @@ public class Report {
         String rep = "\n" + genReport(best, pop, generations);
         consoleReport(rep);
     }
+    public static final char DLM = ' ';
 
     public String genReport(Individual best,
             Population<? extends Individual> pop, long generations) {
         StringBuilder sb = new StringBuilder();
-        sb.append(generations).append(";");
-        sb.append(String.format("%.3f;", best.getFitness()));
-        sb.append(String.format("%.3f;", best.getAccuracy()));
-        sb.append(String.format("%.3f;", pop.getAvgFitness()));
-        sb.append(num3(pop.getWorstFitness()));
+        sb.append(generations);
+        sb.append(DLM).append(String.format("%.3f", best.getFitness()));
+        sb.append(DLM).append(String.format("%.3f", pop.getAvgFitness()));
+        sb.append(DLM).append(num3(pop.getWorstFitness()));
         String rep = sb.toString().replace(".", ",");
         return rep;
     }
@@ -498,6 +501,7 @@ public class Report {
 
             report.reportlnExText(sb.toString());
         }
+
     }
 
     /**

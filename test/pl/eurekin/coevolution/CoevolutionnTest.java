@@ -42,7 +42,7 @@ public class CoevolutionnTest {
         final FileLineReader properOutput =
                 new FileLineReader(TEMPLATE_FILE);
         System.setOut(new ComparingPrintStream(oldOut, properOutput));
-        Coevolutionn.main(null);
+        Coevolution.main(null);
     }
 
 }

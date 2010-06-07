@@ -170,8 +170,8 @@ public class DataLoader {
 
         //@todo: CROSSVALIDATION on GRAPHical files 
         //else SplitData( Configuration.getConfiguration().getCrossvalidationValue() );
-        //trainData.OrganizeData();
-        //testData.OrganizeData();
+        trainData.OrganizeData();
+        testData.OrganizeData();
     }
 
     public DataLoader(String words,
