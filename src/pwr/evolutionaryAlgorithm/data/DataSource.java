@@ -7,9 +7,7 @@ public class DataSource {
 
     private ArrayList<Record> data;
     private int dataExpectedByClass[];
-    /**
-     * INDEX. Could be cleanly abstracted as a list of DataIndex of some sort.
-     */
+
     private ArrayList<ArrayList<Linker>> index;
 
     private class Linker {
@@ -327,4 +325,10 @@ public class DataSource {
         }
         return sb.toString();
     }
+
+    public ArrayList<Record> getData() {
+        return data;
+    }
+
+    
 }

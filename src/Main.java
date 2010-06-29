@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import pl.eurekin.util.Configurator;
 import pwr.evolutionaryAlgorithm.utils.Clock;
 //import java.awt.Toolkit;
 
@@ -40,7 +39,6 @@ public class Main {
 //        List<Double> testValuesB = new ArrayList();
 //        testValues.addAll(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5}));
 //        testValues.addAll(range(10.0d, 5000d, 100));
-//        testValuesB.addAll(range(0.0d, 1.0d, 20));
 //        for (int i = 0; i < 45; i++) {
 //            double v = interpolate(i, 0, 45, 3, 6);
 //            double l = Math.pow(10, -v);
@@ -49,7 +47,8 @@ public class Main {
 
 
         //testValues.add(0d);
-        testValues.add(0.4d);
+//        testValues.addAll(range(0.0d, 1.0d, 100));
+//        testValues.add(0.4d);
 
 
         // Algorytm
@@ -61,8 +60,8 @@ public class Main {
         Clock clock = new Clock();
         Clock subClock = new Clock();
         System.out.println("Testowane parametry: " + Arrays.toString(testValues.toArray(new Double[]{})));
-        //for (double v = 0; v < 0.5d; v += 0.05d) {
-        for (double v : testValues) {
+        for (double v = 0.45d; v < 0.5d; v += 0.01d) {
+//        for (double v : testValues) {
             System.out.println("\n[MAIN] przebieg główny: " + count + " z " + testValues.size() + " (" + fraction(testValues.size(), count) + "%)");
             System.out.println("[MAIN] krzyzowanie           : " + v);
             clock.Reset();

@@ -139,15 +139,11 @@ public class Configuration implements Serializable {
         FileComment = properties.getProperty("FILE_COMMENT");
         // Booleans
         ECHO = Boolean.parseBoolean(properties.getProperty("ECHO"));
-        coevClsEcho = Boolean.parseBoolean(properties.getProperty("coev.cls.echo"));
-        coevSubEcho = Boolean.parseBoolean(properties.getProperty("coev.sub.echo"));
         Fsc = Boolean.parseBoolean(properties.getProperty("FSC"));
         coevEnabled = Boolean.parseBoolean(properties.getProperty("coev.enabled"));
         // Floats
         Pcrossover = Float.parseFloat(properties.getProperty("Pcrossover"));
         Pmutation = Float.parseFloat(properties.getProperty("Pmutation"));
-        coevSelCrossoverProb = Float.parseFloat(properties.getProperty("coev.sel.crossoverProb"));
-        coevSelMutationProb = Float.parseFloat(properties.getProperty("coev.sel.mutationProb"));
         StopEval = Float.parseFloat(properties.getProperty("StopEval"));
         // Integers
         RULE_ATTRIBUTES = Integer.parseInt(properties.getProperty("RULE_ATTRIBUTES"));                  //number of attributes
@@ -167,6 +163,16 @@ public class Configuration implements Serializable {
         // Long
         StopGeneration = Long.parseLong(properties.getProperty("StopGeneration"));
         ////////// CROSSOVER & MUTATION TYPE //////////////////////////////////////////////////////////
+        // COEVOLUTION SPECIFIC
+        // Try... catch block maintains backward compability
+        try {
+            coevSelCrossoverProb = Float.parseFloat(properties.getProperty("coev.sel.crossoverProb"));
+            coevSelMutationProb = Float.parseFloat(properties.getProperty("coev.sel.mutationProb"));
+            coevClsEcho = Boolean.parseBoolean(properties.getProperty("coev.cls.echo"));
+            coevSubEcho = Boolean.parseBoolean(properties.getProperty("coev.sub.echo"));
+        } catch (NullPointerException npe) {
+            System.out.println("WARN: Coevolution parameters undefined");
+        }
 
         if (Cross.equals("BCX")) {
             CROSSOVER = CrossoverType.BCX;

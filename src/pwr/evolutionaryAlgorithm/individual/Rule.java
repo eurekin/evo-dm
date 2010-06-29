@@ -24,6 +24,10 @@ public class Rule extends Individual {
     private final boolean oneClassActive = config.isOneClassActive();
     private final int activeClass = config.getActiveClass();
 
+    public int getSize() {
+        return conditionOnAttribute.size();
+    }
+
     /**
      * main constructor
      */

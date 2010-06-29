@@ -1,6 +1,12 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * 1. ograniczyć maksymalną liczbę wybieranych rekordów
+ *    (określić ile procent jest optymalne).
+ * 
+ * 2. wizualizacja 3d, 2d zbiory uczące + osobnik: GLASS, WINE
+ *
+ * 3. Rozpisać to na CUDA.
+ *
+ * 
  */
 package pl.eurekin.coevolution;
 
@@ -38,11 +44,12 @@ public class Coevolution {
         classifyingPopulation.evaluate(DataLoader.getTrainData());
     }
 
-    public void start() {
+    public RuleSet start() {
         final int testNo = report.getTestNumber();
         final int crossvalidationNo = config.getCrossvalidationValue();
         final Clock totalTimeClock = new Clock();
         final Clock myClock = new Clock();
+        BestIndividualSelector<RuleSet> simplyTheBest = new BestIndividualSelector<RuleSet>();
         bestOfFold = new BestIndividualSelector<RuleSet>();
         //CROSSVALIDATION CV TIMES
         DataLoader.doCrossvalidation();
@@ -65,7 +72,9 @@ public class Coevolution {
             DataLoader.doCrossvalidationNext();
         }
         //END: CROSSVALIDATION CV TIMES
+        simplyTheBest.rememberIfBest(bestOfFold.getBest());
         report.reportAllToFile(config, bestOfFold.getBest(), totalTimeClock);
+        return simplyTheBest.getBest();
     }
 
     /**
@@ -94,9 +103,10 @@ public class Coevolution {
             bestClsOfRun.rememberBestFrom(classifyingPopulation);
             bestSelOfRun.rememberBestFrom(selectingPopulation);
             reportGenerationEnd();
-            stop = config.getStopEval() <= classifyingPopulation.getBestFitness();
-            // stop |= config.getStopGeneration() == generation;
+            // stop = config.getStopEval() <= classifyingPopulation.getBestFitness();
+            stop = config.getStopGeneration() == generation;
         }
+        System.out.println("Generations = " + generation);
         //END: EA works
     }
 
@@ -145,7 +155,7 @@ public class Coevolution {
                 .dataset(IRIS) //
                 .mutationSimple(0.003f) //
                 .crossoverSimple(0f) //
-                .generations(400) //
+                .generations(2000) //
                 .populationSize(200) //
                 .tournamentSel(2) //
                 .crossvalidation(10, 1) //

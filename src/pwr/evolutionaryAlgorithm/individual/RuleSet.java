@@ -13,7 +13,6 @@ import pwr.evolutionaryAlgorithm.data.DataSet;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 
 /**
- *
  * @author pawelm
  */
 public class RuleSet extends Individual implements Iterable<Rule> {

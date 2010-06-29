@@ -18,7 +18,7 @@ public class BinaryCode {
             if (b.get(i)) {
                 value += 1 << i;
             }
-            // Math.pow(2.0f, i );
+//             Math.pow(2.0f, i );
         }
         return value;
     }

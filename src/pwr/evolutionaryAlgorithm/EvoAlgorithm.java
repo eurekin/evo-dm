@@ -22,7 +22,7 @@ public class EvoAlgorithm {
         rulePopulation.evaluate(DataLoader.getTrainData());
     }
 
-    public void start() {
+    public RuleSet start() {
         final int testNo = report.getTestNumber();
         final int crossvalidationNo = config.getCrossvalidationValue();
         final Clock totalTimeClock = new Clock();
@@ -50,6 +50,7 @@ public class EvoAlgorithm {
         }
         //END: CROSSVALIDATION CV TIMES
         report.reportAllToFile(config, bestOfFold.getBest(), totalTimeClock);
+        return bestOfFold.getBest();
     }
 
     /**

@@ -24,6 +24,11 @@ public class DataLoader {
     static private float dataArgMax[];
     static private int crossValidationUpdate = 0;
     static private ArrayList<ArrayList<Record>> CVstructure;
+    private static DataSource AllData;
+
+    public static DataSource getAllData() {
+        return AllData;
+    }
 
     /*
      * split randomly data into N parts
@@ -40,7 +45,7 @@ public class DataLoader {
         }
 
         //split data
-        DataSource AllData = new DataSource(trainData);
+        AllData = new DataSource(trainData);
         AllData.OrganizeData();
         int elements = AllData.size() / parts;
         for (int p = 0; p < parts; p++) {
@@ -85,6 +90,14 @@ public class DataLoader {
                 }
             }
         }
+        // corner case if parts == 1
+        if (parts == 1) {
+            for (Record r : CVstructure.get(0)) {
+                trainData.addRecord(r);
+            }
+        }
+
+
 //         Coevolution requires this identification
         for (int i = 0; i < trainData.size(); i++) {
             trainData.get(i).setId(i);
@@ -217,14 +230,12 @@ public class DataLoader {
             dataArguments = strLine.split("\t").length - 1;
             //////////////////////////////////////////////////////////////////////////
 
-            boolean MinMaxWasNull = false;
-            if (dataArgMax == null) {
-                dataArgMax = new float[dataArguments];
-                MinMaxWasNull = true;
-            }
-            if (dataArgMin == null) {
-                dataArgMin = new float[dataArguments];
-                MinMaxWasNull = true;
+            dataArgMax = new float[dataArguments];
+            dataArgMin = new float[dataArguments];
+
+            for (int i = 0; i < dataArguments; i++) {
+                dataArgMax[i] = Float.NEGATIVE_INFINITY;
+                dataArgMin[i] = Float.POSITIVE_INFINITY;
             }
 
 
@@ -241,16 +252,13 @@ public class DataLoader {
 
                     ///////////////////// MIN & MAX values /////////////////////
 
-                    float tym_value = tab[i];
+                    float val = tab[i];
 
-                    if (i == 0 && MinMaxWasNull == true) {
-                        dataArgMax[i] = dataArgMin[i] = tym_value;  //initalisation
+                    if (dataArgMax[i] < val) {
+                        dataArgMax[i] = val;
                     }
-                    if (dataArgMax[i] < tym_value) {
-                        dataArgMax[i] = tym_value;
-                    }
-                    if (dataArgMin[i] > tym_value) {
-                        dataArgMin[i] = tym_value;
+                    if (dataArgMin[i] > val) {
+                        dataArgMin[i] = val;
                     }
 
                     ////////////////////////////////////////////////////////////
@@ -413,5 +421,18 @@ public class DataLoader {
         s.append(testData.size());
         s.append(")");
         return s.toString();
+    }
+
+    // and now some useful API instead:
+    public static float[] getDataArgMax() {
+        return dataArgMax;
+    }
+
+    public static float[] getDataArgMin() {
+        return dataArgMin;
+    }
+
+    public static ArrayList<String> getDataClassNames() {
+        return dataClassNames;
     }
 }
