@@ -9,6 +9,7 @@ public class Record {
     private int id;
     private float[] values;
     private int className;
+    private int trueID;
 
     public int getId() {
         return id;
@@ -18,13 +19,20 @@ public class Record {
         this.id = id;
     }
 
+    public int getTrueID() {
+        return trueID;
+    }
+
     public Record() {
     }
+
+    
 
     Record(int id, float[] values, int className) {
         this.id = id;
         this.values = values;
         this.className = className;
+        this.trueID = id;
     }
 
     /**

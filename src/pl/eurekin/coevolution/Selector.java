@@ -119,7 +119,6 @@ public class Selector extends Individual {
         // Evaluate on dSrc? Doesn't work this way...
         // Selector has to be evaluated on corresponding
         // classiffying individual - RuleSet to be exact.
-        
         // can't throw
         // have to be noop
         // throw new UnsupportedOperationException("use evaluateUsingClassifier()");
@@ -162,8 +161,11 @@ public class Selector extends Individual {
         return result;
     }
 
-    private boolean isSelected(Record rec) {
-        assert rec.getId() < chromosome.length();
+    public boolean isSelected(int r) {
+        return chromosome.get(r);
+    }
+
+    public boolean isSelected(Record rec) {
         return chromosome.get(rec.getId());
     }
 

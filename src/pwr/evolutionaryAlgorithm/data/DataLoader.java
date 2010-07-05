@@ -79,6 +79,9 @@ public class DataLoader {
 
     private static void initCrossvalidationFold(int fold) {
         int parts = Configuration.getConfiguration().getCrossvalidationValue();
+        if (fold >= parts) {
+            return;
+        }
         testData.clear();
         trainData.clear();
         for (int part = 0; part < parts; part++) {

@@ -110,6 +110,14 @@ public class Coevolution {
         //END: EA works
     }
 
+    public CoevolutionEventListener getListener() {
+        return listener;
+    }
+
+    public void setListener(CoevolutionEventListener listener) {
+        this.listener = listener;
+    }
+
     private void reportGenerationEnd() {
         boolean rep = false;
         StringBuilder sb = new StringBuilder();
@@ -136,6 +144,9 @@ public class Coevolution {
         if (rep) {
             report.consoleReport(sb.toString());
         }
+        if(listener!=null) {
+            listener.evolvedAGeneration(selectingPopulation, classifyingPopulation);
+        }
     }
 
     /**
@@ -149,23 +160,6 @@ public class Coevolution {
         classifyingPopulation.init();
     }
 
-    public static void main(String[] args) {
-        Configuration.setConfiguration(new Configurator() //
-                // CONFIGURATION BEGIN
-                .dataset(IRIS) //
-                .mutationSimple(0.003f) //
-                .crossoverSimple(0f) //
-                .generations(2000) //
-                .populationSize(200) //
-                .tournamentSel(2) //
-                .crossvalidation(10, 1) //
-                // CONFIGURATION END
-                .build());//
-
-        Coevolution coev = new Coevolution(Configuration.getConfiguration());
-        coev.start();
-    }
-
     public Coevolution(String ConfigFileName, String ResearchComment) {
         this(setConfiguration(ConfigFileName, ResearchComment));
     }
@@ -174,6 +168,12 @@ public class Coevolution {
             String researchComment) {
         Configuration.newConfiguration(configFileName, researchComment);
         return Configuration.getConfiguration();
+    }
+    CoevolutionEventListener listener;
+
+    public Coevolution(Configuration config, CoevolutionEventListener listener) {
+        this(config);
+        this.listener = listener;
     }
 
     public Coevolution(Configuration config) {
