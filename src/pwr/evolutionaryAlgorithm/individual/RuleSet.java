@@ -17,9 +17,6 @@ import pwr.evolutionaryAlgorithm.data.DataSource;
  */
 public class RuleSet extends Individual implements Iterable<Rule> {
 
-    /*
-     * TODO: remove this const form here!
-     */
     private static boolean fixedLength = false;
     private final int classesNo = Configuration.getClassesNo();
     private ArrayList<Rule> rules;
@@ -67,19 +64,15 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     @Override
     public void init() {
         this.rules.clear();
-
         int RULES = Rand.getRandomInt(config.getNumberOfRules()) + 1;
-
         if (!fixedLength) {
             RULES = config.getNumberOfRules();
         }
-
         for (int i = 0; i < RULES; i++) {
             Rule r = new Rule();
             this.rules.add(r);
             this.rules.get(i).init();
         }
-
         this.clearEvaluations();
     }
 
@@ -179,7 +172,6 @@ public class RuleSet extends Individual implements Iterable<Rule> {
     /**
      * Random cut gives one individual as offsping
      * Chromosome FIXED lenght updated 
-     * 
      */
     private static Individual crossoverSimpleCut(Individual mother, Individual father) {
 
@@ -302,7 +294,6 @@ public class RuleSet extends Individual implements Iterable<Rule> {
         doCountTotalEvaluation(classNo);
     }
 
-    // // // //
     @Override
     public void evaluate(DataSource dSrc) {
         evaluate(dSrc, null);

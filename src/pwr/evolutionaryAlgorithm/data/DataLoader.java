@@ -47,6 +47,7 @@ public class DataLoader {
         //split data
         AllData = new DataSource(trainData);
         AllData.OrganizeData();
+//        if(parts==1) return;
         int elements = AllData.size() / parts;
         for (int p = 0; p < parts; p++) {
             for (int e = 0; e < elements; e++) {
@@ -133,11 +134,11 @@ public class DataLoader {
         return dataClassNames.get(i);
     }
 
-    static float getArgMin(int argID) {
+    public static float getArgMin(int argID) {
         return dataArgMin[argID];
     }
 
-    static float getArgMax(int argID) {
+    public static float getArgMax(int argID) {
         return dataArgMax[argID];
     }
 

@@ -1,6 +1,7 @@
 package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
+import java.util.List;
 import pwr.evolutionaryAlgorithm.data.DataSource;
 import pwr.evolutionaryAlgorithm.data.Evaluation;
 
@@ -24,6 +25,9 @@ public abstract class Individual {
 
     public Evaluation getEvaluation(int cl) {
         return evaluations.get(cl);
+    }
+    public List<Evaluation> getEvaluations() {
+        return evaluations;
     }
 
     public void setEvaluation(int cl, Evaluation evl) {

@@ -49,14 +49,14 @@ public class Condition {
      * @param value1 float value <0.0 , 1.0 >
      * @param value2 float value <0.0 , 1.0 >
      */
-    public Condition(int atribID, RelationType r, float value1, float value2)  {
+    public Condition(int atribID, RelationType r, float value1, float value2) {
 
         /*
         if (atribID < 0 || atribID > Configuration.getConfiguration().getNumberOfAttributes()) {
-            throw new RuntimeException("Illegal attributes number! " + Integer.toString(atribID) + " ?");
+        throw new RuntimeException("Illegal attributes number! " + Integer.toString(atribID) + " ?");
         }
         if (value1 < 0.0f || value1 > 1.0f || value2 < 0.0f || value2 > 1.0f) {
-            throw new RuntimeException("Illegal types! ?" + Float.toString(value1) + " ?" + Float.toString(value1));
+        throw new RuntimeException("Illegal types! ?" + Float.toString(value1) + " ?" + Float.toString(value1));
         }*/
 
         this.atribID = atribID;
@@ -64,10 +64,11 @@ public class Condition {
 
         final float argMax = DataLoader.getArgMax(atribID);
         final float argMin = DataLoader.getArgMin(atribID);
+        final float range = argMax - argMin;
 
         //rescale from <0.0 , 1.0> to <min, max>
-        this.value1 = value1 * (argMax - argMin) + argMin;
-        this.value2 = value2 * (argMax - argMin) + argMin;
+        this.value1 = value1 * (range) + argMin;
+        this.value2 = value2 * (range) + argMin;
     }
 
     @Override

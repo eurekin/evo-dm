@@ -2,6 +2,7 @@ package pwr.evolutionaryAlgorithm.individual;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Iterator;
 import pwr.evolutionaryAlgorithm.Configuration;
 import pwr.evolutionaryAlgorithm.Configuration.MutationType;
 import pwr.evolutionaryAlgorithm.data.Condition;
@@ -11,7 +12,7 @@ import pwr.evolutionaryAlgorithm.data.Evaluation;
 import pwr.evolutionaryAlgorithm.utils.BinaryCode;
 import pwr.evolutionaryAlgorithm.utils.Rand;
 
-public class Rule extends Individual {
+public class Rule extends Individual implements Iterable<RuleGene> {
 
     private boolean active; //a bit informs if rule is active
     private ArrayList<RuleGene> conditionOnAttribute;
@@ -124,10 +125,6 @@ public class Rule extends Individual {
     public String toString() {
         return this.toStringBeauty();
     }
-
-
-
-
 
     @Override
     public Individual mutate() {
@@ -393,5 +390,10 @@ public class Rule extends Individual {
     @Override
     public Individual getACopy() {
         return new Rule(this);
+    }
+
+    @Override
+    public Iterator<RuleGene> iterator() {
+        return conditionOnAttribute.listIterator();
     }
 }
