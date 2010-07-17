@@ -1,10 +1,11 @@
 package pwr.evolutionaryAlgorithm.data;
 
+import data.DataAnchor;
+import java.io.InputStream;
 import pwr.evolutionaryAlgorithm.Configuration;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -227,7 +228,10 @@ public class DataLoader {
     private DataSource LoadCSVFile(String FileName) {
         DataSource DS = new DataSource();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(FileName));
+            ClassLoader cl = DataAnchor.class.getClassLoader();
+            InputStream url = cl.getResourceAsStream( FileName);
+            BufferedReader br = new BufferedReader(new InputStreamReader(url));
+//            BufferedReader br = new BufferedReader(new FileReader(new File(url.toURI())));
             String strLine = br.readLine();
             int from, to;
             ///////////////////// number of fields? ///////////////////////

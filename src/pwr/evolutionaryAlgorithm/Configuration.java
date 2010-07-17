@@ -1,7 +1,6 @@
 package pwr.evolutionaryAlgorithm;
 
-import java.io.File;
-import java.io.FileInputStream;
+import configs.ConfigAnchor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +85,6 @@ public class Configuration implements Serializable {
         this.coevClsEcho = coevClsEcho;
     }
 
-
     public float getCoevSelMutationProb() {
         return coevSelMutationProb;
     }
@@ -110,10 +108,10 @@ public class Configuration implements Serializable {
         S.append(".properties");
         System.setProperty("file.encoding", "UTF-8");
         Properties properties = new Properties();
-        File f = new File(S.toString());
-        InputStream is;
+
+        ClassLoader cl = ConfigAnchor.class.getClassLoader();
+        InputStream is = cl.getResourceAsStream(S.toString());
         try {
-            is = new FileInputStream(f);
             properties.load(is);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
