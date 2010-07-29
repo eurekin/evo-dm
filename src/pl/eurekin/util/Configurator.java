@@ -34,6 +34,12 @@ public class Configurator {
         GLASS,
         DIABETES,
         IRIS_CRIPPLED;
+
+        @Override
+        public String toString() {
+
+            return EnumHelper.getHumanReadableName(this);
+        }
     };
     private Dataset dataset = Dataset.IRIS;
     private MutationType mutType = MutationType.SM;
