@@ -1,4 +1,3 @@
-
 import pwr.evolutionaryAlgorithm.EvoAlgorithm;
 import pwr.evolutionaryAlgorithm.Configuration;
 import java.util.ArrayList;
