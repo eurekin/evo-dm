@@ -1,0 +1,11 @@
+* Koewolucja jako filtr
+W zwi±zku z tym, ¿e koewolucja nie usprawni³a wyników (jako¶ci
+klasyfikacji) chcia³bym sprawdziæ czy istnieje mo¿liwo¶æ jej
+zastosowania do czego¶ innego. Skoro mam podzia³ na dwie populacje
+oraz dostaje pewn± ocenê osobników wybieraj±cych to mo¿liwe, ¿e ta
+informacja przyda siê przy ocenianiu, czy dany element danych ucz±cych
+jest problematyczny.
+** Opis filtru
+** Syntetyczne dane
+** Opis badanie
+** Wyniki
