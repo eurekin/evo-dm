@@ -10,3 +10,8 @@
 
 # Result files
 *.csv
+
+# Emacs backup files
+*~
+# Emacs file locks
+.#*
