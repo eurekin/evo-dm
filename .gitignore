@@ -1,5 +1,5 @@
 # NetBeans project folder
-/nbproject/*
+/nbproject/private/*
 
 # Builds
 /dist/*
