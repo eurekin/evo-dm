@@ -7,5 +7,7 @@ informacja przyda siê przy ocenianiu, czy dany element danych ucz±cych
 jest problematyczny.
 ** Opis filtru
 ** Syntetyczne dane
+Jak w tym badziewiu wygenerowaæ zbiór danych? Wygeneruje sobie plik
+tekstowy....
 ** Opis badanie
 ** Wyniki
